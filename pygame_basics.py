@@ -60,21 +60,29 @@ class Player(pygame.sprite.Sprite):
         try:
             # Load static image
             if os.path.isfile("assets/player/Sanic Base.png"):
-                self.static_image = pygame.image.load("assets/player/Sanic Base.png").convert_alpha()
-                self.static_image = pygame.transform.scale(self.static_image, (160, 160))
+                self.static_image = pygame.image.load(
+                    "assets/player/Sanic Base.png"
+                ).convert_alpha()
+                self.static_image = pygame.transform.scale(
+                    self.static_image, (120, 120)
+                )
 
             # Load animation sprite sheet
             if os.path.isfile("assets/player/Sanic Annimate.png"):
-                sprite_sheet = pygame.image.load("assets/player/Sanic Annimate.png").convert_alpha()
+                sprite_sheet = pygame.image.load(
+                    "assets/player/Sanic Annimate.png"
+                ).convert_alpha()
 
                 # Extract the 4 frames
                 frame_width = sprite_sheet.get_height()
 
                 for i in range(4):
                     # Cut out a region of the sprite sheet
-                    frame = sprite_sheet.subsurface((i * 2207, 0, frame_width, frame_width))
+                    frame = sprite_sheet.subsurface(
+                        (i * 2207, 0, frame_width, frame_width)
+                    )
                     # Resize the frame
-                    frame = pygame.transform.scale(frame, (160, 160))
+                    frame = pygame.transform.scale(frame, (120, 120))
                     self.animation_frames.append(frame)
 
         except Exception as e:
@@ -83,8 +91,13 @@ class Player(pygame.sprite.Sprite):
     def update_animation(self):
         if self.moving:
             # Only animate when moving
-            if self.animation_frames and time.time() - self.last_update > self.animation_speed:
-                self.current_frame = (self.current_frame + 1) % len(self.animation_frames)
+            if (
+                self.animation_frames
+                and time.time() - self.last_update > self.animation_speed
+            ):
+                self.current_frame = (self.current_frame + 1) % len(
+                    self.animation_frames
+                )
                 self.surf = self.animation_frames[self.current_frame]
                 self.last_update = time.time()
         else:
@@ -189,7 +202,9 @@ while True:
     displaysurface.blit(fps_text, (10, 10))
 
     # Display player coordinates
-    pos_text = font.render(f"X: {int(P1.pos.x)}, Y: {int(P1.pos.y)}", True, (255, 255, 255))
+    pos_text = font.render(
+        f"X: {int(P1.pos.x)}, Y: {int(P1.pos.y)}", True, (255, 255, 255)
+    )
     displaysurface.blit(pos_text, (10, 40))
 
     pygame.display.update()
