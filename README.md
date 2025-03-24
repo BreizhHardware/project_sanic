@@ -1,5 +1,32 @@
 # project_sanic
 
+## Installation
+Pour installer le jeu, vous devez cloner le dépôt GitHub sur votre ordinateur. Vous pouvez le faire en exécutant la commande suivante dans votre terminal :
+
+```bash
+git clone https://github.com/breizhhardware/project_sanic.git
+```
+
+Ensuite, vous devez installer les dépendances du jeu. Vous pouvez le faire en exécutant la commande suivante :
+
+```bash
+pip install -r requirements.txt
+```
+
+## Lancement
+Pour lancer le jeu, vous devez exécuter le fichier `main.py` avec Python. Vous pouvez le faire en exécutant la commande suivante :
+
+```bash
+python main.py
+```
+
+## Création du requierements.txt
+Pour créer le fichier `requirements.txt`, vous pouvez exécuter la commande suivante :
+
+```bash
+pip freeze > requirements.txt
+```
+
 ## Concept de Jeu
 ### Personnage Principal
 Nom : Sanic
