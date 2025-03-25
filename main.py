@@ -3,18 +3,15 @@ import sys
 from pygame.locals import *
 
 # Import from pygame_basics
-from src.pygame_basics import (
-    WIDTH,
-    HEIGHT,
-    FPS,
-    displaysurface,
-    FramePerSec,
-    font,
+from src.game import (
     initialize_game,
 )
 
+from src.constant import displaysurface, FramePerSec, font, FPS, WIDTH, HEIGHT
+
 # Import from menu
-from src.menu import Menu, Leaderboard
+from src.Menu.Menu import Menu
+from src.Menu.Leaderboard import Leaderboard
 
 
 def main():
