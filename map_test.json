@@ -1,0 +1,158 @@
+{
+  "name": "Level 1",
+  "width": 2400,
+  "height": 800,
+  "background": "forest_bg.png",
+  "gravity": 1.0,
+
+  "ground": [
+    {
+      "id": "main_ground",
+      "x": 0,
+      "y": 780,
+      "width": 2400,
+      "height": 20,
+      "texture": "grass_texture.png"
+    },
+    {
+      "id": "pit",
+      "x": 800,
+      "y": 780,
+      "width": 200,
+      "height": 20,
+      "is_hole": true
+    }
+  ],
+
+  "platforms": [
+    {
+      "id": "platform1",
+      "x": 300,
+      "y": 600,
+      "width": 200,
+      "height": 20,
+      "texture": "stone_platform.png",
+      "is_moving": false
+    },
+    {
+      "id": "platform2",
+      "x": 700,
+      "y": 500,
+      "width": 150,
+      "height": 20,
+      "texture": "wood_platform.png",
+      "is_moving": true,
+      "movement": {
+        "type": "linear",
+        "points": [
+          {"x": 700, "y": 500},
+          {"x": 700, "y": 300}
+        ],
+        "speed": 2.0,
+        "wait_time": 1.0
+      }
+    },
+    {
+      "id": "platform3",
+      "x": 1200,
+      "y": 400,
+      "width": 100,
+      "height": 20,
+      "texture": "metal_platform.png",
+      "is_moving": true,
+      "movement": {
+        "type": "circular",
+        "center": {"x": 1200, "y": 400},
+        "radius": 100,
+        "speed": 0.02,
+        "clockwise": true
+      }
+    }
+  ],
+
+  "enemies": [
+    {
+      "id": "enemy1",
+      "type": "walker",
+      "x": 500,
+      "y": 760,
+      "health": 100,
+      "damage": 20,
+      "behavior": "patrol",
+      "patrol_points": [
+        {"x": 400, "y": 760},
+        {"x": 600, "y": 760}
+      ],
+      "speed": 1.5,
+      "sprite_sheet": "walker_enemy.png"
+    },
+    {
+      "id": "enemy2",
+      "type": "flyer",
+      "x": 1000,
+      "y": 400,
+      "health": 50,
+      "damage": 10,
+      "behavior": "chase",
+      "detection_radius": 200,
+      "speed": 2.0,
+      "sprite_sheet": "flying_enemy.png"
+    },
+    {
+      "id": "enemy3",
+      "type": "turret",
+      "x": 1500,
+      "y": 700,
+      "health": 200,
+      "damage": 30,
+      "behavior": "stationary",
+      "attack_interval": 2.0,
+      "attack_range": 300,
+      "sprite_sheet": "turret_enemy.png"
+    }
+  ],
+
+  "collectibles": [
+    {
+      "id": "coin1",
+      "type": "coin",
+      "x": 350,
+      "y": 550,
+      "value": 10,
+      "sprite": "coin.png"
+    },
+    {
+      "id": "power_up1",
+      "type": "speed_boost",
+      "x": 900,
+      "y": 450,
+      "duration": 5.0,
+      "sprite": "speed_boost.png"
+    }
+  ],
+
+  "checkpoints": [
+    {
+      "id": "checkpoint1",
+      "x": 1200,
+      "y": 760,
+      "width": 50,
+      "height": 50,
+      "sprite": "checkpoint.png"
+    }
+  ],
+
+  "spawn_point": {
+    "x": 50,
+    "y": 700
+  },
+
+  "exit": {
+    "x": 2300,
+    "y": 700,
+    "width": 50,
+    "height": 80,
+    "next_level": "Level 2",
+    "sprite": "door.png"
+  }
+}

@@ -149,13 +149,13 @@ class Player(Entity):
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
 
-        # Prevent the player from moving off-screen horizontally
-        if self.pos.x > WIDTH - self.rect.width / 2:
-            self.pos.x = WIDTH - self.rect.width / 2
-            self.vel.x = 0
-        if self.pos.x < self.rect.width / 2:
-            self.pos.x = self.rect.width / 2
-            self.vel.x = 0
+        # Remove screen boundary restrictions
+        # if self.pos.x > WIDTH - self.rect.width / 2:
+        #     self.pos.x = WIDTH - self.rect.width / 2
+        #     self.vel.x = 0
+        # if self.pos.x < self.rect.width / 2:
+        #     self.pos.x = self.rect.width / 2
+        #     self.vel.x = 0
 
         self.rect.midbottom = self.pos
 

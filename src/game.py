@@ -4,23 +4,34 @@ from pygame.locals import *
 from src.Entity.Platform import Platform
 from src.Entity.Player import Player
 from src.constant import displaysurface, FramePerSec, font, FPS, platforms, all_sprites
+from src.Map.parser import MapParser
 
 
-def initialize_game():
-    # Clear previous sprites if any
-    platforms.empty()
-    all_sprites.empty()
+def initialize_game(map_file="map_test.json"):
+    """Initialize game with map from JSON file"""
+    parser = MapParser()
+    map_objects = parser.load_map(map_file)
 
-    # Create new game objects
-    PT1 = Platform(1200, 20, 200, 400)
-    P1 = Player()
+    if not map_objects:
+        # Fallback to default setup if map loading fails
+        platforms.empty()
+        all_sprites.empty()
 
-    # Add them to the groups
-    platforms.add(PT1)
-    all_sprites.add(PT1)
-    all_sprites.add(P1)
+        PT1 = Platform(1200, 20, 600, 400)
+        P1 = Player()
 
-    return P1, PT1, platforms, all_sprites
+        platforms.add(PT1)
+        all_sprites.add(PT1)
+        all_sprites.add(P1)
+
+        return P1, PT1, platforms, all_sprites
+
+    return (
+        map_objects["player"],
+        None,  # No specific platform reference needed
+        map_objects["platforms"],
+        map_objects["all_sprites"],
+    )
 
 
 def run_game(P1, all_sprites):
