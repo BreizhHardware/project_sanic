@@ -37,7 +37,7 @@ def main():
     leaderboard = Leaderboard()
 
     # Initialize game components
-    P1, PT1, platforms, all_sprites = initialize_game("map_test.json")
+    P1, PT1, platforms, all_sprites, background = initialize_game("map_test.json")
 
     # Main game loop
     while True:
@@ -111,6 +111,12 @@ def main():
 
             # Clear screen
             displaysurface.fill((0, 0, 0))
+
+            if background:
+                parallax_factor = 0.3
+                bg_x = camera.camera.x * parallax_factor
+                bg_y = camera.camera.y * parallax_factor
+                displaysurface.blit(background, (bg_x, bg_y))
 
             # Draw all sprites with camera offset applied
             for entity in all_sprites:

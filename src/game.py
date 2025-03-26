@@ -24,13 +24,14 @@ def initialize_game(map_file="map_test.json"):
         all_sprites.add(PT1)
         all_sprites.add(P1)
 
-        return P1, PT1, platforms, all_sprites
+        return P1, PT1, platforms, all_sprites, None  # Return None for background
 
     return (
         map_objects["player"],
         None,  # No specific platform reference needed
         map_objects["platforms"],
         map_objects["all_sprites"],
+        parser.background,  # Return the loaded background
     )
 
 

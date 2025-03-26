@@ -56,6 +56,8 @@ class MapParser:
                         ground["height"],
                         ground["x"] + ground["width"] / 2,
                         ground["y"],
+                        (255, 0, 0),
+                        ground["texture"],
                     )
                     self.platforms.add(platform)
                     self.all_sprites.add(platform)
@@ -68,6 +70,8 @@ class MapParser:
                     platform_data["height"],
                     platform_data["x"] + platform_data["width"] / 2,
                     platform_data["y"],
+                    (255, 0, 0),
+                    platform_data["texture"],
                 )
 
                 # Add moving platform properties if needed
@@ -108,3 +112,15 @@ class MapParser:
         # Create collectibles (requires Collectible class implementation)
         if "collectibles" in map_data:
             pass  # You'll need to implement collectible creation
+
+        # Create background image
+        if "background" in map_data:
+            print(f"Loading background image: {map_data['background']}")
+            if os.path.isfile(map_data["background"]):
+                background = pygame.image.load(map_data["background"]).convert_alpha()
+                background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+                self.background = background
+            else:
+                print(f"Background image not found: {map_data['background']}")
+        else:
+            self.background = None
