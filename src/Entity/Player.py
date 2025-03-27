@@ -7,7 +7,7 @@ import time
 
 
 class Player(Entity):
-    def __init__(self, width=120, height=120, x=10, y=385):
+    def __init__(self, width=100, height=100, x=10, y=385):
         super().__init__(pos=(x, y), size=(width, height), color=(128, 255, 40))
 
         # Animation variables
@@ -39,7 +39,7 @@ class Player(Entity):
                     "assets/player/Sanic Base.png"
                 ).convert_alpha()
                 self.static_image = pygame.transform.scale(
-                    self.static_image, (120, 120)
+                    self.static_image, (100, 100)
                 )
 
             # Load regular animation sprite sheet
@@ -49,15 +49,16 @@ class Player(Entity):
                 ).convert_alpha()
 
                 # Extract the 4 frames
-                frame_width = sprite_sheet.get_height()
+                frame_height = sprite_sheet.get_height()
+                frame_width = sprite_sheet.get_width() // 4
 
                 for i in range(4):
                     # Cut out a region of the sprite sheet
                     frame = sprite_sheet.subsurface(
-                        (i * 2207, 0, frame_width, frame_width)
+                        (i * 2290, 0, frame_width, frame_height)
                     )
                     # Resize the frame
-                    frame = pygame.transform.scale(frame, (120, 120))
+                    frame = pygame.transform.scale(frame, (100, 100))
                     self.animation_frames.append(frame)
 
             # Load jump animation sprite sheet
@@ -67,7 +68,7 @@ class Player(Entity):
                         pygame.image.load(
                             "assets/player/Sanic Boule.png"
                         ).convert_alpha(),
-                        (120, 120),
+                        (80, 80),
                     )
                 )
 
@@ -77,14 +78,13 @@ class Player(Entity):
                     "assets/player/Sanic Boule Annimate.png"
                 ).convert_alpha()
 
-                # Extract the frames with 2000px gap
                 dash_frame_height = dash_sheet.get_height()
 
                 for i in range(4):  # Assuming 4 frames
                     frame = dash_sheet.subsurface(
                         (i * 2000, 0, dash_frame_height, dash_frame_height)
                     )
-                    frame = pygame.transform.scale(frame, (120, 120))
+                    frame = pygame.transform.scale(frame, (80, 80))
                     self.dash_frames.append(frame)
 
         except Exception as e:

@@ -10,7 +10,7 @@ HEIGHT = 800
 platforms = pygame.sprite.Group()
 vec = pygame.math.Vector2
 displaysurface = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-pygame.display.set_caption("Game")
+pygame.display.set_caption("Project Sanic")
 FramePerSec = pygame.time.Clock()
 all_sprites = pygame.sprite.Group()
 fullscreen = False
