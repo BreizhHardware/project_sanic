@@ -1,9 +1,8 @@
 from src.Entity.Entity import Entity
-from src.constant import WIDTH, vec, ACC, FRIC, platforms
+from src.constant import WIDTH, vec, ACC, FRIC, platforms, FPS
 from pygame import *
 import pygame
 import os
-import time
 
 
 class Player(Entity):
@@ -27,6 +26,13 @@ class Player(Entity):
         self.dash_start_time = 0
         self.dash_duration = 500  # 1/2 second activation time
         self.dash_cooldown = 3000  # 3 seconds cooldown
+
+        # Life system
+        self.max_lives = 2
+        self.lives = 2
+        self.invulnerable = False
+        self.invulnerable_timer = 0
+        self.invulnerable_duration = 1.5
 
         # Load images
         self.load_images()
@@ -199,3 +205,43 @@ class Player(Entity):
                 self.pos.y = hits[0].rect.top
                 self.vel.y = 0
                 self.jumping = False
+
+        if self.invulnerable:
+            self.invulnerable_timer += 1 / FPS
+            if self.invulnerable_timer >= self.invulnerable_duration:
+                self.invulnerable = False
+                self.invulnerable_timer = 0
+
+    def take_damage(self, amount=1):
+        """Reduce life number if not invulnerable"""
+        if not self.invulnerable:
+            self.lives -= amount
+
+            if self.lives <= 0:
+                self.death()
+            else:
+                # Période d'invulnérabilité temporaire
+                self.invulnerable = True
+                self.invulnerable_timer = 0
+
+    def death(self):
+        """Display menu to the player"""
+        death_event = pygame.event.Event(pygame.USEREVENT, {"action": "player_death"})
+        pygame.event.post(death_event)
+        print("Player died! Returning to menu...")
+
+    def draw_lives(self, surface):
+        """Display remaning live on the top right of the screen"""
+        radius = 10
+        spacing = 5
+        start_x = surface.get_width() - (self.max_lives * (radius * 2 + spacing))
+        start_y = 20
+
+        for i in range(self.max_lives):
+            color = (255, 0, 0) if i < self.lives else (100, 100, 100)
+            pygame.draw.circle(
+                surface,
+                color,
+                (start_x + i * (radius * 2 + spacing) + radius, start_y),
+                radius,
+            )

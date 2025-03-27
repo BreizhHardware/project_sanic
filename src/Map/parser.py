@@ -3,6 +3,7 @@ import pygame
 import os
 from src.Entity.Platform import Platform
 from src.Entity.Player import Player
+from src.Entity.Enemy import Enemy
 from src.constant import WIDTH, HEIGHT, all_sprites, platforms
 
 
@@ -107,7 +108,12 @@ class MapParser:
 
         # Create enemies (requires Enemy class implementation)
         if "enemies" in map_data:
-            pass  # You'll need to implement enemy creation
+            # Create enemies
+            if "enemies" in map_data:
+                for enemy_data in map_data["enemies"]:
+                    enemy = Enemy(enemy_data)
+                    self.enemies.add(enemy)
+                    self.all_sprites.add(enemy)
 
         # Create collectibles (requires Collectible class implementation)
         if "collectibles" in map_data:
