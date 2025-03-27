@@ -68,7 +68,7 @@ class Player(Entity):
                         pygame.image.load(
                             "assets/player/Sanic Boule.png"
                         ).convert_alpha(),
-                        (100, 100),
+                        (80, 80),
                     )
                 )
 
@@ -84,7 +84,7 @@ class Player(Entity):
                     frame = dash_sheet.subsurface(
                         (i * 2000, 0, dash_frame_height, dash_frame_height)
                     )
-                    frame = pygame.transform.scale(frame, (100, 100))
+                    frame = pygame.transform.scale(frame, (80, 80))
                     self.dash_frames.append(frame)
 
         except Exception as e:
