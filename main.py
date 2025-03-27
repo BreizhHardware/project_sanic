@@ -1,7 +1,7 @@
 import pygame
 import sys
 from pygame.locals import *
-from src.game import initialize_game
+from src.game import initialize_game, reset_game
 from src.constant import (
     displaysurface,
     FramePerSec,
@@ -79,6 +79,7 @@ def main():
             if current_state == MENU:
                 action = menu.handle_event(event)
                 if action == "play":
+                    P1, platforms, all_sprites, background = reset_game()
                     current_state = PLAYING
                 elif action == "infinite":
                     current_state = INFINITE

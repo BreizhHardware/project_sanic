@@ -5,6 +5,7 @@ from src.Entity.Platform import Platform
 from src.Entity.Player import Player
 from src.constant import displaysurface, FramePerSec, font, FPS, platforms, all_sprites
 from src.Map.parser import MapParser
+from src.Camera import Camera
 
 
 def initialize_game(map_file="map_test.json"):
@@ -67,6 +68,20 @@ def run_game(P1, all_sprites):
 
         pygame.display.update()
         FramePerSec.tick(FPS)
+
+
+def reset_game():
+    """Reset the game to initial state"""
+    global platforms, all_sprites, camera
+
+    # Empty all sprite groups
+    platforms.empty()
+    all_sprites.empty()
+
+    # Reload game objects
+    player, _, platforms, all_sprites, background = initialize_game("map_test.json")
+
+    return player, platforms, all_sprites, background
 
 
 if __name__ == "__main__":
