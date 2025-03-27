@@ -16,11 +16,17 @@ class Player(Entity):
         self.dash_frames = []
         self.current_frame = 0
         self.animation_speed = 0.1
-        self.last_update = time.time()
+        self.last_update = pygame.time.get_ticks()
         self.static_image = None
         self.moving = False
         self.dashing = False
         self.jumping = False
+
+        # Dash mechanics
+        self.last_dash_time = 0
+        self.dash_start_time = 0
+        self.dash_duration = 500  # 1/2 second activation time
+        self.dash_cooldown = 3000  # 3 seconds cooldown
 
         # Load images
         self.load_images()
@@ -91,18 +97,18 @@ class Player(Entity):
             print(f"Error loading player images: {e}")
 
     def update_animation(self):
-        current_time = time.time()
+        current_time = pygame.time.get_ticks()
 
         # Priority: Dashing > Jumping > Moving > Static
         if self.dashing and self.dash_frames:
-            if current_time - self.last_update > self.animation_speed:
+            if current_time - self.last_update > self.animation_speed * 1000:
                 self.current_frame = (self.current_frame + 1) % len(self.dash_frames)
                 self.surf = self.dash_frames[self.current_frame]
                 self.last_update = current_time
         elif self.jumping and self.jump_frames:
             self.surf = self.jump_frames[0]  # Use jump frame
         elif self.moving and self.animation_frames:
-            if current_time - self.last_update > self.animation_speed:
+            if current_time - self.last_update > self.animation_speed * 1000:
                 self.current_frame = (self.current_frame + 1) % len(
                     self.animation_frames
                 )
@@ -112,15 +118,27 @@ class Player(Entity):
             self.surf = self.static_image
 
     def dash(self, acc):
-        self.acc.x = 5 * acc
-        self.dashing = True  # Set dashing flag
+        current_time = pygame.time.get_ticks()
+
+        # Check if dash is available (3 seconds since last dash)
+        if current_time - self.last_dash_time >= self.dash_cooldown:
+            # Start the dash
+            self.vel.x = 75 * acc  # Apply velocity instead of acceleration
+            self.dashing = True  # Set dashing flag
+            self.dash_start_time = current_time
+            self.last_dash_time = current_time
 
     def move(self):
+        current_time = pygame.time.get_ticks()
+
+        # End dash after 0.5 seconds
+        if self.dashing and current_time - self.dash_start_time >= self.dash_duration:
+            self.dashing = False
+
         self.acc = vec(0, 1)  # Gravity
 
         # Reset flags
         self.moving = False
-        self.dashing = False
 
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[K_q]:
@@ -150,14 +168,6 @@ class Player(Entity):
         self.acc.x += self.vel.x * FRIC
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
-
-        # Remove screen boundary restrictions
-        # if self.pos.x > WIDTH - self.rect.width / 2:
-        #     self.pos.x = WIDTH - self.rect.width / 2
-        #     self.vel.x = 0
-        # if self.pos.x < self.rect.width / 2:
-        #     self.pos.x = self.rect.width / 2
-        #     self.vel.x = 0
 
         self.rect.midbottom = self.pos
 
