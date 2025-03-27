@@ -126,6 +126,7 @@ class MapParser:
                 background = pygame.image.load(map_data["background"]).convert_alpha()
                 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
                 self.background = background
+                print("Background image loaded")
             else:
                 print(f"Background image not found: {map_data['background']}")
         else:

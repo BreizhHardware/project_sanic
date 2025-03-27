@@ -18,6 +18,7 @@ from src.constant import (
 from src.Menu.Menu import Menu
 from src.Menu.Leaderboard import Leaderboard
 from src.Camera import Camera
+from src.Entity.Projectile import Projectile
 
 
 def main():
@@ -40,6 +41,7 @@ def main():
 
     # Initialize game components
     P1, PT1, platforms, all_sprites, background = initialize_game("map_test.json")
+    projectiles = pygame.sprite.Group()
 
     # Main game loop
     while True:
@@ -79,6 +81,9 @@ def main():
             elif event.type == USEREVENT:
                 if event.action == "player_death":
                     current_state = MENU
+                if event.dict.get("action") == "create_projectile":
+                    projectile = event.dict.get("projectile")
+                    projectiles.add(projectile)
 
             # Handle menu events
             if current_state == MENU:
@@ -137,6 +142,19 @@ def main():
                     sprite.update(P1)
                 else:
                     sprite.update()
+
+            projectiles.update(WIDTH, HEIGHT, P1, camera)
+
+            for projectile in projectiles:
+                # Calculate position adjusted for camera (comme pour les autres sprites)
+                camera_adjusted_rect = projectile.rect.copy()
+                camera_adjusted_rect.x += camera.camera.x  # SOUSTRAIT au lieu d'ajouter
+                camera_adjusted_rect.y += camera.camera.y  # SOUSTRAIT au lieu d'ajouter
+                displaysurface.blit(projectile.surf, camera_adjusted_rect)
+
+                print(
+                    f"Projectile: pos={projectile.pos}, rect={projectile.rect}, camera={camera.camera}"
+                )
 
             # Display FPS and coordinates (fixed position UI elements)
             fps = int(FramePerSec.get_fps())

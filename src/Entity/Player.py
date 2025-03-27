@@ -1,5 +1,5 @@
 from src.Entity.Entity import Entity
-from src.constant import WIDTH, vec, ACC, FRIC, platforms, FPS
+from src.constant import WIDTH, vec, ACC, FRIC, platforms, FPS, life_icon_width
 from pygame import *
 import pygame
 import os
@@ -33,6 +33,7 @@ class Player(Entity):
         self.invulnerable = False
         self.invulnerable_timer = 0
         self.invulnerable_duration = 1.5
+        self.life_icon = None
 
         # Load images
         self.load_images()
@@ -92,12 +93,25 @@ class Player(Entity):
 
                 dash_frame_height = dash_sheet.get_height()
 
-                for i in range(4):  # Assuming 4 frames
+                for i in range(4):
                     frame = dash_sheet.subsurface(
                         (i * 2000, 0, dash_frame_height, dash_frame_height)
                     )
                     frame = pygame.transform.scale(frame, (80, 80))
                     self.dash_frames.append(frame)
+
+            # Load life icon
+            if os.path.isfile("assets/player/Sanic Head.png"):
+                self.life_icon = pygame.image.load(
+                    "assets/player/Sanic Head.png"
+                ).convert_alpha()
+                self.life_icon = pygame.transform.scale(
+                    self.life_icon, (life_icon_width, life_icon_width)
+                )
+            else:
+                # Backup: use a red square
+                self.life_icon = pygame.Surface((life_icon_width, life_icon_width))
+                self.life_icon.fill((255, 0, 0))
 
         except Exception as e:
             print(f"Error loading player images: {e}")
@@ -196,7 +210,9 @@ class Player(Entity):
         pygame.draw.rect(surface, (100, 100, 100), (x, y, bar_width, bar_height))
 
         # Filled portion (based on cooldown progress)
-        pygame.draw.rect(surface, (58, 83, 200), (x, y, bar_width * cooldown_progress, bar_height))
+        pygame.draw.rect(
+            surface, (58, 83, 200), (x, y, bar_width * cooldown_progress, bar_height)
+        )
 
     def update(self):
         hits = pygame.sprite.spritecollide(self, platforms, False)
@@ -231,17 +247,26 @@ class Player(Entity):
         print("Player died! Returning to menu...")
 
     def draw_lives(self, surface):
-        """Display remaning live on the top right of the screen"""
-        radius = 10
+        """Draws the player's remaining lives as icons in the top right corner."""
         spacing = 5
-        start_x = surface.get_width() - (self.max_lives * (radius * 2 + spacing))
-        start_y = 20
+        start_x = surface.get_width() - (self.max_lives * (life_icon_width + spacing))
+        start_y = 10
 
         for i in range(self.max_lives):
-            color = (255, 0, 0) if i < self.lives else (100, 100, 100)
-            pygame.draw.circle(
-                surface,
-                color,
-                (start_x + i * (radius * 2 + spacing) + radius, start_y),
-                radius,
-            )
+            if i < self.lives:
+                # Vie active: afficher l'icône normale
+                surface.blit(
+                    self.life_icon, (start_x + i * (life_icon_width + spacing), start_y)
+                )
+            else:
+                # Vie perdue: afficher l'icône grisée
+                grayscale_icon = self.life_icon.copy()
+                # Appliquer un filtre gris
+                for x in range(grayscale_icon.get_width()):
+                    for y in range(grayscale_icon.get_height()):
+                        color = grayscale_icon.get_at((x, y))
+                        gray = (color[0] + color[1] + color[2]) // 3
+                        grayscale_icon.set_at((x, y), (gray, gray, gray, color[3]))
+                surface.blit(
+                    grayscale_icon, (start_x + i * (life_icon_width + spacing), start_y)
+                )

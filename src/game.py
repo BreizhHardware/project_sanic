@@ -1,11 +1,7 @@
-import pygame
-import sys
-from pygame.locals import *
 from src.Entity.Platform import Platform
 from src.Entity.Player import Player
 from src.constant import displaysurface, FramePerSec, font, FPS, platforms, all_sprites
 from src.Map.parser import MapParser
-from src.Camera import Camera
 
 
 def initialize_game(map_file="map_test.json"):

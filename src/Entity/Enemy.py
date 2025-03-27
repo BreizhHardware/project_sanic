@@ -1,8 +1,8 @@
 import pygame
-import math
 from src.Entity.Entity import Entity
 from src.constant import FPS
 from pygame.math import Vector2 as vec
+from src.Entity.Projectile import Projectile
 
 
 class Enemy(Entity):
@@ -37,7 +37,7 @@ class Enemy(Entity):
         self.current_patrol_point = 0
         self.patrol_points = enemy_data.get("patrol_points", [])
         self.detection_radius = enemy_data.get("detection_radius", 200)
-        self.attack_interval = enemy_data.get("attack_interval", 2.0)
+        self.attack_interval = enemy_data.get("attack_interval", 0.3)
         self.attack_range = enemy_data.get("attack_range", 300)
         self.attack_timer = 0
         self.direction = 1  # 1 = right, -1 = left
@@ -89,7 +89,6 @@ class Enemy(Entity):
 
         if distance_to_player <= self.detection_radius:
             self.detected_player = True
-            print("Player detected!")
             direction = vec(player.pos.x - self.pos.x, player.pos.y - self.pos.y)
 
             if direction.length() > 0:
@@ -113,11 +112,28 @@ class Enemy(Entity):
                 self.attack(player)
 
     def attack(self, player):
-        """Réalise une attaque sur le joueur"""
+        """Do an attack action on the player"""
         self.is_attacking = True
-        # TO DO: Implement attack logic based on enemy type
-        # Example: turret shoots a projectile
-        print("Enemy attacks player!")
+
+        # For turret-type enemies, create a projectile
+        if self.enemy_type == "turret":
+            # Calculate direction to player
+            direction = vec(player.pos.x - self.pos.x, player.pos.y - self.pos.y)
+
+            projectile = Projectile(
+                pos=vec(self.pos.x, self.pos.y),
+                direction=direction,
+                speed=self.speed,
+                damage=self.damage,
+            )
+
+            # Add projectile to the sprite group (to be placed in main.py)
+            pygame.event.post(
+                pygame.event.Event(
+                    pygame.USEREVENT,
+                    {"action": "create_projectile", "projectile": projectile},
+                )
+            )
 
     def take_damage(self, amount):
         """Deal damage to the enemy and check if it should be destroyed"""

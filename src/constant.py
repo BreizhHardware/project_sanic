@@ -16,6 +16,7 @@ all_sprites = pygame.sprite.Group()
 fullscreen = False
 ORIGINAL_WIDTH = WIDTH
 ORIGINAL_HEIGHT = HEIGHT
+life_icon_width = 50
 
 try:
     font = pygame.font.SysFont("Arial", 20)
