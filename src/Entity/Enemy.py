@@ -9,46 +9,45 @@ class Enemy(Entity):
     def __init__(self, enemy_data):
         super().__init__()
 
-        # Attributs de base
+        # Base attributes
         self.enemy_type = enemy_data.get("type", "turret")
         self.health = enemy_data.get("health", 1)
         self.damage = enemy_data.get("damage", 1)
         self.behavior = enemy_data.get("behavior", "stationary")
         self.speed = enemy_data.get("speed", 1.5)
 
-        # Position initiale
+        # Initial position
         self.pos = vec(enemy_data.get("x", 0), enemy_data.get("y", 0))
 
-        # Chargement du sprite
         sprite_path = enemy_data.get(
             "sprite_sheet", "assets/map/enemy/default_enemy.png"
         )
         try:
             self.surf = pygame.image.load(sprite_path).convert_alpha()
-            self.surf = pygame.transform.scale(self.surf, (40, 40))  # Taille par défaut
+            self.surf = pygame.transform.scale(self.surf, (40, 40))
         except:
-            # Sprite par défaut si le chargement échoue
+            # Default sprite
             self.surf = pygame.Surface((40, 40))
-            self.surf.fill((255, 0, 0))  # Rouge par défaut
+            self.surf.fill((255, 0, 0))
 
-        # Initialiser le rectangle
+        # Initial rectangle
         self.rect = self.surf.get_rect(center=(self.pos.x, self.pos.y))
 
-        # Variables spécifiques au comportement
+        # Comportement variable
         self.current_patrol_point = 0
         self.patrol_points = enemy_data.get("patrol_points", [])
         self.detection_radius = enemy_data.get("detection_radius", 200)
         self.attack_interval = enemy_data.get("attack_interval", 2.0)
         self.attack_range = enemy_data.get("attack_range", 300)
         self.attack_timer = 0
-        self.direction = 1  # 1 = droite, -1 = gauche
+        self.direction = 1  # 1 = right, -1 = left
 
-        # État
+        # State variables
         self.is_attacking = False
         self.detected_player = False
 
     def update(self, player=None):
-        """Met à jour l'état et la position de l'ennemi"""
+        """Updates enemy's status and position"""
         if player:
             self.check_collision_with_player(player)
 
@@ -59,12 +58,12 @@ class Enemy(Entity):
         elif self.behavior == "stationary" and player:
             self.stationary_attack(player)
 
-        # Mettre à jour la position du rectangle
+        # Update rect position based on entity position
         self.rect.centerx = self.pos.x
         self.rect.centery = self.pos.y
 
     def patrol(self):
-        """Comportement de patrouille entre les points définis"""
+        """Patrol behavior between defined coordinates"""
         if not self.patrol_points:
             return
 
@@ -73,7 +72,7 @@ class Enemy(Entity):
 
         direction = target_pos - self.pos
         if direction.length() < self.speed:
-            # Point atteint, passer au suivant
+            # Patrol point reached, go to the next one
             self.current_patrol_point = (self.current_patrol_point + 1) % len(
                 self.patrol_points
             )
@@ -83,7 +82,7 @@ class Enemy(Entity):
             self.direction = 1 if direction.x > 0 else -1
 
     def chase(self, player):
-        """Poursuite du joueur quand il est à portée"""
+        """Chase player when in range"""
         distance_to_player = vec(
             player.pos.x - self.pos.x, player.pos.y - self.pos.y
         ).length()
@@ -101,7 +100,7 @@ class Enemy(Entity):
             self.detected_player = False
 
     def stationary_attack(self, player):
-        """Attaque à distance pour les tourelles"""
+        """Remote attack for turret-like enemies"""
         distance_to_player = vec(
             player.pos.x - self.pos.x, player.pos.y - self.pos.y
         ).length()
@@ -116,31 +115,31 @@ class Enemy(Entity):
     def attack(self, player):
         """Réalise une attaque sur le joueur"""
         self.is_attacking = True
-        # Logique d'attaque à implémenter selon le type d'ennemi
-        # Exemple: création de projectiles, dégâts directs, etc.
+        # TO DO: Implement attack logic based on enemy type
+        # Example: turret shoots a projectile
         print("Enemy attacks player!")
 
     def take_damage(self, amount):
-        """Reçoit des dégâts et vérifie si l'ennemi est mort"""
+        """Deal damage to the enemy and check if it should be destroyed"""
         self.health -= amount
         if self.health <= 0:
-            self.kill()  # Supprime l'ennemi des groupes de sprites
+            self.kill()
             print("Enemy killed!")
             return True
         return False
 
     def check_collision_with_player(self, player):
-        """Vérifie les collisions avec le joueur et applique les effets appropriés"""
+        """Check collision with player and apply damage or knockback"""
         if self.rect.colliderect(player.rect):
-            # Collision par le dessus: joueur tombe sur l'ennemi
+            # Colide on top
             if player.rect.bottom <= self.rect.top + 10 and player.vel.y > 0:
-                # L'ennemi prend des dégâts
+                # Enemy takes damage
                 self.take_damage(1)
-                # Le joueur rebondit légèrement
+                # Player bump
                 player.vel.y = -15
             else:
-                # L'ennemi inflige des dégâts au joueur
+                # Enemy deals damage to player
                 player.take_damage(self.damage)
-                # Effet de recul
+                # KB LOL MINECRAFT
                 knockback_direction = 1 if player.pos.x > self.pos.x else -1
                 player.vel.x = knockback_direction * 8
