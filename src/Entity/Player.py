@@ -183,14 +183,14 @@ class Player(Entity):
         cooldown_progress = min(elapsed_time / self.dash_cooldown, 1)
 
         # Bar settings
-        bar_width, bar_height = 100, 10
-        x, y = 200, 40  # Position next to FPS display
+        bar_width, bar_height = 75, 8
+        x, y = 560, 330
 
         # Background (empty bar)
         pygame.draw.rect(surface, (100, 100, 100), (x, y, bar_width, bar_height))
 
         # Filled portion (based on cooldown progress)
-        pygame.draw.rect(surface, (0, 255, 0), (x, y, bar_width * cooldown_progress, bar_height))
+        pygame.draw.rect(surface, (58, 83, 200), (x, y, bar_width * cooldown_progress, bar_height))
 
     def update(self):
         hits = pygame.sprite.spritecollide(self, platforms, False)
