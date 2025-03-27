@@ -124,10 +124,12 @@ class Player(Entity):
 
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[K_q]:
-            self.acc.x = -ACC
-            self.moving = True
-            if pressed_keys[K_a]:
-                self.dash(-ACC)
+            # Check if X is > 0 to prevent player from going off screen
+            if self.pos.x > 0:
+                self.acc.x = -ACC
+                self.moving = True
+                if pressed_keys[K_a]:
+                    self.dash(-ACC)
         if pressed_keys[K_d]:
             self.acc.x = ACC
             self.moving = True
@@ -149,13 +151,13 @@ class Player(Entity):
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
 
-        # Prevent the player from moving off-screen horizontally
-        if self.pos.x > WIDTH - self.rect.width / 2:
-            self.pos.x = WIDTH - self.rect.width / 2
-            self.vel.x = 0
-        if self.pos.x < self.rect.width / 2:
-            self.pos.x = self.rect.width / 2
-            self.vel.x = 0
+        # Remove screen boundary restrictions
+        # if self.pos.x > WIDTH - self.rect.width / 2:
+        #     self.pos.x = WIDTH - self.rect.width / 2
+        #     self.vel.x = 0
+        # if self.pos.x < self.rect.width / 2:
+        #     self.pos.x = self.rect.width / 2
+        #     self.vel.x = 0
 
         self.rect.midbottom = self.pos
 
