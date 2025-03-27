@@ -174,6 +174,24 @@ class Player(Entity):
         # Update animation frame
         self.update_animation()
 
+    def draw_dash_cooldown_bar(self, surface):
+        """Draws a cooldown bar next to the FPS display."""
+        current_time = pygame.time.get_ticks()
+        elapsed_time = current_time - self.last_dash_time
+
+        # Calculate progress (0 to 1)
+        cooldown_progress = min(elapsed_time / self.dash_cooldown, 1)
+
+        # Bar settings
+        bar_width, bar_height = 100, 10
+        x, y = 200, 40  # Position next to FPS display
+
+        # Background (empty bar)
+        pygame.draw.rect(surface, (100, 100, 100), (x, y, bar_width, bar_height))
+
+        # Filled portion (based on cooldown progress)
+        pygame.draw.rect(surface, (0, 255, 0), (x, y, bar_width * cooldown_progress, bar_height))
+
     def update(self):
         hits = pygame.sprite.spritecollide(self, platforms, False)
         if hits:

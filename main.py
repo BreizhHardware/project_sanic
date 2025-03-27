@@ -131,6 +131,8 @@ def main():
             fps_text = font.render(f"FPS: {fps}", True, (255, 255, 255))
             displaysurface.blit(fps_text, (10, 10))
 
+            P1.draw_dash_cooldown_bar(displaysurface)
+
             pos_text = font.render(
                 f"X: {int(P1.pos.x)}, Y: {int(P1.pos.y)}", True, (255, 255, 255)
             )
