@@ -1,7 +1,9 @@
 import pygame
 import sys
 from pygame.locals import *
-from src.game import initialize_game
+
+from src.Entity.Enemy import Enemy
+from src.game import initialize_game, reset_game
 from src.constant import (
     displaysurface,
     FramePerSec,
@@ -74,11 +76,15 @@ def main():
                     )
                     # Update window dimensions
                     ORIGINAL_WIDTH, ORIGINAL_HEIGHT = event.w, event.h
+            elif event.type == USEREVENT:
+                if event.action == "player_death":
+                    current_state = MENU
 
             # Handle menu events
             if current_state == MENU:
                 action = menu.handle_event(event)
                 if action == "play":
+                    P1, platforms, all_sprites, background = reset_game()
                     current_state = PLAYING
                 elif action == "infinite":
                     current_state = INFINITE
@@ -126,6 +132,12 @@ def main():
                 camera_adjusted_rect.y += camera.camera.y
                 displaysurface.blit(entity.surf, camera_adjusted_rect)
 
+            for sprite in all_sprites:
+                if isinstance(sprite, Enemy):
+                    sprite.update(P1)
+                else:
+                    sprite.update()
+
             # Display FPS and coordinates (fixed position UI elements)
             fps = int(FramePerSec.get_fps())
             fps_text = font.render(f"FPS: {fps}", True, (255, 255, 255))
@@ -137,6 +149,9 @@ def main():
                 f"X: {int(P1.pos.x)}, Y: {int(P1.pos.y)}", True, (255, 255, 255)
             )
             displaysurface.blit(pos_text, (10, 40))
+
+            P1.draw_dash_cooldown_bar(displaysurface)
+            P1.draw_lives(displaysurface)
 
         elif current_state == INFINITE:
             # Placeholder for infinite mode
