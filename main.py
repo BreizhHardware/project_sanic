@@ -1,20 +1,30 @@
 import pygame
 import sys
 from pygame.locals import *
-
-# Import from pygame_basics
-from src.game import (
-    initialize_game,
+from src.game import initialize_game
+from src.constant import (
+    displaysurface,
+    FramePerSec,
+    font,
+    FPS,
+    WIDTH,
+    HEIGHT,
+    ORIGINAL_WIDTH,
+    ORIGINAL_HEIGHT,
+    fullscreen,
 )
-
-from src.constant import displaysurface, FramePerSec, font, FPS, WIDTH, HEIGHT
-
-# Import from menu
 from src.Menu.Menu import Menu
 from src.Menu.Leaderboard import Leaderboard
+from src.Camera import Camera
 
 
 def main():
+    # Declare globals that we'll modify
+    global displaysurface, fullscreen, ORIGINAL_WIDTH, ORIGINAL_HEIGHT
+
+    # Add camera initialization
+    camera = Camera(WIDTH, HEIGHT)
+
     # Game states
     MENU = 0
     PLAYING = 1
@@ -27,7 +37,7 @@ def main():
     leaderboard = Leaderboard()
 
     # Initialize game components
-    P1, PT1, platforms, all_sprites = initialize_game()
+    P1, PT1, platforms, all_sprites, background = initialize_game("map_test.json")
 
     # Main game loop
     while True:
@@ -42,6 +52,28 @@ def main():
                     else:
                         pygame.quit()
                         sys.exit()
+                elif event.key == K_F11:
+                    fullscreen = not fullscreen
+                    if fullscreen:
+                        # Store current window size before going fullscreen
+                        ORIGINAL_WIDTH, ORIGINAL_HEIGHT = displaysurface.get_size()
+                        displaysurface = pygame.display.set_mode(
+                            (0, 0), pygame.FULLSCREEN
+                        )
+                    else:
+                        # Return to windowed mode with previous size
+                        displaysurface = pygame.display.set_mode(
+                            (ORIGINAL_WIDTH, ORIGINAL_HEIGHT), pygame.RESIZABLE
+                        )
+            elif (
+                event.type == VIDEORESIZE
+            ):  # Fixed indentation - moved out of K_F11 condition
+                if not fullscreen:
+                    displaysurface = pygame.display.set_mode(
+                        (event.w, event.h), pygame.RESIZABLE
+                    )
+                    # Update window dimensions
+                    ORIGINAL_WIDTH, ORIGINAL_HEIGHT = event.w, event.h
 
             # Handle menu events
             if current_state == MENU:
@@ -73,10 +105,28 @@ def main():
             # Regular game code
             P1.move()
             P1.update()
-            for entity in all_sprites:
-                displaysurface.blit(entity.surf, entity.rect)
 
-            # Display FPS and coordinates
+            # Update camera to follow player
+            camera.update(P1)
+
+            # Clear screen
+            displaysurface.fill((0, 0, 0))
+
+            if background:
+                parallax_factor = 0.3
+                bg_x = camera.camera.x * parallax_factor
+                bg_y = camera.camera.y * parallax_factor
+                displaysurface.blit(background, (bg_x, bg_y))
+
+            # Draw all sprites with camera offset applied
+            for entity in all_sprites:
+                # Calculate position adjusted for camera
+                camera_adjusted_rect = entity.rect.copy()
+                camera_adjusted_rect.x += camera.camera.x
+                camera_adjusted_rect.y += camera.camera.y
+                displaysurface.blit(entity.surf, camera_adjusted_rect)
+
+            # Display FPS and coordinates (fixed position UI elements)
             fps = int(FramePerSec.get_fps())
             fps_text = font.render(f"FPS: {fps}", True, (255, 255, 255))
             displaysurface.blit(fps_text, (10, 10))
