@@ -8,9 +8,9 @@
   "ground": [
     {
       "id": "main_ground",
-      "x": 0,
+      "x": -1000,
       "y": 780,
-      "width": 2400,
+      "width": 1800,
       "height": 200,
       "texture": "assets/map/platform/grass_texture.jpg"
     },
@@ -21,6 +21,14 @@
       "width": 200,
       "height": 20,
       "is_hole": true
+    },
+    {
+      "id": "main_ground_2",
+      "x": 1000,
+      "y": 900,
+      "width": 1800,
+      "height": 200,
+      "texture": "assets/map/platform/grass_texture.jpg"
     }
   ],
 

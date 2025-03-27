@@ -124,10 +124,12 @@ class Player(Entity):
 
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[K_q]:
-            self.acc.x = -ACC
-            self.moving = True
-            if pressed_keys[K_a]:
-                self.dash(-ACC)
+            # Check if X is > 0 to prevent player from going off screen
+            if self.pos.x > 0:
+                self.acc.x = -ACC
+                self.moving = True
+                if pressed_keys[K_a]:
+                    self.dash(-ACC)
         if pressed_keys[K_d]:
             self.acc.x = ACC
             self.moving = True
