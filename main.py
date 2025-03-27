@@ -163,8 +163,8 @@ def main():
             for projectile in projectiles:
                 # Calculate position adjusted for camera (comme pour les autres sprites)
                 camera_adjusted_rect = projectile.rect.copy()
-                camera_adjusted_rect.x += camera.camera.x  # SOUSTRAIT au lieu d'ajouter
-                camera_adjusted_rect.y += camera.camera.y  # SOUSTRAIT au lieu d'ajouter
+                camera_adjusted_rect.x += camera.camera.x 
+                camera_adjusted_rect.y += camera.camera.y 
                 displaysurface.blit(projectile.surf, camera_adjusted_rect)
 
                 print(
