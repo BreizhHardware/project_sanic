@@ -1,6 +1,7 @@
 import pygame
 import sys
 from pygame.locals import *
+import numpy as np
 
 from src.Entity.Enemy import Enemy
 from src.game import (
@@ -154,12 +155,32 @@ def main():
                         dir = 0
                     else:
                         dir = 1
+                        if (
+                            P1.rect.colliderect(platform.rect)
+                            and P1.pos.y == platform.rect.y
+                        ):
+                            P1.pos.x += platform.movement_speed * platform.coeff
+
                     platform.move_linear(
                         dir,
                         platform.movement_points,
                         platform.movement_speed,
                         platform.wait_time,
                         platform.coeff,
+                    )
+
+                if platform.is_moving and platform.movement_type == "circular":
+                    if (
+                        P1.rect.colliderect(platform.rect)
+                        and P1.pos.y == platform.rect.y
+                    ):
+                        P1.pos.x = P1.pos.x + platform.radius * np.cos(platform.angle)
+                        P1.pos.y = P1.pos.y + platform.radius * np.sin(platform.angle)
+
+                    platform.move_circular(
+                        platform.center,
+                        platform.angular_speed,
+                        platform.radius,
                     )
 
             if background:

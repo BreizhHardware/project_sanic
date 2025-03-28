@@ -37,6 +37,8 @@ class Player(Entity):
         self.invulnerable_duration = 1.5
         self.life_icon = None
 
+        self.rect = self.surf.get_rect()
+
         # Load images
         self.load_images()
 
