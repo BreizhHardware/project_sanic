@@ -173,12 +173,14 @@
     "y": 700
   },
 
-  "exit": {
-    "x": 2300,
-    "y": 700,
-    "width": 50,
-    "height": 80,
-    "next_level": "Level 2",
-    "sprite": "assets/map/exit/door.png"
-  }
+  "exits": [
+      {
+        "x": 2300,
+        "y": 700,
+        "width": 50,
+        "height": 80,
+        "next_level": "Level 2",
+        "sprite": "assets/map/exit/door.png"
+    }
+  ]
 }

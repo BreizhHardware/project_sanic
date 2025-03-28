@@ -18,13 +18,14 @@ class GameResources:
 
         # Ressources
         self.platforms = pygame.sprite.Group()
+        self.all_sprites = pygame.sprite.Group()
+        self.exits = pygame.sprite.Group()
         self.vec = pygame.math.Vector2
         self.displaysurface = pygame.display.set_mode(
             (self.WIDTH, self.HEIGHT), pygame.RESIZABLE
         )
         pygame.display.set_caption("Project Sanic")
         self.FramePerSec = pygame.time.Clock()
-        self.all_sprites = pygame.sprite.Group()
 
         # Font
         try:

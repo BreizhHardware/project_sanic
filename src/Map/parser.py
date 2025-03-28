@@ -5,6 +5,7 @@ from src.Entity.Platform import Platform
 from src.Entity.Player import Player
 from src.Entity.Enemy import Enemy
 from src.Entity.Checkpoint import Checkpoint
+from src.Entity.Exit import Exit
 
 
 class MapParser:
@@ -12,6 +13,7 @@ class MapParser:
         self.game_resources = game_resources
         self.all_sprites = self.game_resources.all_sprites
         self.platforms = self.game_resources.platforms
+        self.exits = self.game_resources.exits
         self.enemies = pygame.sprite.Group()
         self.collectibles = pygame.sprite.Group()
         self.checkpoints = pygame.sprite.Group()
@@ -38,6 +40,7 @@ class MapParser:
                     "height": map_data.get("height", self.game_resources.HEIGHT),
                 },
                 "checkpoints": self.checkpoints,
+                "exits": self.exits,
             }
         except Exception as e:
             print(f"Error loading map: {e}")
@@ -51,6 +54,7 @@ class MapParser:
         self.enemies.empty()
         self.collectibles.empty()
         self.checkpoints.empty()
+        self.exits.empty()
 
         # Create ground elements
         if "ground" in map_data:
@@ -146,3 +150,16 @@ class MapParser:
                 )
                 self.checkpoints.add(checkpoint)
                 self.all_sprites.add(checkpoint)
+
+        if "exits" in map_data:
+            for exit_data in map_data["exits"]:
+                exit = Exit(
+                    exit_data["x"],
+                    exit_data["y"],
+                    exit_data["width"],
+                    exit_data["height"],
+                    exit_data["next_level"],
+                    exit_data.get("sprite"),
+                )
+                self.exits.add(exit)
+                self.all_sprites.add(exit)
