@@ -1,10 +1,16 @@
-import pygame
-import sys
-from pygame.locals import *
 from src.Entity.Platform import Platform
 from src.Entity.Player import Player
-from src.constant import displaysurface, FramePerSec, font, FPS, platforms, all_sprites
+from src.constant import (
+    displaysurface,
+    FramePerSec,
+    font,
+    FPS,
+    platforms,
+    all_sprites,
+    vec,
+)
 from src.Map.parser import MapParser
+from src.Database.CheckpointDB import CheckpointDB
 
 
 def initialize_game(map_file="map_test.json"):
@@ -32,43 +38,48 @@ def initialize_game(map_file="map_test.json"):
         map_objects["platforms"],
         map_objects["all_sprites"],
         parser.background,  # Return the loaded background
+        map_objects["checkpoints"],
     )
 
 
-def run_game(P1, all_sprites):
-    """Run the main game loop without menu system"""
-    while True:
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+def reset_game():
+    """Reset the game to initial state"""
+    global platforms, all_sprites, camera
 
-        displaysurface.fill((0, 0, 0))
+    # Empty all sprite groups
+    platforms.empty()
+    all_sprites.empty()
 
-        P1.move()
-        P1.update()
-        for entity in all_sprites:
-            displaysurface.blit(entity.surf, entity.rect)
+    # Reload game objects
+    player, _, platforms, all_sprites, background, checkpoints = initialize_game(
+        "map_test.json"
+    )
 
-        # Display FPS
-        fps = int(FramePerSec.get_fps())
-        fps_text = font.render(f"FPS: {fps}", True, (255, 255, 255))
-        displaysurface.blit(fps_text, (10, 10))
+    return player, platforms, all_sprites, background, checkpoints
 
-        # Display player coordinates
-        pos_text = font.render(
-            f"X: {int(P1.pos.x)}, Y: {int(P1.pos.y)}", True, (255, 255, 255)
-        )
-        displaysurface.blit(pos_text, (10, 40))
 
-        pygame.display.update()
-        FramePerSec.tick(FPS)
+def reset_game_with_checkpoint(map_name="map_test.json"):
+    """
+    Reset the game and respawn player at checkpoint if available
+
+    Args:
+        map_name: Name of the current map
+    """
+    # Initialize game normally
+    player, platforms, all_sprites, background, checkpoints = reset_game()
+
+    # Check if there's a saved checkpoint
+    db = CheckpointDB()
+    checkpoint_pos = db.get_checkpoint(map_name)
+
+    # If checkpoint exists, teleport player there
+    if checkpoint_pos:
+        player.pos = vec(checkpoint_pos[0], checkpoint_pos[1])
+        player.update_rect()
+        print(f"Player respawned at checkpoint: {checkpoint_pos}")
+
+    return player, platforms, all_sprites, background, checkpoints
 
 
 if __name__ == "__main__":
-    P1, PT1, platforms, all_sprites = initialize_game()
-    run_game(P1, all_sprites)
+    print("Please run the game using main.py")

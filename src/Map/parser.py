@@ -3,6 +3,8 @@ import pygame
 import os
 from src.Entity.Platform import Platform
 from src.Entity.Player import Player
+from src.Entity.Enemy import Enemy
+from src.Entity.Checkpoint import Checkpoint
 from src.constant import WIDTH, HEIGHT, all_sprites, platforms
 
 
@@ -12,6 +14,7 @@ class MapParser:
         self.platforms = platforms
         self.enemies = pygame.sprite.Group()
         self.collectibles = pygame.sprite.Group()
+        self.checkpoints = pygame.sprite.Group()
         self.player = None
 
     def load_map(self, map_file):
@@ -21,7 +24,7 @@ class MapParser:
                 map_data = json.load(file)
 
             # Create all game objects from map data
-            self.create_map_objects(map_data)
+            self.create_map_objects(map_data, map_file)
 
             return {
                 "player": self.player,
@@ -34,18 +37,20 @@ class MapParser:
                     "width": map_data.get("width", WIDTH),
                     "height": map_data.get("height", HEIGHT),
                 },
+                "checkpoints": self.checkpoints,
             }
         except Exception as e:
             print(f"Error loading map: {e}")
             return None
 
-    def create_map_objects(self, map_data):
+    def create_map_objects(self, map_data, map_file):
         """Create all game objects from map data"""
         # Clear existing sprites
         self.all_sprites.empty()
         self.platforms.empty()
         self.enemies.empty()
         self.collectibles.empty()
+        self.checkpoints.empty()
 
         # Create ground elements
         if "ground" in map_data:
@@ -107,7 +112,12 @@ class MapParser:
 
         # Create enemies (requires Enemy class implementation)
         if "enemies" in map_data:
-            pass  # You'll need to implement enemy creation
+            # Create enemies
+            if "enemies" in map_data:
+                for enemy_data in map_data["enemies"]:
+                    enemy = Enemy(enemy_data)
+                    self.enemies.add(enemy)
+                    self.all_sprites.add(enemy)
 
         # Create collectibles (requires Collectible class implementation)
         if "collectibles" in map_data:
@@ -120,7 +130,19 @@ class MapParser:
                 background = pygame.image.load(map_data["background"]).convert_alpha()
                 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
                 self.background = background
+                print("Background image loaded")
             else:
                 print(f"Background image not found: {map_data['background']}")
         else:
             self.background = None
+
+        if "checkpoints" in map_data:
+            for checkpoint_data in map_data["checkpoints"]:
+                pos = (checkpoint_data["x"], checkpoint_data["y"])
+                size = (checkpoint_data["width"], checkpoint_data["height"])
+                sprite = checkpoint_data["sprite"]
+                checkpoint = Checkpoint(
+                    pos, size, texture_path=sprite, map_name=map_file
+                )
+                self.checkpoints.add(checkpoint)
+                self.all_sprites.add(checkpoint)

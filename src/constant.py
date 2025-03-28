@@ -10,12 +10,13 @@ HEIGHT = 800
 platforms = pygame.sprite.Group()
 vec = pygame.math.Vector2
 displaysurface = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-pygame.display.set_caption("Game")
+pygame.display.set_caption("Project Sanic")
 FramePerSec = pygame.time.Clock()
 all_sprites = pygame.sprite.Group()
 fullscreen = False
 ORIGINAL_WIDTH = WIDTH
 ORIGINAL_HEIGHT = HEIGHT
+life_icon_width = 50
 
 try:
     font = pygame.font.SysFont("Arial", 20)
