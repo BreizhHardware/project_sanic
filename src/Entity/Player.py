@@ -1,13 +1,15 @@
 from src.Entity.Entity import Entity
-from src.constant import WIDTH, vec, ACC, FRIC, platforms, FPS, life_icon_width
 from pygame import *
 import pygame
 import os
 
 
 class Player(Entity):
-    def __init__(self, width=100, height=100, x=10, y=385):
+    def __init__(self, game_resources, width=100, height=100, x=10, y=385):
         super().__init__(pos=(x, y), size=(width, height), color=(128, 255, 40))
+
+        # Game ressources
+        self.game_resources = game_resources
 
         # Animation variables
         self.animation_frames = []
@@ -106,11 +108,20 @@ class Player(Entity):
                     "assets/player/Sanic Head.png"
                 ).convert_alpha()
                 self.life_icon = pygame.transform.scale(
-                    self.life_icon, (life_icon_width, life_icon_width)
+                    self.life_icon,
+                    (
+                        self.game_resources.life_icon_width,
+                        self.game_resources.life_icon_width,
+                    ),
                 )
             else:
                 # Backup: use a red square
-                self.life_icon = pygame.Surface((life_icon_width, life_icon_width))
+                self.life_icon = pygame.Surface(
+                    (
+                        self.game_resources.life_icon_width,
+                        self.game_resources.life_icon_width,
+                    )
+                )
                 self.life_icon.fill((255, 0, 0))
 
         except Exception as e:
@@ -155,7 +166,7 @@ class Player(Entity):
         if self.dashing and current_time - self.dash_start_time >= self.dash_duration:
             self.dashing = False
 
-        self.acc = vec(0, 1)  # Gravity
+        self.acc = self.game_resources.vec(0, 1)
 
         # Reset flags
         self.moving = False
@@ -164,15 +175,15 @@ class Player(Entity):
         if pressed_keys[K_q]:
             # Check if X is > 0 to prevent player from going off screen
             if self.pos.x > 0:
-                self.acc.x = -ACC
+                self.acc.x = -self.game_resources.ACC
                 self.moving = True
                 if pressed_keys[K_a]:
-                    self.dash(-ACC)
+                    self.dash(-self.game_resources.ACC)
         if pressed_keys[K_d]:
-            self.acc.x = ACC
+            self.acc.x = self.game_resources.ACC
             self.moving = True
             if pressed_keys[K_a]:
-                self.dash(ACC)
+                self.dash(self.game_resources.ACC)
 
         # Also consider the player moving if they have significant horizontal velocity
         if abs(self.vel.x) > 0.5:
@@ -184,8 +195,8 @@ class Player(Entity):
             self.jumping = True
 
         # Apply friction
-        self.acc.y += self.vel.y * FRIC
-        self.acc.x += self.vel.x * FRIC
+        self.acc.y += self.vel.y * self.game_resources.FRIC
+        self.acc.x += self.vel.x * self.game_resources.FRIC
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
 
@@ -215,7 +226,7 @@ class Player(Entity):
         )
 
     def update(self):
-        hits = pygame.sprite.spritecollide(self, platforms, False)
+        hits = pygame.sprite.spritecollide(self, self.game_resources.platforms, False)
         if hits:
             if self.vel.y > 0:
                 self.pos.y = hits[0].rect.top
@@ -223,7 +234,7 @@ class Player(Entity):
                 self.jumping = False
 
         if self.invulnerable:
-            self.invulnerable_timer += 1 / FPS
+            self.invulnerable_timer += 1 / self.game_resources.FPS
             if self.invulnerable_timer >= self.invulnerable_duration:
                 self.invulnerable = False
                 self.invulnerable_timer = 0
@@ -249,14 +260,20 @@ class Player(Entity):
     def draw_lives(self, surface):
         """Draws the player's remaining lives as icons in the top right corner."""
         spacing = 5
-        start_x = surface.get_width() - (self.max_lives * (life_icon_width + spacing))
+        start_x = surface.get_width() - (
+            self.max_lives * (self.game_resources.life_icon_width + spacing)
+        )
         start_y = 10
 
         for i in range(self.max_lives):
             if i < self.lives:
                 # Vie active: afficher l'icône normale
                 surface.blit(
-                    self.life_icon, (start_x + i * (life_icon_width + spacing), start_y)
+                    self.life_icon,
+                    (
+                        start_x + i * (self.game_resources.life_icon_width + spacing),
+                        start_y,
+                    ),
                 )
             else:
                 # Vie perdue: afficher l'icône grisée
@@ -268,5 +285,9 @@ class Player(Entity):
                         gray = (color[0] + color[1] + color[2]) // 3
                         grayscale_icon.set_at((x, y), (gray, gray, gray, color[3]))
                 surface.blit(
-                    grayscale_icon, (start_x + i * (life_icon_width + spacing), start_y)
+                    grayscale_icon,
+                    (
+                        start_x + i * (self.game_resources.life_icon_width + spacing),
+                        start_y,
+                    ),
                 )

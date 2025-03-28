@@ -1,6 +1,5 @@
 from pygame.locals import *
 import pygame
-from src.constant import font
 
 
 class Button:
@@ -13,7 +12,7 @@ class Button:
         self.action = action
         self.hover = False
 
-    def draw(self, surface):
+    def draw(self, surface, font):
         # Button colors
         color = (100, 149, 237) if self.hover else (65, 105, 225)
         border_color = (255, 255, 255)
