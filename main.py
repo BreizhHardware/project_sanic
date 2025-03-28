@@ -3,7 +3,7 @@ import sys
 from pygame.locals import *
 
 from src.Entity.Enemy import Enemy
-from src.game import initialize_game, reset_game
+from src.game import initialize_game, reset_game, reset_game_with_checkpoint
 from src.constant import (
     displaysurface,
     FramePerSec,
@@ -18,6 +18,7 @@ from src.constant import (
 from src.Menu.Menu import Menu
 from src.Menu.Leaderboard import Leaderboard
 from src.Camera import Camera
+from src.Database.CheckpointDB import CheckpointDB
 
 
 def main():
@@ -39,7 +40,10 @@ def main():
     leaderboard = Leaderboard()
 
     # Initialize game components
-    P1, PT1, platforms, all_sprites, background = initialize_game("map_test.json")
+    P1, PT1, platforms, all_sprites, background, checkpoints = initialize_game(
+        "map_test.json"
+    )
+    projectiles = pygame.sprite.Group()
 
     # Main game loop
     while True:
@@ -78,13 +82,29 @@ def main():
                     ORIGINAL_WIDTH, ORIGINAL_HEIGHT = event.w, event.h
             elif event.type == USEREVENT:
                 if event.action == "player_death":
-                    current_state = MENU
+                    db = CheckpointDB()
+                    checkpoint_pos = db.get_checkpoint("map_test.json")
+
+                    if checkpoint_pos:
+                        # Respawn player at checkpoint
+                        P1, platforms, all_sprites, background, checkpoints = (
+                            reset_game_with_checkpoint("map_test.json")
+                        )
+                        projectiles.empty()
+                        print("Joueur réanimé au checkpoint")
+                    else:
+                        # No checkpoint found, return to menu
+                        current_state = MENU
+                        print("Game over - retour au menu")
+                if event.dict.get("action") == "create_projectile":
+                    projectile = event.dict.get("projectile")
+                    projectiles.add(projectile)
 
             # Handle menu events
             if current_state == MENU:
                 action = menu.handle_event(event)
                 if action == "play":
-                    P1, platforms, all_sprites, background = reset_game()
+                    P1, platforms, all_sprites, background, checkpoints = reset_game()
                     current_state = PLAYING
                 elif action == "infinite":
                     current_state = INFINITE
@@ -137,6 +157,23 @@ def main():
                     sprite.update(P1)
                 else:
                     sprite.update()
+
+            projectiles.update(WIDTH, HEIGHT, P1, camera)
+
+            for projectile in projectiles:
+                # Calculate position adjusted for camera (comme pour les autres sprites)
+                camera_adjusted_rect = projectile.rect.copy()
+                camera_adjusted_rect.x += camera.camera.x 
+                camera_adjusted_rect.y += camera.camera.y 
+                displaysurface.blit(projectile.surf, camera_adjusted_rect)
+
+                print(
+                    f"Projectile: pos={projectile.pos}, rect={projectile.rect}, camera={camera.camera}"
+                )
+
+            checkpoints_hit = pygame.sprite.spritecollide(P1, checkpoints, False)
+            for checkpoint in checkpoints_hit:
+                checkpoint.activate()
 
             # Display FPS and coordinates (fixed position UI elements)
             fps = int(FramePerSec.get_fps())
