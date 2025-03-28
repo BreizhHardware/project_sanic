@@ -1,3 +1,6 @@
+import pygame
+import sys
+from pygame.locals import *
 from src.Entity.Platform import Platform
 from src.Entity.Player import Player
 from src.constant import (

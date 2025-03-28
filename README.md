@@ -82,6 +82,10 @@ Dash : Permet d'esquiver rapidement les attaques ou de traverser des obstacles.
 
 Cachettes : Les power-ups peuvent être trouvés en éliminant des ennemis ou en explorant des caves cachées dans le décor.
 
+### Arrière plan
+
+Un seul gros niveau avec une cave au début : Niveau horizontal, puis un niveau vertical de transition qui nous amène vers une forêt qui sera un deuxième niveau horizontal.
+
 ## Interface Utilisateur (UI)
 Points de Vie : Affichés sous forme de barre de vie en haut de l'écran.
 
