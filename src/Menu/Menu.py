@@ -19,7 +19,7 @@ class Menu:
                 start_y,
                 button_width,
                 button_height,
-                "play",
+                "level_select",
             )
         )
 
