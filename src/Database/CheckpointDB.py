@@ -68,3 +68,12 @@ class CheckpointDB:
         """Close database connection"""
         if self.conn:
             self.conn.close()
+
+    def clear_all(self):
+        """
+        Clear all checkpoints from the database
+        """
+        try:
+            self.cursor.execute("DELETE FROM checkpoints")
+        except Exception as e:
+            print(f"Error clearing checkpoint database: {e}")

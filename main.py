@@ -3,7 +3,12 @@ import sys
 from pygame.locals import *
 
 from src.Entity.Enemy import Enemy
-from src.game import initialize_game, reset_game, reset_game_with_checkpoint
+from src.game import (
+    initialize_game,
+    reset_game,
+    reset_game_with_checkpoint,
+    clear_checkpoint_database,
+)
 from src.constant import GameResources
 from src.Menu.Menu import Menu
 from src.Menu.Leaderboard import Leaderboard
@@ -38,8 +43,10 @@ def main():
     menu = Menu(game_resources)
     leaderboard = Leaderboard(WIDTH, HEIGHT, font)
 
+    clear_checkpoint_database()
+
     # Initialize game components
-    P1, PT1, platforms, all_sprites, background, checkpoints = initialize_game(
+    P1, PT1, platforms, all_sprites, background, checkpoints, exits = initialize_game(
         game_resources, "map_test.json"
     )
     projectiles = pygame.sprite.Group()

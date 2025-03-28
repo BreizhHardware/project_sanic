@@ -8,7 +8,16 @@ from src.Database.CheckpointDB import CheckpointDB
 
 
 def initialize_game(game_resources, map_file="map_test.json"):
-    """Initialize game with map from JSON file"""
+    """
+    Initialize game with map from JSON file
+
+    Args:
+        game_resources: GameResources object containing pygame resources
+        map_file (str): Name of the map JSON file to load
+
+    Returns:
+        tuple: (player, platform, platforms_group, all_sprites, background, checkpoints, exits)
+    """
     parser = MapParser(game_resources)
     map_objects = parser.load_map(map_file)
 
@@ -31,7 +40,14 @@ def initialize_game(game_resources, map_file="map_test.json"):
             game_resources.all_sprites,
             None,
             None,
+            None,
         )
+
+    # Set player reference for exits if they exist
+    exits = map_objects.get("exits", None)
+    if exits and map_objects["player"]:
+        for exit_obj in exits:
+            exit_obj.set_player(map_objects["player"])
 
     return (
         map_objects["player"],
@@ -40,13 +56,14 @@ def initialize_game(game_resources, map_file="map_test.json"):
         map_objects["all_sprites"],
         parser.background,
         map_objects["checkpoints"],
+        exits,
     )
 
 
 def reset_game(game_resources):
     """Reset the game to initial state"""
     # Reload game objects
-    player, _, platforms, all_sprites, background, checkpoints = initialize_game(
+    player, _, platforms, all_sprites, background, checkpoints, exits = initialize_game(
         game_resources, "map_test.json"
     )
 
@@ -66,7 +83,7 @@ def reset_game_with_checkpoint(map_name, game_resources):
     checkpoint_pos = db.get_checkpoint(map_name)
 
     # Initialize game
-    player, _, platforms, all_sprites, background, checkpoints = initialize_game(
+    player, _, platforms, all_sprites, background, checkpoints, exits = initialize_game(
         game_resources, map_name
     )
 
@@ -76,6 +93,19 @@ def reset_game_with_checkpoint(map_name, game_resources):
         player.update_rect()
 
     return player, platforms, all_sprites, background, checkpoints
+
+
+def clear_checkpoint_database():
+    """
+    Clear all checkpoints from the database.
+    Used when starting a new game session.
+    """
+    try:
+        db = CheckpointDB()
+        db.clear_all()
+        print("Checkpoint database cleared successfully")
+    except Exception as e:
+        print(f"Error clearing checkpoint database: {e}")
 
 
 if __name__ == "__main__":
