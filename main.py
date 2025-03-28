@@ -138,6 +138,24 @@ def main():
             # Clear screen
             displaysurface.fill((0, 0, 0))
 
+            for platform in platforms:
+                if platform.is_moving and platform.movement_type == "linear":
+                    if (
+                        platform.movement_points[0]["x"]
+                        - platform.movement_points[1]["x"]
+                        == 0
+                    ):
+                        dir = 0
+                    else:
+                        dir = 1
+                    platform.move_linear(
+                        dir,
+                        platform.movement_points,
+                        platform.movement_speed,
+                        platform.wait_time,
+                        platform.coeff,
+                    )
+
             if background:
                 parallax_factor = 0.3
                 bg_x = camera.camera.x * parallax_factor
@@ -163,8 +181,8 @@ def main():
             for projectile in projectiles:
                 # Calculate position adjusted for camera (comme pour les autres sprites)
                 camera_adjusted_rect = projectile.rect.copy()
-                camera_adjusted_rect.x += camera.camera.x 
-                camera_adjusted_rect.y += camera.camera.y 
+                camera_adjusted_rect.x += camera.camera.x
+                camera_adjusted_rect.y += camera.camera.y
                 displaysurface.blit(projectile.surf, camera_adjusted_rect)
 
                 print(
