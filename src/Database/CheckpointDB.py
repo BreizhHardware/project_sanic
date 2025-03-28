@@ -3,7 +3,7 @@ import os
 
 
 class CheckpointDB:
-    def __init__(self, db_file="checkpoint.db"):
+    def __init__(self, db_file="game.db"):
         """
         Initialize database connection for checkpoint management
 
@@ -42,11 +42,15 @@ class CheckpointDB:
             pos_x: X coordinate
             pos_y: Y coordinate
         """
-        self.cursor.execute(
-            "INSERT OR REPLACE INTO checkpoints (map_name, pos_x, pos_y, timestamp) VALUES (?, ?, ?, strftime('%s'))",
-            (map_name, pos_x, pos_y),
-        )
-        self.conn.commit()
+        try:
+            self.cursor.execute(
+                "INSERT OR REPLACE INTO checkpoints (map_name, pos_x, pos_y, timestamp) VALUES (?, ?, ?, strftime('%s'))",
+                (map_name, pos_x, pos_y),
+            )
+            self.conn.commit()
+            print("Checkpoint saved")
+        except Exception as e:
+            print(f"Error saving checkpoint: {e}")
 
     def get_checkpoint(self, map_name):
         """
@@ -58,6 +62,7 @@ class CheckpointDB:
         Returns:
             Tuple (x, y) if checkpoint exists, None otherwise
         """
+        print(map_name)
         self.cursor.execute(
             "SELECT pos_x, pos_y FROM checkpoints WHERE map_name = ?", (map_name,)
         )

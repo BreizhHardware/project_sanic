@@ -7,7 +7,7 @@ from src.Map.parser import MapParser
 from src.Database.CheckpointDB import CheckpointDB
 
 
-def initialize_game(game_resources, map_file="map_test.json"):
+def initialize_game(game_resources, map_file="map/levels/1.json"):
     """
     Initialize game with map from JSON file
 
@@ -60,16 +60,6 @@ def initialize_game(game_resources, map_file="map_test.json"):
     )
 
 
-def reset_game(game_resources):
-    """Reset the game to initial state"""
-    # Reload game objects
-    player, _, platforms, all_sprites, background, checkpoints, exits = initialize_game(
-        game_resources, "map_test.json"
-    )
-
-    return player, platforms, all_sprites, background, checkpoints
-
-
 def reset_game_with_checkpoint(map_name, game_resources):
     """
     Reset the game and respawn player at checkpoint if available
@@ -103,6 +93,7 @@ def clear_checkpoint_database():
     try:
         db = CheckpointDB()
         db.clear_all()
+        db.close()
         print("Checkpoint database cleared successfully")
     except Exception as e:
         print(f"Error clearing checkpoint database: {e}")

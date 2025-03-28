@@ -39,7 +39,6 @@ class Checkpoint(Entity):
             if not hasattr(self, "original_surf"):
                 self.original_surf = self.surf.copy()
             self.surf.fill(self.activated_color)
-
             # Save checkpoint to database
             self.db.save_checkpoint(self.map_name, self.pos.x, self.pos.y)
 

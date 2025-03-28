@@ -1,11 +1,14 @@
+import re
+
 import pygame
 import sys
 from pygame.locals import *
 
+from src.Database.LevelDB import LevelDB
 from src.Entity.Enemy import Enemy
+from src.Menu.LevelSelectMenu import LevelSelectMenu
 from src.game import (
     initialize_game,
-    reset_game,
     reset_game_with_checkpoint,
     clear_checkpoint_database,
 )
@@ -40,15 +43,13 @@ def main():
 
     # Initialize game state and objects
     current_state = MENU
-    menu = Menu(game_resources)
+    main_menu = Menu(game_resources)
+    level_select_menu = None
+    level_file = "map/levels/1.json"
+    current_menu = "main"
     leaderboard = Leaderboard(WIDTH, HEIGHT, font)
 
     clear_checkpoint_database()
-
-    # Initialize game components
-    P1, PT1, platforms, all_sprites, background, checkpoints, exits = initialize_game(
-        game_resources, "map_test.json"
-    )
     projectiles = pygame.sprite.Group()
 
     # Main game loop
@@ -89,12 +90,12 @@ def main():
             elif event.type == USEREVENT:
                 if event.action == "player_death":
                     db = CheckpointDB()
-                    checkpoint_pos = db.get_checkpoint("map_test.json")
+                    checkpoint_pos = db.get_checkpoint(level_file)
 
                     if checkpoint_pos:
                         # Respawn player at checkpoint
                         P1, platforms, all_sprites, background, checkpoints = (
-                            reset_game_with_checkpoint("map_test.json", game_resources)
+                            reset_game_with_checkpoint(level_file, game_resources)
                         )
                         projectiles.empty()
                     else:
@@ -106,19 +107,38 @@ def main():
 
             # Handle menu events
             if current_state == MENU:
-                action = menu.handle_event(event)
-                if action == "play":
-                    P1, platforms, all_sprites, background, checkpoints = reset_game(
-                        game_resources
-                    )
-                    current_state = PLAYING
-                elif action == "infinite":
-                    current_state = INFINITE
-                elif action == "leaderboard":
-                    current_state = LEADERBOARD
-                elif action == "quit":
-                    pygame.quit()
-                    sys.exit()
+                if current_menu == "main":
+                    action = main_menu.handle_event(event)
+                    if action == "level_select":
+                        level_select_menu = LevelSelectMenu(game_resources)
+                        current_menu = "level_select"
+                    elif action == "infinite":
+                        current_state = INFINITE
+                    elif action == "leaderboard":
+                        current_state = LEADERBOARD
+                    elif action == "quit":
+                        pygame.quit()
+                        sys.exit()
+                elif current_menu == "level_select":
+                    action = level_select_menu.handle_event(event)
+                    if action == "back_to_main":
+                        current_menu = "main"
+                    elif (
+                        isinstance(action, dict)
+                        and action.get("action") == "select_level"
+                    ):
+                        level_file = action.get("level_file")
+                        (
+                            P1,
+                            PT1,
+                            platforms,
+                            all_sprites,
+                            background,
+                            checkpoints,
+                            exits,
+                        ) = initialize_game(game_resources, level_file)
+                        projectiles.empty()
+                        current_state = PLAYING
 
             # Handle leaderboard events
             elif current_state == LEADERBOARD:
@@ -131,7 +151,10 @@ def main():
 
         # Draw appropriate screen based on state
         if current_state == MENU:
-            menu.draw(displaysurface)
+            if current_menu == "main":
+                main_menu.draw(displaysurface)
+            elif current_menu == "level_select":
+                level_select_menu.draw(displaysurface)
 
         elif current_state == PLAYING:
             # Regular game code
@@ -194,6 +217,23 @@ def main():
             checkpoints_hit = pygame.sprite.spritecollide(P1, checkpoints, False)
             for checkpoint in checkpoints_hit:
                 checkpoint.activate()
+
+            exits_hit = pygame.sprite.spritecollide(P1, exits, False) if exits else []
+            for exit in exits_hit:
+                current_level_match = re.search(r"(\d+)\.json$", level_file)
+                if current_level_match:
+                    current_level = int(current_level_match.group(1))
+                    next_level = current_level + 1
+
+                    # Unlock next level
+                    db = LevelDB()
+                    db.unlock_level(next_level)
+                    db.close()
+
+                    # Return to level select menu
+                    current_state = MENU
+                    current_menu = "level_select"
+                    level_select_menu = LevelSelectMenu(game_resources)
 
             # Display FPS and coordinates (fixed position UI elements)
             fps = int(FramePerSec.get_fps())
