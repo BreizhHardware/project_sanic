@@ -4,7 +4,7 @@ import re
 
 from src.Database.LevelDB import LevelDB
 from src.Menu.Button import Button
-from src.game import clear_checkpoint_database
+from src.game import clear_checkpoint_database, clear_level_progress
 
 
 class LevelSelectMenu:
@@ -195,6 +195,12 @@ class LevelSelectMenu:
                 if action == "reset_progress":
                     # Clear checkpoint database
                     clear_checkpoint_database()
-                    return None  # Stay in the level select menu
+                    clear_level_progress()
+                    # Reset unlocked levels
+                    self.unlocked_levels = self.db.get_all_unlocked_levels()
+                    self.buttons = []
+                    self._create_buttons()
+                    self._add_navigation_buttons()
+                    return None
                 return action
         return None

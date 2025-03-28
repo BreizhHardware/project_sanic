@@ -1,6 +1,8 @@
 import pygame
 import sys
 from pygame.locals import *
+
+from src.Database.LevelDB import LevelDB
 from src.Entity.Platform import Platform
 from src.Entity.Player import Player
 from src.Map.parser import MapParser
@@ -97,6 +99,20 @@ def clear_checkpoint_database():
         print("Checkpoint database cleared successfully")
     except Exception as e:
         print(f"Error clearing checkpoint database: {e}")
+
+
+def clear_level_progress():
+    """
+    Clear all level progress from the database.
+    Used when starting a new game session.
+    """
+    try:
+        db = LevelDB()
+        db.reset_progress()
+        db.close()
+        print("Level progress cleared successfully")
+    except Exception as e:
+        print(f"Error clearing level progress: {e}")
 
 
 if __name__ == "__main__":
