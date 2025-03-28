@@ -1,6 +1,5 @@
 import pygame
 from src.Entity.Entity import Entity
-from src.constant import FPS
 from pygame.math import Vector2 as vec
 from src.Entity.Projectile import Projectile
 
@@ -98,7 +97,7 @@ class Enemy(Entity):
         else:
             self.detected_player = False
 
-    def stationary_attack(self, player):
+    def stationary_attack(self, player, FPS=60):
         """Remote attack for turret-like enemies"""
         distance_to_player = vec(
             player.pos.x - self.pos.x, player.pos.y - self.pos.y
@@ -140,7 +139,6 @@ class Enemy(Entity):
         self.health -= amount
         if self.health <= 0:
             self.kill()
-            print("Enemy killed!")
             return True
         return False
 

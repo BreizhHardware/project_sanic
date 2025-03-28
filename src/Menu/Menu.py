@@ -1,21 +1,21 @@
 import pygame
-from src.constant import HEIGHT, WIDTH
 from src.Menu.Button import Button
 
 
 class Menu:
-    def __init__(self):
+    def __init__(self, game_resources):
+        self.game_resources = game_resources
         self.buttons = []
         button_width = 250
         button_height = 60
         button_spacing = 20
-        start_y = HEIGHT // 2 - 100
+        start_y = self.game_resources.HEIGHT // 2 - 100
 
         # Create buttons centered horizontally
         self.buttons.append(
             Button(
                 "Jouer",
-                WIDTH // 2 - button_width // 2,
+                self.game_resources.WIDTH // 2 - button_width // 2,
                 start_y,
                 button_width,
                 button_height,
@@ -27,7 +27,7 @@ class Menu:
         self.buttons.append(
             Button(
                 "Jouer en mode infini",
-                WIDTH // 2 - button_width // 2,
+                self.game_resources.WIDTH // 2 - button_width // 2,
                 start_y,
                 button_width,
                 button_height,
@@ -39,7 +39,7 @@ class Menu:
         self.buttons.append(
             Button(
                 "Classement",
-                WIDTH // 2 - button_width // 2,
+                self.game_resources.WIDTH // 2 - button_width // 2,
                 start_y,
                 button_width,
                 button_height,
@@ -51,7 +51,7 @@ class Menu:
         self.buttons.append(
             Button(
                 "Quitter",
-                WIDTH // 2 - button_width // 2,
+                self.game_resources.WIDTH // 2 - button_width // 2,
                 start_y,
                 button_width,
                 button_height,
@@ -64,12 +64,14 @@ class Menu:
         title = pygame.font.SysFont("Arial", 72).render(
             "Project Sanic", True, (0, 191, 255)
         )
-        title_rect = title.get_rect(center=(WIDTH // 2, HEIGHT // 4))
+        title_rect = title.get_rect(
+            center=(self.game_resources.WIDTH // 2, self.game_resources.HEIGHT // 4)
+        )
         surface.blit(title, title_rect)
 
         # Draw buttons
         for button in self.buttons:
-            button.draw(surface)
+            button.draw(surface, self.game_resources.font)
 
     def handle_event(self, event):
         for button in self.buttons:

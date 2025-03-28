@@ -5,13 +5,13 @@ from src.Entity.Platform import Platform
 from src.Entity.Player import Player
 from src.Entity.Enemy import Enemy
 from src.Entity.Checkpoint import Checkpoint
-from src.constant import WIDTH, HEIGHT, all_sprites, platforms
 
 
 class MapParser:
-    def __init__(self):
-        self.all_sprites = all_sprites
-        self.platforms = platforms
+    def __init__(self, game_resources):
+        self.game_resources = game_resources
+        self.all_sprites = self.game_resources.all_sprites
+        self.platforms = self.game_resources.platforms
         self.enemies = pygame.sprite.Group()
         self.collectibles = pygame.sprite.Group()
         self.checkpoints = pygame.sprite.Group()
@@ -34,8 +34,8 @@ class MapParser:
                 "collectibles": self.collectibles,
                 "map_properties": {
                     "name": map_data.get("name", "Unnamed Level"),
-                    "width": map_data.get("width", WIDTH),
-                    "height": map_data.get("height", HEIGHT),
+                    "width": map_data.get("width", self.game_resources.WIDTH),
+                    "height": map_data.get("height", self.game_resources.HEIGHT),
                 },
                 "checkpoints": self.checkpoints,
             }
@@ -105,7 +105,7 @@ class MapParser:
 
         # Create player at spawn point
         spawn = map_data.get("spawn_point", {"x": 50, "y": 700})
-        self.player = Player()
+        self.player = Player(self.game_resources)
         self.player.pos.x = spawn["x"]
         self.player.pos.y = spawn["y"]
         self.all_sprites.add(self.player)
@@ -125,12 +125,12 @@ class MapParser:
 
         # Create background image
         if "background" in map_data:
-            print(f"Loading background image: {map_data['background']}")
             if os.path.isfile(map_data["background"]):
                 background = pygame.image.load(map_data["background"]).convert_alpha()
-                background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+                background = pygame.transform.scale(
+                    background, (self.game_resources.WIDTH, self.game_resources.HEIGHT)
+                )
                 self.background = background
-                print("Background image loaded")
             else:
                 print(f"Background image not found: {map_data['background']}")
         else:

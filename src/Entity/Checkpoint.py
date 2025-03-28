@@ -43,6 +43,5 @@ class Checkpoint(Entity):
             # Save checkpoint to database
             self.db.save_checkpoint(self.map_name, self.pos.x, self.pos.y)
 
-            print("checkpoint")
             return True
         return False

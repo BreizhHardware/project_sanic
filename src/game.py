@@ -3,83 +3,77 @@ import sys
 from pygame.locals import *
 from src.Entity.Platform import Platform
 from src.Entity.Player import Player
-from src.constant import (
-    displaysurface,
-    FramePerSec,
-    font,
-    FPS,
-    platforms,
-    all_sprites,
-    vec,
-)
 from src.Map.parser import MapParser
 from src.Database.CheckpointDB import CheckpointDB
 
 
-def initialize_game(map_file="map_test.json"):
+def initialize_game(game_resources, map_file="map_test.json"):
     """Initialize game with map from JSON file"""
-    parser = MapParser()
+    parser = MapParser(game_resources)
     map_objects = parser.load_map(map_file)
 
     if not map_objects:
         # Fallback to default setup if map loading fails
-        platforms.empty()
-        all_sprites.empty()
+        game_resources.platforms.empty()
+        game_resources.all_sprites.empty()
 
         PT1 = Platform(1200, 20, 600, 400)
-        P1 = Player()
+        P1 = Player(game_resources)
 
-        platforms.add(PT1)
-        all_sprites.add(PT1)
-        all_sprites.add(P1)
+        game_resources.platforms.add(PT1)
+        game_resources.all_sprites.add(PT1)
+        game_resources.all_sprites.add(P1)
 
-        return P1, PT1, platforms, all_sprites, None  # Return None for background
+        return (
+            P1,
+            PT1,
+            game_resources.platforms,
+            game_resources.all_sprites,
+            None,
+            None,
+        )
 
     return (
         map_objects["player"],
-        None,  # No specific platform reference needed
+        None,
         map_objects["platforms"],
         map_objects["all_sprites"],
-        parser.background,  # Return the loaded background
+        parser.background,
         map_objects["checkpoints"],
     )
 
 
-def reset_game():
+def reset_game(game_resources):
     """Reset the game to initial state"""
-    global platforms, all_sprites, camera
-
-    # Empty all sprite groups
-    platforms.empty()
-    all_sprites.empty()
-
     # Reload game objects
     player, _, platforms, all_sprites, background, checkpoints = initialize_game(
-        "map_test.json"
+        game_resources, "map_test.json"
     )
 
     return player, platforms, all_sprites, background, checkpoints
 
 
-def reset_game_with_checkpoint(map_name="map_test.json"):
+def reset_game_with_checkpoint(map_name, game_resources):
     """
     Reset the game and respawn player at checkpoint if available
 
     Args:
         map_name: Name of the current map
+        game_resources: GameResources object
     """
-    # Initialize game normally
-    player, platforms, all_sprites, background, checkpoints = reset_game()
-
-    # Check if there's a saved checkpoint
+    # Check the checkpoint database for saved checkpoint
     db = CheckpointDB()
     checkpoint_pos = db.get_checkpoint(map_name)
 
-    # If checkpoint exists, teleport player there
+    # Initialize game
+    player, _, platforms, all_sprites, background, checkpoints = initialize_game(
+        game_resources, map_name
+    )
+
+    # If checkpoint exists, respawn player at checkpoint
     if checkpoint_pos:
-        player.pos = vec(checkpoint_pos[0], checkpoint_pos[1])
+        player.pos = game_resources.vec(checkpoint_pos[0], checkpoint_pos[1])
         player.update_rect()
-        print(f"Player respawned at checkpoint: {checkpoint_pos}")
 
     return player, platforms, all_sprites, background, checkpoints
 
