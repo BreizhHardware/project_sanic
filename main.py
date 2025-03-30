@@ -17,6 +17,8 @@ from src.Menu.Menu import Menu
 from src.Menu.Leaderboard import Leaderboard
 from src.Camera import Camera
 from src.Database.CheckpointDB import CheckpointDB
+from src.Editor.LevelEditor import LevelEditor
+from src.Menu.LevelEditorSelectionMenu import LevelEditorSelectionMenu
 
 
 def main():
@@ -139,12 +141,33 @@ def main():
                         ) = initialize_game(game_resources, level_file)
                         projectiles.empty()
                         current_state = PLAYING
+                    elif action == "open_editor":
+                        editor_select_menu = LevelEditorSelectionMenu(game_resources)
+                        current_state = "editor_select"
 
             # Handle leaderboard events
             elif current_state == LEADERBOARD:
                 action = leaderboard.handle_event(event)
                 if action == "menu":
                     current_state = MENU
+
+            elif current_state == "editor_select":
+                action = editor_select_menu.handle_event(event)
+                if action == "back_to_levels":
+                    current_state = MENU
+                    current_menu = "level_select"
+                elif isinstance(action, dict):
+                    if action["action"] == "edit_level":
+                        level_editor = LevelEditor(game_resources, action["level_file"])
+                        current_state = "level_editor"
+                    elif action["action"] == "new_level":
+                        level_editor = LevelEditor(game_resources)
+                        current_state = "level_editor"
+
+            elif current_state == "level_editor":
+                result = level_editor.handle_event(event)
+                if result == "back_to_levels":
+                    current_state = "editor_select"
 
         # Clear screen
         displaysurface.fill((0, 0, 0))
@@ -155,6 +178,12 @@ def main():
                 main_menu.draw(displaysurface)
             elif current_menu == "level_select":
                 level_select_menu.draw(displaysurface)
+        elif current_state == "editor_select":
+            editor_select_menu.draw(displaysurface)
+        elif current_state == "level_editor":
+            level_editor.draw(displaysurface)
+        elif current_state == LEADERBOARD:
+            leaderboard.draw(displaysurface)
 
         elif current_state == PLAYING:
             # Regular game code

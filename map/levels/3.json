@@ -1,0 +1,33 @@
+{
+  "player": {
+    "x": 100.0,
+    "y": 620.0
+  },
+  "platforms": [
+    {
+      "x": 20,
+      "y": 640,
+      "width": 820,
+      "height": 160
+    }
+  ],
+  "checkpoints": [],
+  "exits": [],
+  "enemies": [
+    {
+      "x": 780,
+      "y": 620,
+      "type": "walker"
+    },
+    {
+      "x": 800,
+      "y": 640,
+      "type": "walker"
+    },
+    {
+      "x": 820,
+      "y": 660,
+      "type": "walker"
+    }
+  ]
+}
