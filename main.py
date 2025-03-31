@@ -64,11 +64,8 @@ def main():
             joystick = pygame.joystick.Joystick(i)
             joystick.init()
             joysticks.append(joystick)
-            print(f"Manette détectée: {joystick.get_name()}")
-            print(f"Nombre de boutons: {joystick.get_numbuttons()}")
-            print(f"Nombre d'axes: {joystick.get_numaxes()}")
     except pygame.error:
-        print("Erreur lors de l'initialisation des manettes")
+        print("Error while initializing joysticks")
 
     # Main game loop
     running = True
@@ -78,7 +75,7 @@ def main():
             try:
                 events = pygame.event.get()
             except Exception as e:
-                print(f"Erreur lors de la récupération des événements: {e}")
+                print(f"Error while getting events: {e}")
                 pygame.joystick.quit()
                 pygame.joystick.init()
                 continue
@@ -202,7 +199,7 @@ def main():
                     if result == "back_to_levels":
                         current_state = "editor_select"
         except Exception as e:
-            print(f"Erreur lors du traitement de l'événement: {e}")
+            print(f"Error while processing events: {e}")
             continue
 
         # Clear screen
