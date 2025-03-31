@@ -85,7 +85,7 @@ def reset_game_with_checkpoint(map_name, game_resources):
         player.pos = game_resources.vec(checkpoint_pos[0], checkpoint_pos[1])
         player.update_rect()
 
-    return player, platforms, all_sprites, background, checkpoints
+    return player, platforms, all_sprites, background, checkpoints, collectibles
 
 
 def clear_checkpoint_database():

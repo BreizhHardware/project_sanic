@@ -94,7 +94,7 @@ def main():
 
                     if checkpoint_pos:
                         # Respawn player at checkpoint
-                        P1, platforms, all_sprites, background, checkpoints = (
+                        P1, platforms, all_sprites, background, checkpoints, collectibles = (
                             reset_game_with_checkpoint(level_file, game_resources)
                         )
                         projectiles.empty()
