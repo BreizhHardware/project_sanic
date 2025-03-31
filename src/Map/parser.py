@@ -71,6 +71,14 @@ class MapParser:
                     self.platforms.add(platform)
                     self.all_sprites.add(platform)
 
+        # Create enemies
+        if "enemies" in map_data:
+            # Create enemies
+            for enemy_data in map_data["enemies"]:
+                enemy = Enemy(enemy_data)
+                self.enemies.add(enemy)
+                self.all_sprites.add(enemy)
+
         # Create platforms
         if "platforms" in map_data:
             for platform_data in map_data["platforms"]:
@@ -106,22 +114,6 @@ class MapParser:
 
                 self.platforms.add(platform)
                 self.all_sprites.add(platform)
-
-        # Create player at spawn point
-        spawn = map_data.get("spawn_point", {"x": 50, "y": 700})
-        self.player = Player(self.game_resources)
-        self.player.pos.x = spawn["x"]
-        self.player.pos.y = spawn["y"]
-        self.all_sprites.add(self.player)
-
-        # Create enemies (requires Enemy class implementation)
-        if "enemies" in map_data:
-            # Create enemies
-            if "enemies" in map_data:
-                for enemy_data in map_data["enemies"]:
-                    enemy = Enemy(enemy_data)
-                    self.enemies.add(enemy)
-                    self.all_sprites.add(enemy)
 
         # Create collectibles (requires Collectible class implementation)
         if "collectibles" in map_data:
@@ -163,3 +155,10 @@ class MapParser:
                 )
                 self.exits.add(exit)
                 self.all_sprites.add(exit)
+
+        # Create player at spawn point
+        spawn = map_data.get("spawn_point", {"x": 50, "y": 700})
+        self.player = Player(self.game_resources)
+        self.player.pos.x = spawn["x"]
+        self.player.pos.y = spawn["y"]
+        self.all_sprites.add(self.player)

@@ -3,7 +3,6 @@ import os
 import re
 
 from src.Menu.Button import Button
-from src.Editor.LevelEditor import LevelEditor
 
 
 class LevelEditorSelectionMenu:

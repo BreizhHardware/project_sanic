@@ -1,85 +1,186 @@
 {
-  "player": {
-    "x": 50.0,
-    "y": 700.0
-  },
+  "name": "Level 1",
+  "width": 2400,
+  "height": 800,
+  "background": "assets/map/background/forest_bg.jpg",
+  "gravity": 1.0,
+
+  "ground": [
+    {
+      "id": "main_ground",
+      "x": -1000,
+      "y": 780,
+      "width": 1800,
+      "height": 200,
+      "texture": "assets/map/platform/grass_texture.jpg"
+    },
+    {
+      "id": "pit",
+      "x": 800,
+      "y": 780,
+      "width": 200,
+      "height": 20,
+      "is_hole": true
+    },
+    {
+      "id": "main_ground_2",
+      "x": 1000,
+      "y": 900,
+      "width": 1800,
+      "height": 200,
+      "texture": "assets/map/platform/grass_texture.jpg"
+    }
+  ],
+
   "platforms": [
     {
-      "x": -1000,
-      "y": 680,
-      "width": 1800,
-      "height": 200
-    },
-    {
-      "x": 1000,
-      "y": 800,
-      "width": 1800,
-      "height": 200
-    },
-    {
+      "id": "platform1",
       "x": 300,
-      "y": 590,
+      "y": 600,
       "width": 200,
-      "height": 20
+      "height": 20,
+      "texture": "assets/map/platform/grass_texture.jpg",
+      "is_moving": false
     },
     {
-      "x": 680,
+      "id": "platform2",
+      "x": 700,
       "y": 500,
       "width": 150,
-      "height": 20
+      "height": 20,
+      "texture": "assets/map/platform/grass_texture.jpg",
+      "is_moving": true,
+      "movement": {
+        "type": "linear",
+        "points": [
+          {"x": 700, "y": 300},
+          {"x": 700, "y": 500}
+        ],
+        "speed": 2.0,
+        "wait_time": 1.0
+      }
     },
     {
+      "id": "platform21",
       "x": 900,
-      "y": 490,
+      "y": 500,
       "width": 150,
-      "height": 20
+      "height": 20,
+      "texture": "assets/map/platform/grass_texture.jpg",
+      "is_moving": true,
+      "movement": {
+        "type": "linear",
+        "points": [
+          {"x": 700, "y": 500},
+          {"x": 800, "y": 500}
+        ],
+        "speed": 2.0,
+        "wait_time": 1.0
+      }
     },
     {
+      "id": "platform3",
       "x": 1200,
-      "y": 390,
+      "y": 400,
       "width": 100,
-      "height": 20
-    },
-    {
-      "x": 280,
-      "y": 180,
-      "width": 180,
-      "height": 200
+      "height": 20,
+      "texture": "assets/map/platform/grass_texture.jpg",
+      "is_moving": true,
+      "movement": {
+        "type": "circular",
+        "center": {"x": 1200, "y": 400},
+        "radius": 100,
+        "speed": 0.02,
+        "clockwise": true
+      }
     }
   ],
-  "checkpoints": [
-    {
-      "x": 1175,
-      "y": 710
-    },
-    {
-      "x": 460,
-      "y": 540
-    }
-  ],
-  "exits": [
-    {
-      "x": 2275,
-      "y": 620,
-      "width": 50,
-      "height": 80
-    }
-  ],
+
   "enemies": [
     {
-      "x": 580,
-      "y": 600,
-      "type": "walker"
+      "id": "enemy1",
+      "type": "walker",
+      "x": 500,
+      "y": 620,
+      "health": 1,
+      "damage": 1,
+      "behavior": "patrol",
+      "patrol_points": [
+        {"x": 400, "y": 620},
+        {"x": 600, "y": 620}
+      ],
+      "speed": 1.5,
+      "sprite_sheet": "assets/map/enemy/walker_enemy.png"
     },
     {
-      "x": 980,
-      "y": 380,
-      "type": "flyer"
+      "id": "enemy2",
+      "type": "flyer",
+      "x": 1000,
+      "y": 400,
+      "health": 1,
+      "damage": 1,
+      "behavior": "chase",
+      "detection_radius": 200,
+      "speed": 2.0,
+      "sprite_sheet": "assets/map/enemy/flying_enemy.png"
     },
     {
-      "x": 1480,
-      "y": 680,
-      "type": "turret"
+      "id": "enemy3",
+      "type": "turret",
+      "x": 1500,
+      "y": 700,
+      "health": 1,
+      "damage": 1,
+      "behavior": "stationary",
+      "attack_interval": 2.0,
+      "attack_range": 300,
+      "sprite_sheet": "assets/map/enemy/turret_enemy.png"
+    }
+  ],
+
+  "collectibles": [
+    {
+      "id": "coin1",
+      "type": "coin",
+      "x": 350,
+      "y": 550,
+      "value": 10,
+      "sprite": "assets/map/collectibles/coin.png"
+    },
+    {
+      "id": "power_up1",
+      "type": "speed_boost",
+      "x": 900,
+      "y": 450,
+      "duration": 5.0,
+      "sprite": "assets/map/collectibles/speed_boost.png"
+    }
+  ],
+
+  "checkpoints": [
+    {
+      "id": "checkpoint1",
+      "x": 1200,
+      "y": 760,
+      "width": 50,
+      "height": 50,
+      "sprite": "assets/map/checkpoints/checkpoint.png"
+    }
+  ],
+
+  "spawn_point": {
+    "x": 50,
+    "y": 700
+  },
+
+  "exits": [
+      {
+        "x": 2300,
+        "y": 700,
+        "width": 50,
+        "height": 80,
+        "next_level": "Level 2",
+        "sprite": "assets/map/exit/door.png"
     }
   ]
 }

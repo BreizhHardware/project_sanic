@@ -1,33 +1,77 @@
 {
-  "player": {
-    "x": 100.0,
-    "y": 620.0
-  },
+  "name": "Level 3",
+  "width": 2400,
+  "height": 800,
+  "background": "assets/map/background/forest_bg.jpg",
+  "gravity": 1.0,
+  "ground": [
+  ],
   "platforms": [
     {
-      "x": 20,
-      "y": 640,
-      "width": 820,
-      "height": 160
+      "id": "platform1",
+      "x": -1000,
+      "y": 680,
+      "width": 1800,
+      "height": 200,
+      "texture": "assets/map/platform/grass_texture.jpg",
+      "is_moving": false
+    },
+    {
+      "id": "platform2",
+      "x": 240,
+      "y": 360,
+      "width": 540,
+      "height": 160,
+      "texture": "assets/map/platform/grass_texture.jpg",
+      "is_moving": false
+    },
+    {
+      "id": "platform3",
+      "x": 320,
+      "y": 170,
+      "width": 200,
+      "height": 20,
+      "texture": "assets/map/platform/grass_texture.jpg",
+      "is_moving": false
+    }
+  ],
+  "enemies": [
+    {
+      "id": "enemy1",
+      "type": "walker",
+      "x": 440,
+      "y": 280,
+      "health": 1,
+      "damage": 1,
+      "sprite_sheet": "assets/map/enemy/walker_enemy.png",
+      "behavior": "patrol",
+      "patrol_points": [
+        {
+          "x": 340,
+          "y": 280
+        },
+        {
+          "x": 540,
+          "y": 280
+        }
+      ],
+      "speed": 1.5
     }
   ],
   "checkpoints": [],
-  "exits": [],
-  "enemies": [
+  "exits": [
     {
-      "x": 780,
-      "y": 620,
-      "type": "walker"
-    },
-    {
-      "x": 800,
-      "y": 640,
-      "type": "walker"
-    },
-    {
-      "x": 820,
-      "y": 660,
-      "type": "walker"
+      "x": 650,
+      "y": 80,
+      "width": 50,
+      "height": 80,
+      "next_level": "map/levels/1.json",
+      "sprite": "assets/map/exit/door.png"
     }
-  ]
+  ],
+  "collectibles": [],
+  "spawn_point": {
+    "x": 260.0,
+    "y": 320.0
+  }
 }

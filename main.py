@@ -17,7 +17,7 @@ from src.Menu.Menu import Menu
 from src.Menu.Leaderboard import Leaderboard
 from src.Camera import Camera
 from src.Database.CheckpointDB import CheckpointDB
-from src.Editor.LevelEditor import LevelEditor
+from src.Map.Editor.LevelEditor import LevelEditor
 from src.Menu.LevelEditorSelectionMenu import LevelEditorSelectionMenu
 
 
@@ -130,6 +130,7 @@ def main():
                         and action.get("action") == "select_level"
                     ):
                         level_file = action.get("level_file")
+                        print(level_file)
                         (
                             P1,
                             PT1,
@@ -243,7 +244,10 @@ def main():
                 camera_adjusted_rect.y += camera.camera.y
                 displaysurface.blit(projectile.surf, camera_adjusted_rect)
 
-            checkpoints_hit = pygame.sprite.spritecollide(P1, checkpoints, False)
+            if checkpoints is not None:
+                checkpoints_hit = pygame.sprite.spritecollide(P1, checkpoints, False)
+            else:
+                checkpoints_hit = []
             for checkpoint in checkpoints_hit:
                 checkpoint.activate()
 

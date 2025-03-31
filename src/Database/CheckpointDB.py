@@ -80,5 +80,6 @@ class CheckpointDB:
         """
         try:
             self.cursor.execute("DELETE FROM checkpoints")
+            self.conn.commit()
         except Exception as e:
             print(f"Error clearing checkpoint database: {e}")
