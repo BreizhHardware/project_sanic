@@ -40,6 +40,9 @@ class Player(Entity):
         # Load images
         self.load_images()
 
+        # Coins amount
+        self.coins = 0
+
         # Override initial surface if images are loaded
         if self.static_image:
             self.surf = self.static_image
@@ -291,3 +294,36 @@ class Player(Entity):
                         start_y,
                     ),
                 )
+
+    def draw_coins(self, surface):
+        """Draws the coin counter with icon in the top left corner"""
+        # Load coin texture (do this in __init__ for better performance)
+        coin_texture = pygame.image.load("assets/map/collectibles/Sanic_Coin.png").convert_alpha()
+        coin_size = 30
+        coin_texture = pygame.transform.scale(coin_texture, (coin_size, coin_size))
+
+        # Position for coin display
+        start_x = 200
+        start_y = 10
+
+        # Draw coin icon
+        surface.blit(coin_texture, (start_x, start_y))
+
+        # Use custom font
+        try:
+            font = pygame.font.Font("assets/fonts/sanicfont.ttf", 20)
+        except:
+            # Fallback to default font if custom font fails to load
+            font = pygame.font.Font(None, 20)
+
+        coin_text = font.render(f"x{self.coins}", True, (58, 83, 200))
+
+        # Position text next to coin icon with small spacing
+        text_x = start_x + coin_size + 5
+        text_y = start_y + (coin_size - coin_text.get_height()) // 2  # Vertically center
+
+        surface.blit(coin_text, (text_x, text_y))
+
+    def collect_coin(self, surface):
+        """Increment coin counter when collecting a coin"""
+        self.coins += 1
