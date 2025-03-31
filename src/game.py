@@ -53,14 +53,6 @@ def initialize_game(game_resources, map_file="map/levels/1.json"):
         for exit_obj in exits:
             exit_obj.set_player(map_objects["player"])
 
-    with open(map_file, "r") as f:
-        level_data = json.load(f)
-    print(f"Chargement du niveau: {map_file}")
-    if "enemies" in level_data:
-        print(f"Ennemis trouvés dans le JSON: {len(level_data['enemies'])}")
-    else:
-        print("Aucun ennemi trouvé dans le JSON")
-
     return (
         map_objects["player"],
         None,

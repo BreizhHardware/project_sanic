@@ -491,27 +491,13 @@ class LevelEditor:
 
         # Handle keyboard controls for platform properties
         if event.type == KEYDOWN:
-            print(f"Touche pressée: {pygame.key.name(event.key)}")
-            print(
-                f"Objet sélectionné: {type(self.selected_object).__name__ if self.selected_object else 'Aucun'}"
-            )
             if event.key == K_BACKSPACE and self.selected_object:
-                print(
-                    f"Tentative de suppression de {type(self.selected_object).__name__}"
-                )
                 # Vérifier que l'objet est bien dans les groupes avant de le supprimer
                 if self.selected_object in self.all_sprites:
                     self.all_sprites.remove(self.selected_object)
-                    print("Supprimé de all_sprites")
-                else:
-                    print("L'objet n'est pas dans all_sprites")
                 if isinstance(self.selected_object, EditorPlatform):
-                    print("Objet sélectionné est une plateforme")
                     if self.selected_object in self.platforms:
                         self.platforms.remove(self.selected_object)
-                        print("Supprimé de platforms")
-                    else:
-                        print("L'objet n'est pas dans platforms")
                 elif isinstance(self.selected_object, EditorCheckpoint):
                     self.checkpoints.remove(self.selected_object)
                 elif isinstance(self.selected_object, EditorEnemy):
@@ -521,7 +507,6 @@ class LevelEditor:
                 elif self.selected_object == self.exit_point:
                     self.exit_point = None
                 self.selected_object = None
-                print("Objet sélectionné réinitialisé")
 
             if self.selected_object and isinstance(
                 self.selected_object, EditorPlatform
@@ -606,7 +591,7 @@ class LevelEditor:
 
             elif self.selected_object and isinstance(self.selected_object, EditorExit):
                 if event.key == K_n:
-                    # Cycle de navigation entre les niveaux
+                    # Navigation between levels
                     level_dir = "map/levels/"
                     levels = [f for f in os.listdir(level_dir) if f.endswith(".json")]
 
@@ -700,12 +685,13 @@ class LevelEditor:
                 else:
                     info_text.append("Moving: No")
 
-                y_offset = 120
+                y_offset = 20
                 for text in info_text:
                     text_surf = self.game_resources.font.render(
                         text, True, (255, 255, 255)
                     )
-                    surface.blit(text_surf, (10, y_offset))
+                    x_pos = self.game_resources.WIDTH - text_surf.get_width() - 10
+                    surface.blit(text_surf, (x_pos, y_offset))
                     y_offset += 25
 
         # Draw platform being created

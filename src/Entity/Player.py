@@ -38,6 +38,7 @@ class Player(Entity):
         self.moving = False
         self.dashing = False
         self.jumping = False
+        self.highest_position = self.pos.y
 
         # Dash mechanics
         self.last_dash_time = 0
@@ -272,18 +273,68 @@ class Player(Entity):
         )
 
     def update(self):
-        hits = pygame.sprite.spritecollide(self, self.game_resources.platforms, False)
+        feet_rect = pygame.Rect(0, 0, self.rect.width * 0.8, 10)
+        feet_rect.midbottom = self.rect.midbottom
+
+        left_side_rect = pygame.Rect(0, 0, 10, self.rect.height * 0.7)
+        left_side_rect.midleft = self.rect.midleft
+
+        right_side_rect = pygame.Rect(0, 0, 10, self.rect.height * 0.7)
+        right_side_rect.midright = self.rect.midright
+
+        hits = []
+        for platform in self.game_resources.platforms:
+            platform_top_rect = pygame.Rect(
+                platform.rect.x, platform.rect.y, platform.rect.width, 5
+            )
+            if feet_rect.colliderect(platform_top_rect):
+                hits.append(platform)
+
         if hits:
             if self.vel.y > 0:
                 self.pos.y = hits[0].rect.top
                 self.vel.y = 0
                 self.jumping = False
+                self.highest_position = self.pos.y
+
+        side_hits = []
+        for platform in self.game_resources.platforms:
+            platform_left_rect = pygame.Rect(
+                platform.rect.x, platform.rect.y + 5, 5, platform.rect.height - 5
+            )
+            platform_right_rect = pygame.Rect(
+                platform.rect.right - 5,
+                platform.rect.y + 5,
+                5,
+                platform.rect.height - 5,
+            )
+
+            if right_side_rect.colliderect(platform_left_rect):
+                side_hits.append(("right", platform))
+            if left_side_rect.colliderect(platform_right_rect):
+                side_hits.append(("left", platform))
+
+        for side, platform in side_hits:
+            if side == "right" and self.vel.x > 0:
+                self.pos.x = platform.rect.left - self.rect.width / 2
+                self.vel.x = 0
+            elif side == "left" and self.vel.x < 0:
+                self.pos.x = platform.rect.right + self.rect.width / 2
+                self.vel.x = 0
 
         if self.invulnerable:
             self.invulnerable_timer += 1 / self.game_resources.FPS
             if self.invulnerable_timer >= self.invulnerable_duration:
                 self.invulnerable = False
                 self.invulnerable_timer = 0
+
+        if self.vel.y <= 0:
+            self.highest_position = self.pos.y
+
+        if self.vel.y > 0:
+            fall_distance = self.pos.y - self.highest_position
+            if fall_distance > 500:
+                self.death()
 
     def take_damage(self, amount=1):
         """Reduce life number if not invulnerable"""
