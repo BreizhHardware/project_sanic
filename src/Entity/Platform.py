@@ -54,7 +54,7 @@ class Platform(Entity):
                 self.coeff == -1 and not self.rect.y <= movement_points[0]["y"]
             ):
                 a = -1
-            self.rect.y += self.acc * movement_speed
+            self.rect.y += a * movement_speed
             self.coeff = a
 
         else:
