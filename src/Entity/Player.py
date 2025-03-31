@@ -272,7 +272,17 @@ class Player(Entity):
         )
 
     def update(self):
-        hits = pygame.sprite.spritecollide(self, self.game_resources.platforms, False)
+        feet_rect = pygame.Rect(0, 0, self.rect.width * 0.8, 10)
+        feet_rect.midbottom = self.rect.midbottom
+
+        hits = []
+        for platform in self.game_resources.platforms:
+            platform_top_rect = pygame.Rect(
+                platform.rect.x, platform.rect.y, platform.rect.width, 5
+            )
+            if feet_rect.colliderect(platform_top_rect):
+                hits.append(platform)
+
         if hits:
             if self.vel.y > 0:
                 self.pos.y = hits[0].rect.top
