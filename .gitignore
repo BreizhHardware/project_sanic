@@ -1,5 +1,12 @@
 .venv
 .venv/*
 
+.winvenv
+.winvenv/*
+
 .idea
 .idea/*
+
+checkpoint.db
+checkpoint.db-journal
+game.db

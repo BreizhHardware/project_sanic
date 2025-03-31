@@ -1,10 +1,9 @@
 from pygame.locals import *
 import pygame
-from src.constant import font
 
 
 class Button:
-    def __init__(self, text, x, y, width, height, action=None):
+    def __init__(self, text, x, y, width, height, action=None, locked=False):
         self.text = text
         self.x = x
         self.y = y
@@ -12,24 +11,37 @@ class Button:
         self.height = height
         self.action = action
         self.hover = False
+        self.locked = locked
+        self.rect = pygame.Rect(x, y, width, height)
 
-    def draw(self, surface):
+    def draw(self, surface, font):
         # Button colors
-        color = (100, 149, 237) if self.hover else (65, 105, 225)
-        border_color = (255, 255, 255)
+        if self.locked:
+            bg_color = (100, 100, 100)
+            text_color = (200, 200, 200)
+        elif self.hover:
+            bg_color = (100, 100, 255)
+            text_color = (255, 255, 255)
+        else:
+            bg_color = (50, 50, 200)
+            text_color = (255, 255, 255)
 
         # Draw button with border
-        pygame.draw.rect(surface, color, (self.x, self.y, self.width, self.height))
-        pygame.draw.rect(
-            surface, border_color, (self.x, self.y, self.width, self.height), 2
-        )
+        pygame.draw.rect(surface, bg_color, self.rect, border_radius=10)
+        pygame.draw.rect(surface, (0, 0, 0), self.rect, 2, border_radius=10)
 
         # Draw text
-        text_surf = font.render(self.text, True, (255, 255, 255))
-        text_rect = text_surf.get_rect(
-            center=(self.x + self.width / 2, self.y + self.height / 2)
-        )
+        text_surf = font.render(self.text, True, text_color)
+        text_rect = text_surf.get_rect(center=self.rect.center)
         surface.blit(text_surf, text_rect)
+
+        # Add lock icon if button is locked
+        if self.locked:
+            lock_text = font.render("🔒", True, (255, 255, 255))
+            lock_rect = lock_text.get_rect(
+                center=(self.rect.right - 20, self.rect.y + 20)
+            )
+            surface.blit(lock_text, lock_rect)
 
     def is_hover(self, pos):
         return (

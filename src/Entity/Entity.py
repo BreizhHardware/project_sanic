@@ -1,9 +1,12 @@
 import pygame
+import os
 from pygame.math import Vector2 as vec
 
 
 class Entity(pygame.sprite.Sprite):
-    def __init__(self, pos=(0, 0), size=(30, 30), color=(255, 255, 255)):
+    def __init__(
+        self, pos=(0, 0), size=(30, 30), color=(255, 255, 255), texturePath=""
+    ):
         super().__init__()
         self.pos = vec(pos)
         self.vel = vec(0, 0)
@@ -14,6 +17,13 @@ class Entity(pygame.sprite.Sprite):
         self.surf.fill(color)
         self.rect = self.surf.get_rect()
         self.update_rect()
+        if os.path.isfile(texturePath):
+            self.surf = pygame.image.load(texturePath).convert_alpha()
+            self.surf = pygame.transform.scale(self.surf, size)
+            self.rect = self.surf.get_rect()
+        else:
+            print("Texture path not found")
+            print(texturePath)
 
     def update_rect(self):
         """Update rect position based on entity position"""
