@@ -37,6 +37,7 @@ class Platform(Entity):
         self.acc = 0
         self.width = width
         self.height = height
+        self.clockwise = clockwise
 
         self.center = center
         self.radius = radius
