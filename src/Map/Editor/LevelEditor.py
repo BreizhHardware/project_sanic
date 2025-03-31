@@ -591,7 +591,7 @@ class LevelEditor:
 
             elif self.selected_object and isinstance(self.selected_object, EditorExit):
                 if event.key == K_n:
-                    # Navigation beetween levels
+                    # Navigation between levels
                     level_dir = "map/levels/"
                     levels = [f for f in os.listdir(level_dir) if f.endswith(".json")]
 
