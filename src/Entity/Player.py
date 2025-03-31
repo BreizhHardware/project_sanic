@@ -11,6 +11,20 @@ class Player(Entity):
         # Game ressources
         self.game_resources = game_resources
 
+        self.has_joystick = False
+        self.joystick = None
+
+        self.jump_button = 0
+        self.dash_button = 1
+
+        try:
+            if pygame.joystick.get_count() > 0:
+                self.joystick = pygame.joystick.Joystick(0)
+                self.joystick.init()
+                self.has_joystick = True
+        except pygame.error:
+            self.has_joystick = False
+
         # Animation variables
         self.animation_frames = []
         self.jump_frames = []
@@ -174,18 +188,46 @@ class Player(Entity):
         # Reset flags
         self.moving = False
 
+        # Keyboard controls
         pressed_keys = pygame.key.get_pressed()
-        if pressed_keys[K_q]:
+        move_left = pressed_keys[K_q]
+        move_right = pressed_keys[K_d]
+        jump = pressed_keys[K_SPACE]
+        dash_key = pressed_keys[K_a]
+
+        if self.has_joystick and self.joystick:
+            try:
+                # Joystick gauche pour mouvement
+                if self.joystick.get_numaxes() > 0:
+                    joystick_x = self.joystick.get_axis(0)
+                    if abs(joystick_x) > 0.2:
+                        if joystick_x < 0:
+                            move_left = True
+                        elif joystick_x > 0:
+                            move_right = True
+
+                # Boutons pour sauter/dasher
+                if self.joystick.get_numbuttons() > self.jump_button:
+                    if self.joystick.get_button(self.jump_button):
+                        jump = True
+
+                if self.joystick.get_numbuttons() > self.dash_button:
+                    if self.joystick.get_button(self.dash_button):
+                        dash_key = True
+            except pygame.error:
+                pass  # Ignorer les erreurs de manette
+
+        if move_left:
             # Check if X is > 0 to prevent player from going off screen
             if self.pos.x > 0:
                 self.acc.x = -self.game_resources.ACC
                 self.moving = True
-                if pressed_keys[K_a]:
+                if dash_key:
                     self.dash(-self.game_resources.ACC)
-        if pressed_keys[K_d]:
+        if move_right:
             self.acc.x = self.game_resources.ACC
             self.moving = True
-            if pressed_keys[K_a]:
+            if dash_key:
                 self.dash(self.game_resources.ACC)
 
         # Also consider the player moving if they have significant horizontal velocity
@@ -193,7 +235,7 @@ class Player(Entity):
             self.moving = True
 
         # Jumping logic
-        if pressed_keys[K_SPACE] and not self.jumping:
+        if jump and not self.jumping:
             self.vel.y = -30
             self.jumping = True
 
