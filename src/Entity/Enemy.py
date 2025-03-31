@@ -124,6 +124,7 @@ class Enemy(Entity):
                 direction=direction,
                 speed=self.speed,
                 damage=self.damage,
+                enemy_proj=True,
             )
 
             # Add projectile to the sprite group (to be placed in main.py)

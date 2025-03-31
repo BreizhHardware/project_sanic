@@ -2,6 +2,8 @@ from src.Entity.Entity import Entity
 from pygame import *
 import pygame
 import os
+from pygame.math import Vector2 as vec
+from src.Entity.Projectile import Projectile
 
 
 class Player(Entity):
@@ -335,3 +337,45 @@ class Player(Entity):
                         start_y,
                     ),
                 )
+
+    def attack(self):
+        """Do an attack action on the player"""
+        self.is_attacking = True
+
+        # For turret-type enemies, create a projectile
+        pressed_keys = pygame.key.get_pressed()
+        if pressed_keys[K_q] and pressed_keys[K_c]:
+            # Calculate direction to player
+            direction = vec(self.pos.x, self.pos.y)
+            projectile = Projectile(
+                pos=vec(self.pos.x, self.pos.y),
+                direction=direction,
+                speed=2,
+                damage=1,
+                enemy_proj=False,
+            )
+            # Add projectile to the sprite group (to be placed in main.py)
+            pygame.event.post(
+                pygame.event.Event(
+                    pygame.USEREVENT,
+                    {"action": "create_projectile", "projectile": projectile},
+                )
+            )
+
+        if pressed_keys[K_d] and pressed_keys[K_c]:
+            # Calculate direction to player
+            direction = vec(self.pos.x, self.pos.y)
+            projectile = Projectile(
+                pos=vec(self.pos.x, self.pos.y),
+                direction=direction,
+                speed=2,
+                damage=1,
+                enemy_proj=False,
+            )
+            # Add projectile to the sprite group (to be placed in main.py)
+            pygame.event.post(
+                pygame.event.Event(
+                    pygame.USEREVENT,
+                    {"action": "create_projectile", "projectile": projectile},
+                )
+            )

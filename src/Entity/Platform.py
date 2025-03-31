@@ -20,6 +20,7 @@ class Platform(Entity):
         center=0,
         radius=0,
         angular_speed=0,
+        clockwise=False,
     ):
         super().__init__(
             pos=(x, y), size=(width, height), color=color, texturePath=texturePath
@@ -69,7 +70,11 @@ class Platform(Entity):
             self.rect.x += a * movement_speed
             self.coeff = a
 
-    def move_circular(self, center, angular_speed, radius):
+    def move_circular(self, center, angular_speed, radius, clockwise):
         self.angle += angular_speed
-        self.rect.x = self.rect.x + radius * np.cos(self.angle)
-        self.rect.y = self.rect.y + radius * np.sin(self.angle)
+        if clockwise:
+            self.rect.x = self.rect.x + radius * np.cos(self.angle)
+            self.rect.y = self.rect.y + radius * np.sin(self.angle)
+        else:
+            self.rect.x = self.rect.x + radius * np.cos(self.angle)
+            self.rect.y = self.rect.y + radius * np.sin(-self.angle)

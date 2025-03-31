@@ -225,6 +225,7 @@ def main():
             # Regular game code
             P1.move()
             P1.update()
+            P1.attack()
 
             # Update camera to follow player
             camera.update(P1)
@@ -260,14 +261,24 @@ def main():
                     if (
                         P1.rect.colliderect(platform.rect)
                         and P1.pos.y == platform.rect.y
+                        and platform.clockwise
                     ):
                         P1.pos.x = P1.pos.x + platform.radius * np.cos(platform.angle)
                         P1.pos.y = P1.pos.y + platform.radius * np.sin(platform.angle)
+
+                    if (
+                        P1.rect.colliderect(platform.rect)
+                        and P1.pos.y == platform.rect.y
+                        and not platform.clockwise
+                    ):
+                        P1.pos.x = P1.pos.x + platform.radius * np.cos(platform.angle)
+                        P1.pos.y = P1.pos.y + platform.radius * np.sin(-platform.angle)
 
                     platform.move_circular(
                         platform.center,
                         platform.angular_speed,
                         platform.radius,
+                        platform.clockwise,
                     )
 
             if background:
