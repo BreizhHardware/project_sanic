@@ -17,6 +17,8 @@ from src.Menu.Menu import Menu
 from src.Menu.Leaderboard import Leaderboard
 from src.Camera import Camera
 from src.Database.CheckpointDB import CheckpointDB
+from src.Map.Editor.LevelEditor import LevelEditor
+from src.Menu.LevelEditorSelectionMenu import LevelEditorSelectionMenu
 
 
 def main():
@@ -52,99 +54,155 @@ def main():
     clear_checkpoint_database()
     projectiles = pygame.sprite.Group()
 
+    pygame.joystick.quit()
+    pygame.joystick.init()
+    joysticks = []
+
+    try:
+        for i in range(pygame.joystick.get_count()):
+            joystick = pygame.joystick.Joystick(i)
+            joystick.init()
+            joysticks.append(joystick)
+            print(f"Manette détectée: {joystick.get_name()}")
+            print(f"Nombre de boutons: {joystick.get_numbuttons()}")
+            print(f"Nombre d'axes: {joystick.get_numaxes()}")
+    except pygame.error:
+        print("Erreur lors de l'initialisation des manettes")
+
     # Main game loop
-    while True:
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    if current_state in [PLAYING, INFINITE]:
-                        current_state = MENU
-                    else:
-                        pygame.quit()
-                        sys.exit()
-                elif event.key == K_F11:
-                    fullscreen = not fullscreen
-                    if fullscreen:
-                        # Store current window size before going fullscreen
-                        ORIGINAL_WIDTH, ORIGINAL_HEIGHT = displaysurface.get_size()
-                        displaysurface = pygame.display.set_mode(
-                            (0, 0), pygame.FULLSCREEN
-                        )
-                    else:
-                        # Return to windowed mode with previous size
-                        displaysurface = pygame.display.set_mode(
-                            (ORIGINAL_WIDTH, ORIGINAL_HEIGHT), pygame.RESIZABLE
-                        )
-            elif (
-                event.type == VIDEORESIZE
-            ):  # Fixed indentation - moved out of K_F11 condition
-                if not fullscreen:
-                    displaysurface = pygame.display.set_mode(
-                        (event.w, event.h), pygame.RESIZABLE
-                    )
-                    # Update window dimensions
-                    ORIGINAL_WIDTH, ORIGINAL_HEIGHT = event.w, event.h
-            elif event.type == USEREVENT:
-                if event.action == "player_death":
-                    db = CheckpointDB()
-                    checkpoint_pos = db.get_checkpoint(level_file)
+    running = True
+    while running:
+        try:
+            events = []
+            try:
+                events = pygame.event.get()
+            except Exception as e:
+                print(f"Erreur lors de la récupération des événements: {e}")
+                pygame.joystick.quit()
+                pygame.joystick.init()
+                continue
 
-                    if checkpoint_pos:
-                        # Respawn player at checkpoint
-                        P1, platforms, all_sprites, background, checkpoints = (
-                            reset_game_with_checkpoint(level_file, game_resources)
+            for event in events:
+                if event.type == QUIT:
+                    running = False
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        if current_state in [PLAYING, INFINITE]:
+                            current_state = MENU
+                        else:
+                            pygame.quit()
+                            sys.exit()
+                    elif event.key == K_F11:
+                        fullscreen = not fullscreen
+                        if fullscreen:
+                            # Store current window size before going fullscreen
+                            ORIGINAL_WIDTH, ORIGINAL_HEIGHT = displaysurface.get_size()
+                            displaysurface = pygame.display.set_mode(
+                                (0, 0), pygame.FULLSCREEN
+                            )
+                        else:
+                            # Return to windowed mode with previous size
+                            displaysurface = pygame.display.set_mode(
+                                (ORIGINAL_WIDTH, ORIGINAL_HEIGHT), pygame.RESIZABLE
+                            )
+                elif (
+                    event.type == VIDEORESIZE
+                ):  # Fixed indentation - moved out of K_F11 condition
+                    if not fullscreen:
+                        displaysurface = pygame.display.set_mode(
+                            (event.w, event.h), pygame.RESIZABLE
                         )
-                        projectiles.empty()
-                    else:
-                        # No checkpoint found, return to menu
-                        current_state = MENU
-                if event.dict.get("action") == "create_projectile":
-                    projectile = event.dict.get("projectile")
-                    projectiles.add(projectile)
+                        # Update window dimensions
+                        ORIGINAL_WIDTH, ORIGINAL_HEIGHT = event.w, event.h
+                elif event.type == USEREVENT:
+                    if event.action == "player_death":
+                        db = CheckpointDB()
+                        checkpoint_pos = db.get_checkpoint(level_file)
 
-            # Handle menu events
-            if current_state == MENU:
-                if current_menu == "main":
-                    action = main_menu.handle_event(event)
-                    if action == "level_select":
-                        level_select_menu = LevelSelectMenu(game_resources)
+                        if checkpoint_pos:
+                            # Respawn player at checkpoint
+                            P1, platforms, all_sprites, background, checkpoints = (
+                                reset_game_with_checkpoint(level_file, game_resources)
+                            )
+                            projectiles.empty()
+                        else:
+                            # No checkpoint found, return to menu
+                            current_state = MENU
+                    if event.dict.get("action") == "create_projectile":
+                        projectile = event.dict.get("projectile")
+                        projectiles.add(projectile)
+
+                # Handle menu events
+                if current_state == MENU:
+                    if current_menu == "main":
+                        action = main_menu.handle_event(event)
+                        if action == "level_select":
+                            level_select_menu = LevelSelectMenu(game_resources)
+                            current_menu = "level_select"
+                        elif action == "infinite":
+                            current_state = INFINITE
+                        elif action == "leaderboard":
+                            current_state = LEADERBOARD
+                        elif action == "quit":
+                            pygame.quit()
+                            sys.exit()
+                    elif current_menu == "level_select":
+                        action = level_select_menu.handle_event(event)
+                        if action == "back_to_main":
+                            current_menu = "main"
+                        elif (
+                            isinstance(action, dict)
+                            and action.get("action") == "select_level"
+                        ):
+                            level_file = action.get("level_file")
+                            print(level_file)
+                            (
+                                P1,
+                                PT1,
+                                platforms,
+                                all_sprites,
+                                background,
+                                checkpoints,
+                                exits,
+                            ) = initialize_game(game_resources, level_file)
+                            projectiles.empty()
+                            current_state = PLAYING
+                        elif action == "open_editor":
+                            editor_select_menu = LevelEditorSelectionMenu(
+                                game_resources
+                            )
+                            current_state = "editor_select"
+
+                # Handle leaderboard events
+                elif current_state == LEADERBOARD:
+                    action = leaderboard.handle_event(event)
+                    if action == "menu":
+                        current_state = MENU
+
+                elif current_state == "editor_select":
+                    action = editor_select_menu.handle_event(event)
+                    if action == "back_to_levels":
+                        current_state = MENU
                         current_menu = "level_select"
-                    elif action == "infinite":
-                        current_state = INFINITE
-                    elif action == "leaderboard":
-                        current_state = LEADERBOARD
-                    elif action == "quit":
-                        pygame.quit()
-                        sys.exit()
-                elif current_menu == "level_select":
-                    action = level_select_menu.handle_event(event)
-                    if action == "back_to_main":
-                        current_menu = "main"
-                    elif (
-                        isinstance(action, dict)
-                        and action.get("action") == "select_level"
-                    ):
-                        level_file = action.get("level_file")
-                        (
-                            P1,
-                            PT1,
-                            platforms,
-                            all_sprites,
-                            background,
-                            checkpoints,
-                            exits,
-                        ) = initialize_game(game_resources, level_file)
-                        projectiles.empty()
-                        current_state = PLAYING
+                    elif isinstance(action, dict):
+                        if action["action"] == "edit_level":
+                            level_editor = LevelEditor(
+                                game_resources, action["level_file"]
+                            )
+                            current_state = "level_editor"
+                        elif action["action"] == "new_level":
+                            level_editor = LevelEditor(game_resources)
+                            current_state = "level_editor"
 
-            # Handle leaderboard events
-            elif current_state == LEADERBOARD:
-                action = leaderboard.handle_event(event)
-                if action == "menu":
-                    current_state = MENU
+                elif current_state == "level_editor":
+                    result = level_editor.handle_event(event)
+                    if result == "back_to_levels":
+                        current_state = "editor_select"
+        except Exception as e:
+            print(f"Erreur lors du traitement de l'événement: {e}")
+            continue
 
         # Clear screen
         displaysurface.fill((0, 0, 0))
@@ -155,6 +213,12 @@ def main():
                 main_menu.draw(displaysurface)
             elif current_menu == "level_select":
                 level_select_menu.draw(displaysurface)
+        elif current_state == "editor_select":
+            editor_select_menu.draw(displaysurface)
+        elif current_state == "level_editor":
+            level_editor.draw(displaysurface)
+        elif current_state == LEADERBOARD:
+            leaderboard.draw(displaysurface)
 
         elif current_state == PLAYING:
             # Regular game code
@@ -214,7 +278,10 @@ def main():
                 camera_adjusted_rect.y += camera.camera.y
                 displaysurface.blit(projectile.surf, camera_adjusted_rect)
 
-            checkpoints_hit = pygame.sprite.spritecollide(P1, checkpoints, False)
+            if checkpoints is not None:
+                checkpoints_hit = pygame.sprite.spritecollide(P1, checkpoints, False)
+            else:
+                checkpoints_hit = []
             for checkpoint in checkpoints_hit:
                 checkpoint.activate()
 

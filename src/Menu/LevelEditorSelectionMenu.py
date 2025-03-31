@@ -2,20 +2,17 @@ import pygame
 import os
 import re
 
-from src.Database.LevelDB import LevelDB
 from src.Menu.Button import Button
-from src.game import clear_checkpoint_database, clear_level_progress
 
 
-class LevelSelectMenu:
+class LevelEditorSelectionMenu:
     """
-    A menu for selecting game levels loaded from JSON files.
-    Presents all available levels from the map/levels/ directory as buttons.
+    A menu for selecting an existing level to edit or creating a new level.
     """
 
     def __init__(self, game_resources):
         """
-        Initialize the level selection menu.
+        Initialize the level editor selection menu.
 
         Args:
             game_resources: GameResources object containing game settings and resources
@@ -29,19 +26,11 @@ class LevelSelectMenu:
         self.button_height = 60
         self.button_spacing = 20
 
-        # Initialize database and get unlocked levels
-        self.db = LevelDB()
-        self.db.create_unlocked_levels_table()
-        self.unlocked_levels = self.db.get_all_unlocked_levels()
-
         # Scan for level files
         self._scan_levels()
 
         # Generate level buttons
         self._create_buttons()
-
-        # Add back button and reset progress button
-        self._add_navigation_buttons()
 
     def _scan_levels(self):
         """
@@ -74,7 +63,7 @@ class LevelSelectMenu:
 
     def _create_buttons(self):
         """
-        Create buttons for each available level.
+        Create buttons for each available level and new level button.
         """
         # Calculate how many buttons can fit per row
         buttons_per_row = 3
@@ -96,68 +85,42 @@ class LevelSelectMenu:
             x = start_x + (col * button_width_with_spacing)
             y = start_y + (row * (self.button_height + self.button_spacing))
 
-            # Check if level is unlocked
-            is_unlocked = self.db.is_level_unlocked(level_num)
-            button_text = f"Level {level_num}"
-            button_color = None
-
-            # If locked, disable button functionality
-            action = (
-                {"action": "select_level", "level_file": level_file}
-                if is_unlocked
-                else None
-            )
-
             # Create button
             self.buttons.append(
                 Button(
-                    button_text,
+                    f"Edit Level {level_num}",
                     x,
                     y,
                     self.button_width,
                     self.button_height,
-                    action,
-                    locked=not is_unlocked,
+                    {"action": "edit_level", "level_file": level_file},
                 )
             )
 
-    def _add_navigation_buttons(self):
-        """
-        Add navigation buttons (back and reset progress).
-        """
-        # Back button
+        # Add "Create New Level" button
+        new_level_y = start_y + ((len(self.levels) // buttons_per_row) + 1) * (
+            self.button_height + self.button_spacing
+        )
+        self.buttons.append(
+            Button(
+                "Create New Level",
+                self.game_resources.WIDTH // 2 - self.button_width // 2,
+                new_level_y,
+                self.button_width,
+                self.button_height,
+                {"action": "new_level"},
+            )
+        )
+
+        # Add Back button
         self.buttons.append(
             Button(
                 "Back",
-                self.game_resources.WIDTH // 4 - self.button_width // 2,
+                self.game_resources.WIDTH // 2 - self.button_width // 2,
                 self.game_resources.HEIGHT - 100,
                 self.button_width,
                 self.button_height,
-                "back_to_main",
-            )
-        )
-
-        # Reset progress button
-        self.buttons.append(
-            Button(
-                "Reset Progress",
-                2 * self.game_resources.WIDTH // 4 - self.button_width // 2,
-                self.game_resources.HEIGHT - 100,
-                self.button_width,
-                self.button_height,
-                "reset_progress",
-            )
-        )
-
-        # Level Editor button
-        self.buttons.append(
-            Button(
-                "Level Editor",
-                3 * self.game_resources.WIDTH // 4 - self.button_width // 2,
-                self.game_resources.HEIGHT - 100,
-                self.button_width,
-                self.button_height,
-                "open_editor",
+                "back_to_levels",
             )
         )
 
@@ -170,7 +133,7 @@ class LevelSelectMenu:
         """
         # Draw title
         title = pygame.font.SysFont("Arial", 48).render(
-            "Select Level", True, (0, 191, 255)
+            "Level Editor", True, (0, 191, 255)
         )
         title_rect = title.get_rect(
             center=(self.game_resources.WIDTH // 2, self.game_resources.HEIGHT // 6)
@@ -180,16 +143,6 @@ class LevelSelectMenu:
         # Draw buttons
         for button in self.buttons:
             button.draw(surface, self.game_resources.font)
-
-        # Display message if no levels found
-        if not self.levels:
-            no_levels = pygame.font.SysFont("Arial", 32).render(
-                "No levels found", True, (255, 0, 0)
-            )
-            no_levels_rect = no_levels.get_rect(
-                center=(self.game_resources.WIDTH // 2, self.game_resources.HEIGHT // 2)
-            )
-            surface.blit(no_levels, no_levels_rect)
 
     def handle_event(self, event):
         """
@@ -204,15 +157,5 @@ class LevelSelectMenu:
         for button in self.buttons:
             action = button.handle_event(event)
             if action:
-                if action == "reset_progress":
-                    # Clear checkpoint database
-                    clear_checkpoint_database()
-                    clear_level_progress()
-                    # Reset unlocked levels
-                    self.unlocked_levels = self.db.get_all_unlocked_levels()
-                    self.buttons = []
-                    self._create_buttons()
-                    self._add_navigation_buttons()
-                    return None
                 return action
         return None
