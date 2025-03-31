@@ -276,6 +276,12 @@ class Player(Entity):
         feet_rect = pygame.Rect(0, 0, self.rect.width * 0.8, 10)
         feet_rect.midbottom = self.rect.midbottom
 
+        left_side_rect = pygame.Rect(0, 0, 10, self.rect.height * 0.7)
+        left_side_rect.midleft = self.rect.midleft
+
+        right_side_rect = pygame.Rect(0, 0, 10, self.rect.height * 0.7)
+        right_side_rect.midright = self.rect.midright
+
         hits = []
         for platform in self.game_resources.platforms:
             platform_top_rect = pygame.Rect(
@@ -290,6 +296,31 @@ class Player(Entity):
                 self.vel.y = 0
                 self.jumping = False
                 self.highest_position = self.pos.y
+
+        side_hits = []
+        for platform in self.game_resources.platforms:
+            platform_left_rect = pygame.Rect(
+                platform.rect.x, platform.rect.y + 5, 5, platform.rect.height - 5
+            )
+            platform_right_rect = pygame.Rect(
+                platform.rect.right - 5,
+                platform.rect.y + 5,
+                5,
+                platform.rect.height - 5,
+            )
+
+            if right_side_rect.colliderect(platform_left_rect):
+                side_hits.append(("right", platform))
+            if left_side_rect.colliderect(platform_right_rect):
+                side_hits.append(("left", platform))
+
+        for side, platform in side_hits:
+            if side == "right" and self.vel.x > 0:
+                self.pos.x = platform.rect.left - self.rect.width / 2
+                self.vel.x = 0
+            elif side == "left" and self.vel.x < 0:
+                self.pos.x = platform.rect.right + self.rect.width / 2
+                self.vel.x = 0
 
         if self.invulnerable:
             self.invulnerable_timer += 1 / self.game_resources.FPS
