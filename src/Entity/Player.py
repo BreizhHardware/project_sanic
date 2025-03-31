@@ -38,6 +38,7 @@ class Player(Entity):
         self.moving = False
         self.dashing = False
         self.jumping = False
+        self.highest_position = self.pos.y
 
         # Dash mechanics
         self.last_dash_time = 0
@@ -288,12 +289,21 @@ class Player(Entity):
                 self.pos.y = hits[0].rect.top
                 self.vel.y = 0
                 self.jumping = False
+                self.highest_position = self.pos.y
 
         if self.invulnerable:
             self.invulnerable_timer += 1 / self.game_resources.FPS
             if self.invulnerable_timer >= self.invulnerable_duration:
                 self.invulnerable = False
                 self.invulnerable_timer = 0
+
+        if self.vel.y <= 0:
+            self.highest_position = self.pos.y
+
+        if self.vel.y > 0:
+            fall_distance = self.pos.y - self.highest_position
+            if fall_distance > 500:
+                self.death()
 
     def take_damage(self, amount=1):
         """Reduce life number if not invulnerable"""
