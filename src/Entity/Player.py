@@ -65,6 +65,11 @@ class Player(Entity):
         elif self.animation_frames:
             self.surf = self.animation_frames[0]
 
+        # Attacking
+        self.last_attack_time = 0
+        self.attack_start_time = 0
+        self.attack_cooldown = 2000
+
     def load_images(self):
         try:
             # Load static image
@@ -391,42 +396,98 @@ class Player(Entity):
 
     def attack(self):
         """Do an attack action on the player"""
-        self.is_attacking = True
 
-        # For turret-type enemies, create a projectile
+        self.is_attacking = False
+        current_time = pygame.time.get_ticks()
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[K_q] and pressed_keys[K_c]:
-            # Calculate direction to player
-            direction = vec(self.pos.x, self.pos.y)
-            projectile = Projectile(
-                pos=vec(self.pos.x, self.pos.y),
-                direction=direction,
-                speed=2,
-                damage=1,
-                enemy_proj=False,
-            )
-            # Add projectile to the sprite group (to be placed in main.py)
-            pygame.event.post(
-                pygame.event.Event(
-                    pygame.USEREVENT,
-                    {"action": "create_projectile", "projectile": projectile},
+            if current_time - self.last_attack_time >= self.attack_cooldown:
+                self.is_attacking = True
+                self.attack_start_time = current_time
+                self.last_attack_time = current_time
+                # Calculate direction to player
+                direction = vec(self.pos.x, self.pos.y)
+                projectile = Projectile(
+                    pos=vec(self.pos.x, self.pos.y),
+                    direction=direction,
+                    speed=2,
+                    damage=1,
+                    color=(165, 42, 42),
+                    enemy_proj=False,
                 )
-            )
+                # Add projectile to the sprite group (to be placed in main.py)
+                pygame.event.post(
+                    pygame.event.Event(
+                        pygame.USEREVENT,
+                        {"action": "create_projectile", "projectile": projectile},
+                    )
+                )
 
         if pressed_keys[K_d] and pressed_keys[K_c]:
-            # Calculate direction to player
-            direction = vec(self.pos.x, self.pos.y)
-            projectile = Projectile(
-                pos=vec(self.pos.x, self.pos.y),
-                direction=direction,
-                speed=2,
-                damage=1,
-                enemy_proj=False,
-            )
-            # Add projectile to the sprite group (to be placed in main.py)
-            pygame.event.post(
-                pygame.event.Event(
-                    pygame.USEREVENT,
-                    {"action": "create_projectile", "projectile": projectile},
+            if current_time - self.last_attack_time >= self.attack_cooldown:
+                self.is_attacking = True
+                self.attack_start_time = current_time
+                self.last_attack_time = current_time
+                # Calculate direction to player
+                direction = vec(self.pos.x, self.pos.y)
+                projectile = Projectile(
+                    pos=vec(self.pos.x, self.pos.y),
+                    direction=direction,
+                    speed=2,
+                    damage=1,
+                    color=(165, 42, 42),
+                    enemy_proj=False,
                 )
-            )
+                # Add projectile to the sprite group (to be placed in main.py)
+                pygame.event.post(
+                    pygame.event.Event(
+                        pygame.USEREVENT,
+                        {"action": "create_projectile", "projectile": projectile},
+                    )
+                )
+
+        if pressed_keys[K_q] and pressed_keys[K_v]:
+            if current_time - self.last_attack_time >= self.attack_cooldown:
+                self.is_attacking = True
+                self.attack_start_time = current_time
+                self.last_attack_time = current_time
+                # Calculate direction to player
+                direction = vec(-self.pos.x, 0)
+                projectile = Projectile(
+                    pos=vec(self.pos.x - 50, self.pos.y - 50),
+                    direction=direction,
+                    speed=2,
+                    damage=1,
+                    color=(165, 42, 42),
+                    enemy_proj=False,
+                )
+                # Add projectile to the sprite group (to be placed in main.py)
+                pygame.event.post(
+                    pygame.event.Event(
+                        pygame.USEREVENT,
+                        {"action": "create_projectile", "projectile": projectile},
+                    )
+                )
+
+        if pressed_keys[K_d] and pressed_keys[K_v]:
+            if current_time - self.last_attack_time >= self.attack_cooldown:
+                self.is_attacking = True
+                self.attack_start_time = current_time
+                self.last_attack_time = current_time
+                # Calculate direction to player
+                direction = vec(self.pos.x, 0)
+                projectile = Projectile(
+                    pos=vec(self.pos.x + 50, self.pos.y - 50),
+                    direction=direction,
+                    speed=2,
+                    damage=1,
+                    color=(165, 42, 42),
+                    enemy_proj=False,
+                )
+                # Add projectile to the sprite group (to be placed in main.py)
+                pygame.event.post(
+                    pygame.event.Event(
+                        pygame.USEREVENT,
+                        {"action": "create_projectile", "projectile": projectile},
+                    )
+                )

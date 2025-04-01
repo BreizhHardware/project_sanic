@@ -295,10 +295,9 @@ def main():
             for sprite in all_sprites:
                 if isinstance(sprite, Enemy):
                     sprite.update(P1)
+                    projectiles.update(WIDTH, HEIGHT, P1, camera, sprite)
                 else:
                     sprite.update()
-
-            projectiles.update(WIDTH, HEIGHT, P1, camera)
 
             for projectile in projectiles:
                 # Calculate position adjusted for camera (comme pour les autres sprites)

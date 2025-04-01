@@ -20,7 +20,7 @@ class Projectile(pygame.sprite.Sprite):
         self.rect = self.surf.get_rect(center=(pos.x, pos.y))
         self.enemy_proj = enemy_proj
 
-    def update(self, screen_width, screen_height, player=None, camera=None):
+    def update(self, screen_width, screen_height, player=None, camera=None, enemy=None):
         """Move the projectile and check for collisions"""
         # Movement of the projectile
         self.pos += self.direction * self.speed
@@ -46,4 +46,8 @@ class Projectile(pygame.sprite.Sprite):
         # Check for collision with player
         if player and self.rect.colliderect(player.rect) and self.enemy_proj:
             player.take_damage(self.damage)
+            self.kill()
+
+        if enemy and self.rect.colliderect(enemy.rect) and not self.enemy_proj:
+            enemy.take_damage(self.damage)
             self.kill()
