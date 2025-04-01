@@ -216,16 +216,6 @@ class LevelEditor:
             "height": 800,
             "background": "assets/map/background/forest_bg.jpg",
             "gravity": 1.0,
-            "ground": [
-                {
-                    "id": "main_ground",
-                    "x": -1000,
-                    "y": 780,
-                    "width": 1800,
-                    "height": 200,
-                    "texture": "assets/map/platform/grass_texture.jpg",
-                }
-            ],
             "platforms": [],
             "enemies": [],
             "checkpoints": [],
