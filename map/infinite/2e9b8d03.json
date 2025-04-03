@@ -1,0 +1,285 @@
+{
+  "name": "Niveau Infini 1",
+  "width": 2400,
+  "height": 800,
+  "background": "assets/map/background/desert_bg.jpg",
+  "gravity": 1.0,
+  "platforms": [
+    {
+      "id": "platform_start",
+      "x": 180,
+      "y": 260,
+      "width": 540,
+      "height": 60,
+      "texture": "assets/map/platform/stone_texture.jpg",
+      "is_moving": false
+    },
+    {
+      "id": "platform2",
+      "x": 694,
+      "y": 259,
+      "width": 241,
+      "height": 40,
+      "texture": "assets/map/platform/wood_texture.jpg",
+      "is_moving": false
+    },
+    {
+      "id": "platform3",
+      "x": 1080,
+      "y": 167,
+      "width": 163,
+      "height": 20,
+      "texture": "assets/map/platform/grass_texture.jpg",
+      "is_moving": false
+    },
+    {
+      "id": "platform4",
+      "x": 1399,
+      "y": 255,
+      "width": 184,
+      "height": 60,
+      "texture": "assets/map/platform/stone_texture.jpg",
+      "is_moving": true,
+      "movement": {
+        "type": "linear",
+        "points": [
+          {
+            "x": 1399,
+            "y": 255
+          },
+          {
+            "x": 1539,
+            "y": 255
+          }
+        ],
+        "speed": 2,
+        "wait_time": 0.5
+      }
+    },
+    {
+      "id": "platform5",
+      "x": 1684,
+      "y": 189,
+      "width": 197,
+      "height": 20,
+      "texture": "assets/map/platform/grass_texture.jpg",
+      "is_moving": false
+    },
+    {
+      "id": "platform6",
+      "x": 2030,
+      "y": 337,
+      "width": 162,
+      "height": 60,
+      "texture": "assets/map/platform/grass_texture.jpg",
+      "is_moving": true,
+      "movement": {
+        "type": "linear",
+        "points": [
+          {
+            "x": 2030,
+            "y": 337
+          },
+          {
+            "x": 2030,
+            "y": 462
+          }
+        ],
+        "speed": 1,
+        "wait_time": 0.5
+      }
+    },
+    {
+      "id": "platform7",
+      "x": 2291,
+      "y": 241,
+      "width": 234,
+      "height": 20,
+      "texture": "assets/map/platform/wood_texture.jpg",
+      "is_moving": true,
+      "movement": {
+        "type": "linear",
+        "points": [
+          {
+            "x": 2291,
+            "y": 241
+          },
+          {
+            "x": 2291,
+            "y": 395
+          }
+        ],
+        "speed": 3,
+        "wait_time": 0.5
+      }
+    },
+    {
+      "id": "platform8",
+      "x": 2671,
+      "y": 336,
+      "width": 243,
+      "height": 20,
+      "texture": "assets/map/platform/wood_texture.jpg",
+      "is_moving": false
+    },
+    {
+      "id": "platform9",
+      "x": 3021,
+      "y": 388,
+      "width": 233,
+      "height": 60,
+      "texture": "assets/map/platform/stone_texture.jpg",
+      "is_moving": true,
+      "movement": {
+        "type": "linear",
+        "points": [
+          {
+            "x": 3021,
+            "y": 388
+          },
+          {
+            "x": 3021,
+            "y": 498
+          }
+        ],
+        "speed": 1,
+        "wait_time": 0.5
+      }
+    },
+    {
+      "id": "platform10",
+      "x": 3380,
+      "y": 347,
+      "width": 198,
+      "height": 20,
+      "texture": "assets/map/platform/stone_texture.jpg",
+      "is_moving": true,
+      "movement": {
+        "type": "linear",
+        "points": [
+          {
+            "x": 3380,
+            "y": 347
+          },
+          {
+            "x": 3380,
+            "y": 475
+          }
+        ],
+        "speed": 2,
+        "wait_time": 0.5
+      }
+    },
+    {
+      "id": "platform11",
+      "x": 3704,
+      "y": 394,
+      "width": 218,
+      "height": 20,
+      "texture": "assets/map/platform/grass_texture.jpg",
+      "is_moving": true,
+      "movement": {
+        "type": "linear",
+        "points": [
+          {
+            "x": 3704,
+            "y": 394
+          },
+          {
+            "x": 3826,
+            "y": 394
+          }
+        ],
+        "speed": 2,
+        "wait_time": 0.5
+      }
+    },
+    {
+      "id": "platform12",
+      "x": 4059,
+      "y": 198,
+      "width": 270,
+      "height": 40,
+      "texture": "assets/map/platform/grass_texture.jpg",
+      "is_moving": false
+    },
+    {
+      "id": "platform13",
+      "x": 4426,
+      "y": 254,
+      "width": 156,
+      "height": 40,
+      "texture": "assets/map/platform/wood_texture.jpg",
+      "is_moving": false
+    }
+  ],
+  "enemies": [
+    {
+      "id": "enemy1",
+      "type": "turret",
+      "x": 951,
+      "y": 376,
+      "patrol_distance": 291
+    },
+    {
+      "id": "enemy2",
+      "type": "turret",
+      "x": 2173,
+      "y": 377,
+      "patrol_distance": 150
+    }
+  ],
+  "checkpoints": [],
+  "exits": [
+    {
+      "x": 2300,
+      "y": 200,
+      "width": 50,
+      "height": 80,
+      "next_level": "NEXT_INFINITE_LEVEL",
+      "sprite": "assets/map/exit/door.png"
+    }
+  ],
+  "collectibles": [
+    {
+      "id": "collectible1",
+      "type": "shield",
+      "x": 1013,
+      "y": 101
+    },
+    {
+      "id": "collectible2",
+      "type": "shield",
+      "x": 1749,
+      "y": 183
+    },
+    {
+      "id": "collectible3",
+      "type": "coin",
+      "x": 2070,
+      "y": 196
+    },
+    {
+      "id": "collectible4",
+      "type": "health",
+      "x": 758,
+      "y": 375
+    },
+    {
+      "id": "collectible5",
+      "type": "shield",
+      "x": 681,
+      "y": 353
+    },
+    {
+      "id": "collectible6",
+      "type": "shield",
+      "x": 581,
+      "y": 163
+    }
+  ],
+  "spawn_point": {
+    "x": 260.0,
+    "y": 200.0
+  }
+}

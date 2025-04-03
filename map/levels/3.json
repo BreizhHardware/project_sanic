@@ -4,21 +4,11 @@
   "height": 800,
   "background": "assets/map/background/forest_bg.jpg",
   "gravity": 1.0,
-  "ground": [
-    {
-      "id": "main_ground",
-      "x": -1000,
-      "y": 780,
-      "width": 1800,
-      "height": 200,
-      "texture": "assets/map/platform/grass_texture.jpg"
-    }
-  ],
   "platforms": [
     {
       "id": "platform1",
-      "x": 220,
-      "y": 280,
+      "x": 180,
+      "y": 260,
       "width": 540,
       "height": 160,
       "texture": "assets/map/platform/grass_texture.jpg",
@@ -27,7 +17,7 @@
     {
       "id": "platform2",
       "x": 320,
-      "y": 140,
+      "y": 120,
       "width": 200,
       "height": 20,
       "texture": "assets/map/platform/grass_texture.jpg",
@@ -37,11 +27,11 @@
         "points": [
           {
             "x": 320,
-            "y": 140
+            "y": 120
           },
           {
-            "x": 420,
-            "y": 140
+            "x": 460,
+            "y": 120
           }
         ],
         "speed": 2,
@@ -49,34 +39,12 @@
       }
     }
   ],
-  "enemies": [
-    {
-      "id": "enemy1",
-      "type": "walker",
-      "x": 380,
-      "y": 220,
-      "health": 1,
-      "damage": 1,
-      "sprite_sheet": "assets/map/enemy/walker_enemy.png",
-      "behavior": "patrol",
-      "patrol_points": [
-        {
-          "x": 280,
-          "y": 220
-        },
-        {
-          "x": 480,
-          "y": 220
-        }
-      ],
-      "speed": 1.5
-    }
-  ],
+  "enemies": [],
   "checkpoints": [],
   "exits": [
     {
-      "x": 680,
-      "y": 200,
+      "x": 555,
+      "y": -200,
       "width": 50,
       "height": 80,
       "next_level": "map/levels/1.json",
