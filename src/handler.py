@@ -12,6 +12,8 @@ from src.game import (
     initialize_game,
     reset_game_with_checkpoint,
     clear_checkpoint_database,
+    start_infinite_mode,
+    handle_exit_collision,
 )
 from src.constant import GameResources
 from src.Menu.Menu import Menu
@@ -55,6 +57,15 @@ def handler():
     except Exception as e:
         print(f"Erreur de chargement de l'image: {e}")
         death_image = None
+
+    try:
+        death_sound = pygame.mixer.Sound("assets/sound/Death.mp3")
+        death_display_time = death_sound.get_length()
+        print(f"Son Death.mp3 chargé avec succès, durée: {death_display_time} secondes")
+    except Exception as e:
+        print(f"Erreur de chargement du son Death.mp3: {e}")
+        death_sound = None
+        death_display_time = 2
 
     # Initialize game state and objects
     current_state = MENU
@@ -131,6 +142,8 @@ def handler():
                     if event.dict.get("action") == "player_death":
                         current_state = DEATH_SCREEN
                         death_timer = 0
+                        if death_sound:
+                            death_sound.play()
 
                         db = CheckpointDB()
                         checkpoint_data = db.get_checkpoint(level_file)
@@ -323,20 +336,30 @@ def handler():
 
             exits_hit = pygame.sprite.spritecollide(P1, exits, False) if exits else []
             for exit in exits_hit:
-                current_level_match = re.search(r"(\d+)\.json$", level_file)
-                if current_level_match:
-                    current_level = int(current_level_match.group(1))
-                    next_level = current_level + 1
+                if (
+                    hasattr(game_resources, "infinite_mode")
+                    and game_resources.infinite_mode
+                ):
+                    # Mod infinit : load the next level without the menu
+                    P1, P1T, platforms, all_sprites, background, checkpoints, exits = (
+                        handle_exit_collision(exit, game_resources, level_file)
+                    )
+                else:
+                    # Mod normal : unlock the next level and return to the menu
+                    current_level_match = re.search(r"(\d+)\.json$", level_file)
+                    if current_level_match:
+                        current_level = int(current_level_match.group(1))
+                        next_level = current_level + 1
 
-                    # Unlock next level
-                    db = LevelDB()
-                    db.unlock_level(next_level)
-                    db.close()
+                        # Unlock next level
+                        db = LevelDB()
+                        db.unlock_level(next_level)
+                        db.close()
 
-                    # Return to level select menu
-                    current_state = MENU
-                    current_menu = "level_select"
-                    level_select_menu = LevelSelectMenu(game_resources)
+                        # Return to level select menu
+                        current_state = MENU
+                        current_menu = "level_select"
+                        level_select_menu = LevelSelectMenu(game_resources)
 
             # Display FPS and coordinates (fixed position UI elements)
             fps = int(FramePerSec.get_fps())
@@ -354,22 +377,23 @@ def handler():
             P1.draw_lives(displaysurface)
 
         elif current_state == INFINITE:
-            # Placeholder for infinite mode
-            text = font.render("Mode Infini - À implémenter", True, (255, 255, 255))
-            displaysurface.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2))
+            P1, P1T, platforms, all_sprites, background, checkpoints, exits = (
+                start_infinite_mode(game_resources)
+            )
+            current_state = PLAYING
 
         elif current_state == LEADERBOARD:
             leaderboard.draw(displaysurface)
 
         elif current_state == DEATH_SCREEN:
-            displaysurface.fill((0, 0, 0))  # Fond rouge foncé
+            displaysurface.fill((0, 0, 0))
 
             if death_image:
                 scaled_image = pygame.transform.scale(death_image, (WIDTH, HEIGHT))
                 image_rect = scaled_image.get_rect(center=(WIDTH // 2, HEIGHT // 2))
                 displaysurface.blit(scaled_image, image_rect)
 
-            # Gestion du timer
+            # Timer for death screen
             death_timer += dt
             if death_timer >= death_display_time:
                 if checkpoint_data:

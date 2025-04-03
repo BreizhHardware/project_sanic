@@ -9,6 +9,7 @@ from src.Entity.Platform import Platform
 from src.Entity.Player import Player
 from src.Map.parser import MapParser
 from src.Database.CheckpointDB import CheckpointDB
+from src.Map.Infinite.InfiniteMapManager import InfiniteMapManager
 
 
 def initialize_game(game_resources, map_file="map/levels/1.json"):
@@ -53,12 +54,17 @@ def initialize_game(game_resources, map_file="map/levels/1.json"):
         for exit_obj in exits:
             exit_obj.set_player(map_objects["player"])
 
+    background = map_objects.get("background", None)
+    if background is None:
+        background = pygame.Surface((game_resources.WIDTH, game_resources.HEIGHT))
+        background.fill((0, 0, 0))
+
     return (
         map_objects["player"],
         None,
         map_objects["platforms"],
         map_objects["all_sprites"],
-        parser.background,
+        background,
         map_objects["checkpoints"],
         exits,
     )
@@ -115,6 +121,32 @@ def clear_level_progress():
         print("Level progress cleared successfully")
     except Exception as e:
         print(f"Error clearing level progress: {e}")
+
+
+def start_infinite_mode(game_resources):
+    """Start the infinite mode of the game"""
+    # Create a new InfiniteMapManager
+    infinite_manager = InfiniteMapManager(game_resources)
+    game_resources.infinite_manager = infinite_manager
+    game_resources.infinite_mode = True
+
+    # Generate the first level
+    first_level = infinite_manager.start_infinite_mode()
+
+    # Initialize the game with the generated level
+    return initialize_game(game_resources, first_level)
+
+
+def handle_exit_collision(exit_obj, game_resources, level_file):
+    """Handle exit collision and transition to next level, including infinite mode"""
+    next_level = exit_obj.next_level
+
+    # Mod infinite: if the next level is "NEXT_INFINITE_LEVEL", generate a new level
+    if hasattr(game_resources, "infinite_mode") and game_resources.infinite_mode:
+        if next_level == "NEXT_INFINITE_LEVEL":
+            next_level = game_resources.infinite_manager.advance_to_next_level()
+
+    return initialize_game(game_resources, next_level)
 
 
 if __name__ == "__main__":
