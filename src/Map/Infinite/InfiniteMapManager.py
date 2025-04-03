@@ -38,8 +38,7 @@ class InfiniteMapManager:
             try:
                 os.remove(old_map)
             except:
-                print(f"Erreur: Impossible de supprimer {old_map}")
-
+                print(f"Error: Unable to delete {old_map}")
         # Up the difficulty every 3 levels
         self.current_level += 1
         if self.current_level % 3 == 0:
