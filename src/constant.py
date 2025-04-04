@@ -27,6 +27,9 @@ class GameResources:
         pygame.display.set_caption("Project Sanic")
         self.FramePerSec = pygame.time.Clock()
 
+        self.infinite_manager = None
+        self.infinite_mode = False
+
         # Font
         try:
             self.font = pygame.font.SysFont("Arial", 20)
