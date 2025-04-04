@@ -5,10 +5,17 @@ from pygame.math import Vector2 as vec
 
 class Projectile(Entity):
     def __init__(
-        self, pos, direction, speed, damage, color=(0, 0, 255), enemy_proj=False
+        self,
+        pos,
+        direction,
+        speed,
+        damage,
+        color=(0, 0, 255),
+        enemy_proj=False,
+        texturePath="",
     ):
         # Appel du constructeur parent avec les paramètres appropriés
-        super().__init__(pos=pos, size=(10, 10), color=color)
+        super().__init__(pos=pos, size=(50, 50), color=color, texturePath=texturePath)
 
         # Attributs spécifiques aux projectiles
         self.direction = direction.normalize() if direction.length() > 0 else vec(1, 0)

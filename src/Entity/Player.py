@@ -502,6 +502,7 @@ class Player(Entity):
                     damage=1,
                     color=(165, 42, 42),
                     enemy_proj=False,
+                    texturePath="assets/player/Boule de feu.png",
                 )
                 # Add projectile to the sprite group (to be placed in main.py)
                 pygame.event.post(
@@ -525,6 +526,7 @@ class Player(Entity):
                     damage=1,
                     color=(165, 42, 42),
                     enemy_proj=False,
+                    texturePath="assets/player/Boule de feu.png",
                 )
                 # Add projectile to the sprite group (to be placed in main.py)
                 pygame.event.post(
