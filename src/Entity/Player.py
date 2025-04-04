@@ -281,6 +281,8 @@ class Player(Entity):
         )
 
     def update(self):
+        """Update the player position and check for collisions."""
+        # Define the feet and side rectangles for collision detection
         feet_rect = pygame.Rect(0, 0, self.rect.width * 0.8, 10)
         feet_rect.midbottom = self.rect.midbottom
 
@@ -291,6 +293,7 @@ class Player(Entity):
         right_side_rect.midright = self.rect.midright
 
         hits = []
+        # Check for collisions with the top of platforms
         for platform in self.game_resources.platforms:
             platform_top_rect = pygame.Rect(
                 platform.rect.x, platform.rect.y, platform.rect.width, 5
@@ -307,6 +310,7 @@ class Player(Entity):
 
         side_hits = []
         for platform in self.game_resources.platforms:
+            # Check for collisions with the left and right sides of the player
             platform_left_rect = pygame.Rect(
                 platform.rect.x, platform.rect.y + 5, 5, platform.rect.height - 5
             )
