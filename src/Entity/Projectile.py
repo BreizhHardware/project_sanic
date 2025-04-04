@@ -1,24 +1,23 @@
+from src.Entity.Entity import Entity
 import pygame
 from pygame.math import Vector2 as vec
 
 
-class Projectile(pygame.sprite.Sprite):
+class Projectile(Entity):
     def __init__(
         self, pos, direction, speed, damage, color=(0, 0, 255), enemy_proj=False
     ):
-        super().__init__()
+        # Appel du constructeur parent avec les paramètres appropriés
+        super().__init__(pos=pos, size=(10, 10), color=color)
 
-        # Base attributes
-        self.pos = vec(pos)
+        # Attributs spécifiques aux projectiles
         self.direction = direction.normalize() if direction.length() > 0 else vec(1, 0)
         self.speed = speed
         self.damage = damage
-
-        # Create projectile surface
-        self.surf = pygame.Surface((10, 10))
-        self.surf.fill(color)
-        self.rect = self.surf.get_rect(center=(pos.x, pos.y))
         self.enemy_proj = enemy_proj
+
+        # Ajustement du rect pour utiliser le centre plutôt que midbottom
+        self.rect.center = (int(self.pos.x), int(self.pos.y))
 
     def update(self, screen_width, screen_height, player=None, camera=None, enemy=None):
         """Move the projectile and check for collisions"""
@@ -51,3 +50,8 @@ class Projectile(pygame.sprite.Sprite):
         if enemy and self.rect.colliderect(enemy.rect) and not self.enemy_proj:
             enemy.take_damage(self.damage)
             self.kill()
+
+    # Surcharge pour utiliser center au lieu de midbottom
+    def update_rect(self):
+        """Update rect position based on entity position"""
+        self.rect.center = self.pos

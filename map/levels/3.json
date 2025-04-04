@@ -48,7 +48,7 @@
       "width": 50,
       "height": 80,
       "next_level": "map/levels/1.json",
-      "sprite": "assets/map/exit/door.png"
+      "sprite": "assets/map/exit/Zeldo.png"
     }
   ],
   "collectibles": [],

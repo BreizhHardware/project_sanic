@@ -164,5 +164,5 @@ class InfiniteMapGenerator:
             "width": 50,
             "height": 80,
             "next_level": "NEXT_INFINITE_LEVEL",
-            "sprite": "assets/map/exit/door.png",
+            "sprite": "assets/map/exit/Zeldo.png",
         }

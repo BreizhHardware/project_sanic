@@ -54,7 +54,7 @@ class EditorExit(pygame.sprite.Sprite):
         self.image = pygame.Surface((width, height))
         self.image.fill((0, 255, 255))  # Cyan
         self.next_level = next_level
-        self.sprite = "assets/map/exit/door.png"
+        self.sprite = "assets/map/exit/Zeldo.png"
 
 
 class EditorCollectible(pygame.sprite.Sprite):
