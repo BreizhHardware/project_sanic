@@ -25,6 +25,7 @@ from src.Menu.LevelEditorSelectionMenu import LevelEditorSelectionMenu
 
 
 def handler():
+
     # Initialize Pygame and game resources
     game_resources = GameResources()
     displaysurface = game_resources.displaysurface
@@ -315,10 +316,9 @@ def handler():
             for sprite in all_sprites:
                 if isinstance(sprite, Enemy):
                     sprite.update(P1)
+                    projectiles.update(WIDTH, HEIGHT, P1, camera, sprite)
                 else:
                     sprite.update()
-
-            projectiles.update(WIDTH, HEIGHT, P1, camera)
 
             for projectile in projectiles:
                 # Calculate position adjusted for camera (comme pour les autres sprites)
