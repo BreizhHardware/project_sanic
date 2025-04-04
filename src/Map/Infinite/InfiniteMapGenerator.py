@@ -141,7 +141,7 @@ class InfiniteMapGenerator:
             if rand == "coin":
                 collectible = {
                     "id": f"collectible{i + 1}",
-                    "type": random.choice(collectible_types),
+                    "type": "coin",
                     "x": random.randint(400, self.width - 100),
                     "y": random.randint(100, 400),
                     "sprite": "assets/map/collectibles/Sanic_Coin.png",
