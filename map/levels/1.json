@@ -4,8 +4,7 @@
   "height": 800,
   "background": "assets/map/background/forest_bg.jpg",
   "gravity": 1.0,
-
-  "ground": [
+  "platforms": [
     {
       "id": "main_ground",
       "x": -1000,
@@ -15,24 +14,13 @@
       "texture": "assets/map/platform/grass_texture.jpg"
     },
     {
-      "id": "pit",
-      "x": 800,
-      "y": 780,
-      "width": 200,
-      "height": 20,
-      "is_hole": true
-    },
-    {
       "id": "main_ground_2",
       "x": 1000,
       "y": 900,
       "width": 1800,
       "height": 200,
       "texture": "assets/map/platform/grass_texture.jpg"
-    }
-  ],
-
-  "platforms": [
+    },
     {
       "id": "platform1",
       "x": 300,
@@ -54,7 +42,7 @@
         "type": "linear",
         "points": [
           {"x": 700, "y": 300},
-          {"x": 700, "y": 500}
+          {"x": 700, "y": 600}
         ],
         "speed": 2.0,
         "wait_time": 1.0
@@ -62,8 +50,8 @@
     },
     {
       "id": "platform21",
-      "x": 900,
-      "y": 500,
+      "x": 1200,
+      "y": 750,
       "width": 150,
       "height": 20,
       "texture": "assets/map/platform/grass_texture.jpg",
@@ -71,8 +59,8 @@
       "movement": {
         "type": "linear",
         "points": [
-          {"x": 700, "y": 500},
-          {"x": 800, "y": 500}
+          {"x": 1200, "y": 550},
+          {"x": 1500, "y": 550}
         ],
         "speed": 2.0,
         "wait_time": 1.0
@@ -89,7 +77,7 @@
       "movement": {
         "type": "circular",
         "center": {"x": 1200, "y": 400},
-        "radius": 100,
+        "radius": 3,
         "speed": 0.02,
         "clockwise": true
       }
@@ -176,7 +164,7 @@
 
   "spawn_point": {
     "x": 50,
-    "y": 700
+    "y": 650
   },
 
   "exits": [

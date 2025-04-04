@@ -75,6 +75,10 @@ class LevelEditor:
         if level_file:
             self._load_level(level_file)
 
+        self.panning = False
+        self.pan_start_pos = None
+        self.camera_offset = [0, 0]
+
     def _create_toolbar(self):
         """Create buttons for the editor toolbar"""
         # Tool selection buttons
@@ -187,7 +191,8 @@ class LevelEditor:
 
     def _snap_to_grid(self, pos):
         """Snap a position to the grid"""
-        x, y = pos
+        world_pos = self.screen_to_world(pos)
+        x, y = world_pos
         return (
             round(x / self.grid_size) * self.grid_size,
             round(y / self.grid_size) * self.grid_size,
@@ -216,16 +221,6 @@ class LevelEditor:
             "height": 800,
             "background": "assets/map/background/forest_bg.jpg",
             "gravity": 1.0,
-            "ground": [
-                {
-                    "id": "main_ground",
-                    "x": -1000,
-                    "y": 780,
-                    "width": 1800,
-                    "height": 200,
-                    "texture": "assets/map/platform/grass_texture.jpg",
-                }
-            ],
             "platforms": [],
             "enemies": [],
             "checkpoints": [],
@@ -491,27 +486,13 @@ class LevelEditor:
 
         # Handle keyboard controls for platform properties
         if event.type == KEYDOWN:
-            print(f"Touche pressée: {pygame.key.name(event.key)}")
-            print(
-                f"Objet sélectionné: {type(self.selected_object).__name__ if self.selected_object else 'Aucun'}"
-            )
             if event.key == K_BACKSPACE and self.selected_object:
-                print(
-                    f"Tentative de suppression de {type(self.selected_object).__name__}"
-                )
                 # Vérifier que l'objet est bien dans les groupes avant de le supprimer
                 if self.selected_object in self.all_sprites:
                     self.all_sprites.remove(self.selected_object)
-                    print("Supprimé de all_sprites")
-                else:
-                    print("L'objet n'est pas dans all_sprites")
                 if isinstance(self.selected_object, EditorPlatform):
-                    print("Objet sélectionné est une plateforme")
                     if self.selected_object in self.platforms:
                         self.platforms.remove(self.selected_object)
-                        print("Supprimé de platforms")
-                    else:
-                        print("L'objet n'est pas dans platforms")
                 elif isinstance(self.selected_object, EditorCheckpoint):
                     self.checkpoints.remove(self.selected_object)
                 elif isinstance(self.selected_object, EditorEnemy):
@@ -521,7 +502,6 @@ class LevelEditor:
                 elif self.selected_object == self.exit_point:
                     self.exit_point = None
                 self.selected_object = None
-                print("Objet sélectionné réinitialisé")
 
             if self.selected_object and isinstance(
                 self.selected_object, EditorPlatform
@@ -606,7 +586,7 @@ class LevelEditor:
 
             elif self.selected_object and isinstance(self.selected_object, EditorExit):
                 if event.key == K_n:
-                    # Cycle de navigation entre les niveaux
+                    # Navigation between levels
                     level_dir = "map/levels/"
                     levels = [f for f in os.listdir(level_dir) if f.endswith(".json")]
 
@@ -640,6 +620,25 @@ class LevelEditor:
                     self.selected_object.update_appearance()
                     print(f"Enemy type set to: {self.selected_object.enemy_type}")
 
+        if event.type == MOUSEBUTTONDOWN and event.button == 3:
+            self.panning = True
+            self.pan_start_pos = event.pos
+            return None
+
+        elif event.type == MOUSEMOTION and self.panning:
+            dx = event.pos[0] - self.pan_start_pos[0]
+            dy = event.pos[1] - self.pan_start_pos[1]
+
+            self.camera_offset[0] += dx
+            self.camera_offset[1] += dy
+
+            self.pan_start_pos = event.pos
+            return None
+
+        elif event.type == MOUSEBUTTONUP and event.button == 3:
+            self.panning = False
+            return None
+
         return None
 
     def draw(self, surface):
@@ -652,25 +651,40 @@ class LevelEditor:
         # Clear the screen
         surface.fill((40, 40, 40))
 
-        # Draw grid
-        for x in range(0, self.game_resources.WIDTH, self.grid_size):
+        # Draw grid with camera offset
+        for x in range(
+            -self.camera_offset[0] % self.grid_size,
+            self.game_resources.WIDTH,
+            self.grid_size,
+        ):
             pygame.draw.line(
                 surface, (60, 60, 60), (x, 0), (x, self.game_resources.HEIGHT)
             )
-        for y in range(0, self.game_resources.HEIGHT, self.grid_size):
+        for y in range(
+            -self.camera_offset[1] % self.grid_size,
+            self.game_resources.HEIGHT,
+            self.grid_size,
+        ):
             pygame.draw.line(
                 surface, (60, 60, 60), (0, y), (self.game_resources.WIDTH, y)
             )
 
         # Draw all sprites
-        self.all_sprites.draw(surface)
+        for sprite in self.all_sprites:
+            screen_pos = self.world_to_screen((sprite.rect.x, sprite.rect.y))
+            temp_rect = sprite.rect.copy()
+            temp_rect.x, temp_rect.y = screen_pos
+            surface.blit(sprite.image, temp_rect)
 
         # Draw player start position
         if self.player_start:
+            screen_pos = self.world_to_screen(
+                (self.player_start.x, self.player_start.y)
+            )
             pygame.draw.circle(
                 surface,
                 (0, 255, 0),
-                (int(self.player_start.x), int(self.player_start.y)),
+                (int(screen_pos[0]), int(screen_pos[1])),
                 10,
             )
 
@@ -700,12 +714,13 @@ class LevelEditor:
                 else:
                     info_text.append("Moving: No")
 
-                y_offset = 120
+                y_offset = 20
                 for text in info_text:
                     text_surf = self.game_resources.font.render(
                         text, True, (255, 255, 255)
                     )
-                    surface.blit(text_surf, (10, y_offset))
+                    x_pos = self.game_resources.WIDTH - text_surf.get_width() - 10
+                    surface.blit(text_surf, (x_pos, y_offset))
                     y_offset += 25
 
         # Draw platform being created
@@ -751,3 +766,11 @@ class LevelEditor:
             text_surf = self.game_resources.font.render(text, True, (200, 200, 200))
             surface.blit(text_surf, (self.game_resources.WIDTH - 250, y_offset))
             y_offset += 20
+
+    def world_to_screen(self, pos):
+        """Convert world coordinates to screen coordinates."""
+        return pos[0] + self.camera_offset[0], pos[1] + self.camera_offset[1]
+
+    def screen_to_world(self, pos):
+        """Convert screen coordinates to world coordinates."""
+        return pos[0] - self.camera_offset[0], pos[1] - self.camera_offset[1]

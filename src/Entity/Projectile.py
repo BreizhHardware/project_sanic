@@ -3,7 +3,9 @@ from pygame.math import Vector2 as vec
 
 
 class Projectile(pygame.sprite.Sprite):
-    def __init__(self, pos, direction, speed, damage, color=(0, 0, 255)):
+    def __init__(
+        self, pos, direction, speed, damage, color=(0, 0, 255), enemy_proj=False
+    ):
         super().__init__()
 
         # Base attributes
@@ -16,8 +18,9 @@ class Projectile(pygame.sprite.Sprite):
         self.surf = pygame.Surface((10, 10))
         self.surf.fill(color)
         self.rect = self.surf.get_rect(center=(pos.x, pos.y))
+        self.enemy_proj = enemy_proj
 
-    def update(self, screen_width, screen_height, player=None, camera=None):
+    def update(self, screen_width, screen_height, player=None, camera=None, enemy=None):
         """Move the projectile and check for collisions"""
         # Movement of the projectile
         self.pos += self.direction * self.speed
@@ -41,6 +44,10 @@ class Projectile(pygame.sprite.Sprite):
                 self.kill()
 
         # Check for collision with player
-        if player and self.rect.colliderect(player.rect):
+        if player and self.rect.colliderect(player.rect) and self.enemy_proj:
             player.take_damage(self.damage)
+            self.kill()
+
+        if enemy and self.rect.colliderect(enemy.rect) and not self.enemy_proj:
+            enemy.take_damage(self.damage)
             self.kill()

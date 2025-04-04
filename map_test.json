@@ -54,7 +54,7 @@
         "type": "linear",
         "points": [
           {"x": 700, "y": 300},
-          {"x": 700, "y": 500}
+          {"x": 700, "y": 600}
         ],
         "speed": 2.0,
         "wait_time": 1.0
@@ -62,8 +62,8 @@
     },
     {
       "id": "platform21",
-      "x": 900,
-      "y": 500,
+      "x": 1200,
+      "y": 750,
       "width": 150,
       "height": 20,
       "texture": "assets/map/platform/grass_texture.jpg",
@@ -71,8 +71,8 @@
       "movement": {
         "type": "linear",
         "points": [
-          {"x": 700, "y": 500},
-          {"x": 800, "y": 500}
+          {"x": 1200, "y": 550},
+          {"x": 1500, "y": 550}
         ],
         "speed": 2.0,
         "wait_time": 1.0
@@ -89,7 +89,7 @@
       "movement": {
         "type": "circular",
         "center": {"x": 1200, "y": 400},
-        "radius": 100,
+        "radius": 3,
         "speed": 0.02,
         "clockwise": true
       }

@@ -56,21 +56,6 @@ class MapParser:
         self.checkpoints.empty()
         self.exits.empty()
 
-        # Create ground elements
-        if "ground" in map_data:
-            for ground in map_data["ground"]:
-                if not ground.get("is_hole", False):
-                    platform = Platform(
-                        ground["width"],
-                        ground["height"],
-                        ground["x"] + ground["width"] / 2,
-                        ground["y"],
-                        (255, 0, 0),
-                        ground["texture"],
-                    )
-                    self.platforms.add(platform)
-                    self.all_sprites.add(platform)
-
         # Create enemies
         if "enemies" in map_data:
             # Create enemies
