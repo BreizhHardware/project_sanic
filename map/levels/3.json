@@ -2,49 +2,34 @@
   "name": "Level 3",
   "width": 2400,
   "height": 800,
-  "background": "assets/map/background/forest_bg.jpg",
+  "background": "assets/map/background/mountain_bg.jpg",
   "gravity": 1.0,
   "platforms": [
     {
       "id": "platform1",
       "x": 180,
-      "y": 260,
+      "y": 280,
       "width": 540,
       "height": 160,
-      "texture": "assets/map/platform/grass_texture.jpg",
+      "texture": "assets/map/platform/grass_texture.png",
       "is_moving": false
     },
     {
       "id": "platform2",
       "x": 320,
-      "y": 120,
+      "y": 60,
       "width": 200,
       "height": 20,
-      "texture": "assets/map/platform/grass_texture.jpg",
-      "is_moving": true,
-      "movement": {
-        "type": "linear",
-        "points": [
-          {
-            "x": 320,
-            "y": 120
-          },
-          {
-            "x": 460,
-            "y": 120
-          }
-        ],
-        "speed": 2,
-        "wait_time": 1.0
-      }
+      "texture": "assets/map/platform/grass_texture.png",
+      "is_moving": false
     }
   ],
   "enemies": [],
   "checkpoints": [],
   "exits": [
     {
-      "x": 555,
-      "y": -200,
+      "x": 405,
+      "y": -680,
       "width": 50,
       "height": 80,
       "next_level": "map/levels/1.json",
