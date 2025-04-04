@@ -2,7 +2,7 @@
   "name": "Level 1",
   "width": 2400,
   "height": 800,
-  "background": "assets/map/background/forest_bg.jpg",
+  "background": "assets/map/background/cave_bg.png",
   "gravity": 1.0,
   "platforms": [
     {
@@ -174,7 +174,7 @@
         "width": 50,
         "height": 80,
         "next_level": "Level 2",
-        "sprite": "assets/map/exit/door.png"
+        "sprite": "assets/map/exit/Zeldo.png"
     }
   ]
 }

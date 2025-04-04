@@ -15,6 +15,7 @@ class InfiniteMapGenerator:
             "assets/map/background/forest_bg.jpg",
             "assets/map/background/desert_bg.jpg",
             "assets/map/background/mountain_bg.jpg",
+            "assets/map/background/cave_bg.png",
         ]
         self.platform_textures = [
             "assets/map/platform/grass_texture.jpg",
@@ -136,12 +137,22 @@ class InfiniteMapGenerator:
         collectible_types = ["coin", "health", "shield"]
 
         for i in range(num_collectibles):
-            collectible = {
-                "id": f"collectible{i+1}",
-                "type": random.choice(collectible_types),
-                "x": random.randint(400, self.width - 100),
-                "y": random.randint(100, 400),
-            }
+            rand = random.choice(collectible_types)
+            if rand == "coin":
+                collectible = {
+                    "id": f"collectible{i + 1}",
+                    "type": "coin",
+                    "x": random.randint(400, self.width - 100),
+                    "y": random.randint(100, 400),
+                    "sprite": "assets/map/collectibles/Sanic_Coin.png",
+                }
+            else:
+                collectible = {
+                    "id": f"collectible{i+1}",
+                    "type": random.choice(collectible_types),
+                    "x": random.randint(400, self.width - 100),
+                    "y": random.randint(100, 400),
+                }
             collectibles.append(collectible)
 
         return collectibles
@@ -153,5 +164,5 @@ class InfiniteMapGenerator:
             "width": 50,
             "height": 80,
             "next_level": "NEXT_INFINITE_LEVEL",
-            "sprite": "assets/map/exit/door.png",
+            "sprite": "assets/map/exit/Zeldo.png",
         }

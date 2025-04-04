@@ -281,6 +281,8 @@ class Player(Entity):
         )
 
     def update(self):
+        """Update the player position and check for collisions."""
+        # Define the feet and side rectangles for collision detection
         feet_rect = pygame.Rect(0, 0, self.rect.width * 0.8, 10)
         feet_rect.midbottom = self.rect.midbottom
 
@@ -291,6 +293,7 @@ class Player(Entity):
         right_side_rect.midright = self.rect.midright
 
         hits = []
+        # Check for collisions with the top of platforms
         for platform in self.game_resources.platforms:
             platform_top_rect = pygame.Rect(
                 platform.rect.x, platform.rect.y, platform.rect.width, 5
@@ -307,6 +310,7 @@ class Player(Entity):
 
         side_hits = []
         for platform in self.game_resources.platforms:
+            # Check for collisions with the left and right sides of the player
             platform_left_rect = pygame.Rect(
                 platform.rect.x, platform.rect.y + 5, 5, platform.rect.height - 5
             )
@@ -400,7 +404,9 @@ class Player(Entity):
     def draw_coins(self, surface):
         """Draws the coin counter with icon in the top left corner"""
         # Load coin texture (do this in __init__ for better performance)
-        coin_texture = pygame.image.load("assets/map/collectibles/Sanic_Coin.png").convert_alpha()
+        coin_texture = pygame.image.load(
+            "assets/map/collectibles/Sanic_Coin.png"
+        ).convert_alpha()
         coin_size = 30
         coin_texture = pygame.transform.scale(coin_texture, (coin_size, coin_size))
 
@@ -422,7 +428,7 @@ class Player(Entity):
 
         # Position text next to coin icon with small spacing
         text_x = start_x + coin_size + 5
-        text_y = start_y + (coin_size - coin_text.get_height()) // 2  # Vertically center
+        text_y = start_y + (coin_size - coin_text.get_height()) // 2
 
         surface.blit(coin_text, (text_x, text_y))
 

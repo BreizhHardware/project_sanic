@@ -18,9 +18,7 @@ class Enemy(Entity):
         # Initial position
         self.pos = vec(enemy_data.get("x", 0), enemy_data.get("y", 0))
 
-        sprite_path = enemy_data.get(
-            "sprite_sheet", "assets/map/enemy/default_enemy.png"
-        )
+        sprite_path = enemy_data.get("sprite_sheet", "assets/enemy/default_enemy.png")
         try:
             self.surf = pygame.image.load(sprite_path).convert_alpha()
             self.surf = pygame.transform.scale(self.surf, (40, 40))

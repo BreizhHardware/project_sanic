@@ -55,9 +55,14 @@ def initialize_game(game_resources, map_file="map/levels/1.json"):
             exit_obj.set_player(map_objects["player"])
 
     background = map_objects.get("background", None)
+
+    # If no background is found, use a default black background
     if background is None:
         background = pygame.Surface((game_resources.WIDTH, game_resources.HEIGHT))
         background.fill((0, 0, 0))
+        print("Aucun background trouvé, utilisation d'un fond noir")
+    else:
+        print("Background chargé avec succès")
 
     return (
         map_objects["player"],

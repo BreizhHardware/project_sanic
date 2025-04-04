@@ -185,7 +185,7 @@ def handler():
                                 background,
                                 checkpoints,
                                 exits,
-                                collectibles
+                                collectibles,
                             ) = initialize_game(game_resources, level_file)
                             projectiles.empty()
                             current_state = PLAYING
@@ -301,10 +301,54 @@ def handler():
                     )
 
             if background:
+                bg_width = WIDTH * 1.5
+                bg_height = HEIGHT * 1.5
+
+                # Resize the background if necessary
+                if (
+                    background.get_width() != bg_width
+                    or background.get_height() != bg_height
+                ):
+                    background = pygame.transform.scale(
+                        background, (bg_width, bg_height)
+                    )
+
+                # Parallax effect factor (if small, the background moves slower)
                 parallax_factor = 0.3
-                bg_x = camera.camera.x * parallax_factor
-                bg_y = camera.camera.y * parallax_factor
+
+                # Calculate the background position based on camera position
+                bg_x = -(camera.camera.x * parallax_factor) % bg_width
+                bg_y = -(camera.camera.y * parallax_factor) % bg_height
+
                 displaysurface.blit(background, (bg_x, bg_y))
+
+                # Draw the background in all four corners to create a seamless effect
+                if bg_x > 0:
+                    displaysurface.blit(background, (bg_x - bg_width, bg_y))
+                if bg_x + bg_width < WIDTH:
+                    displaysurface.blit(background, (bg_x + bg_width, bg_y))
+
+                if bg_y > 0:
+                    displaysurface.blit(background, (bg_x, bg_y - bg_height))
+                    if bg_x > 0:
+                        displaysurface.blit(
+                            background, (bg_x - bg_width, bg_y - bg_height)
+                        )
+                    if bg_x + bg_width < WIDTH:
+                        displaysurface.blit(
+                            background, (bg_x + bg_width, bg_y - bg_height)
+                        )
+
+                if bg_y + bg_height < HEIGHT:
+                    displaysurface.blit(background, (bg_x, bg_y + bg_height))
+                    if bg_x > 0:
+                        displaysurface.blit(
+                            background, (bg_x - bg_width, bg_y + bg_height)
+                        )
+                    if bg_x + bg_width < WIDTH:
+                        displaysurface.blit(
+                            background, (bg_x + bg_width, bg_y + bg_height)
+                        )
 
             # Draw all sprites with camera offset applied
             for entity in all_sprites:
@@ -342,9 +386,16 @@ def handler():
                     and game_resources.infinite_mode
                 ):
                     # Mod infinit : load the next level without the menu
-                    P1, P1T, platforms, all_sprites, background, checkpoints, exits, collectibles = (
-                        handle_exit_collision(exit, game_resources, level_file)
-                    )
+                    (
+                        P1,
+                        P1T,
+                        platforms,
+                        all_sprites,
+                        background,
+                        checkpoints,
+                        exits,
+                        collectibles,
+                    ) = handle_exit_collision(exit, game_resources, level_file)
                 else:
                     # Mod normal : unlock the next level and return to the menu
                     current_level_match = re.search(r"(\d+)\.json$", level_file)
@@ -367,11 +418,14 @@ def handler():
             fps_text = font.render(f"FPS: {fps}", True, (255, 255, 255))
             displaysurface.blit(fps_text, (10, 10))
 
-            coins_hit = pygame.sprite.spritecollide(P1, collectibles,
-                                                    False)  # Set to False to handle removal in on_collision
+            coins_hit = pygame.sprite.spritecollide(
+                P1, collectibles, False
+            )  # Set to False to handle removal in on_collision
             for coin in coins_hit:
                 coin.on_collision()  # This will handle the coin removal
-                P1.collect_coin(displaysurface)  # This updates the player's coin counter
+                P1.collect_coin(
+                    displaysurface
+                )  # This updates the player's coin counter
 
             P1.draw_dash_cooldown_bar(displaysurface)
 
@@ -385,9 +439,16 @@ def handler():
             P1.draw_coins(displaysurface)
 
         elif current_state == INFINITE:
-            P1, P1T, platforms, all_sprites, background, checkpoints, exits, collectibles = (
-                start_infinite_mode(game_resources)
-            )
+            (
+                P1,
+                P1T,
+                platforms,
+                all_sprites,
+                background,
+                checkpoints,
+                exits,
+                collectibles,
+            ) = start_infinite_mode(game_resources)
             current_state = PLAYING
 
         elif current_state == LEADERBOARD:
@@ -405,9 +466,14 @@ def handler():
             death_timer += dt
             if death_timer >= death_display_time:
                 if checkpoint_data:
-                    P1, platforms, all_sprites, background, checkpoints, collectibles = (
-                        reset_game_with_checkpoint(level_file, game_resources)
-                    )
+                    (
+                        P1,
+                        platforms,
+                        all_sprites,
+                        background,
+                        checkpoints,
+                        collectibles,
+                    ) = reset_game_with_checkpoint(level_file, game_resources)
                     projectiles.empty()
                     current_state = PLAYING
                 else:

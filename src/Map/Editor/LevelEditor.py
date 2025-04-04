@@ -320,7 +320,7 @@ class LevelEditor:
                     "width": 50,
                     "height": 80,
                     "next_level": getattr(self.exit_point, "next_level", next_level),
-                    "sprite": "assets/map/exit/door.png",
+                    "sprite": "assets/map/exit/Zeldo.png",
                 }
             )
 
