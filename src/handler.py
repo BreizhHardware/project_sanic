@@ -185,6 +185,7 @@ def handler():
                                 background,
                                 checkpoints,
                                 exits,
+                                collectibles
                             ) = initialize_game(game_resources, level_file)
                             projectiles.empty()
                             current_state = PLAYING
@@ -341,7 +342,7 @@ def handler():
                     and game_resources.infinite_mode
                 ):
                     # Mod infinit : load the next level without the menu
-                    P1, P1T, platforms, all_sprites, background, checkpoints, exits = (
+                    P1, P1T, platforms, all_sprites, background, checkpoints, exits, collectibles = (
                         handle_exit_collision(exit, game_resources, level_file)
                     )
                 else:
@@ -366,6 +367,12 @@ def handler():
             fps_text = font.render(f"FPS: {fps}", True, (255, 255, 255))
             displaysurface.blit(fps_text, (10, 10))
 
+            coins_hit = pygame.sprite.spritecollide(P1, collectibles,
+                                                    False)  # Set to False to handle removal in on_collision
+            for coin in coins_hit:
+                coin.on_collision()  # This will handle the coin removal
+                P1.collect_coin(displaysurface)  # This updates the player's coin counter
+
             P1.draw_dash_cooldown_bar(displaysurface)
 
             pos_text = font.render(
@@ -375,9 +382,10 @@ def handler():
 
             P1.draw_dash_cooldown_bar(displaysurface)
             P1.draw_lives(displaysurface)
+            P1.draw_coins(displaysurface)
 
         elif current_state == INFINITE:
-            P1, P1T, platforms, all_sprites, background, checkpoints, exits = (
+            P1, P1T, platforms, all_sprites, background, checkpoints, exits, collectibles = (
                 start_infinite_mode(game_resources)
             )
             current_state = PLAYING
@@ -397,7 +405,7 @@ def handler():
             death_timer += dt
             if death_timer >= death_display_time:
                 if checkpoint_data:
-                    P1, platforms, all_sprites, background, checkpoints = (
+                    P1, platforms, all_sprites, background, checkpoints, collectibles = (
                         reset_game_with_checkpoint(level_file, game_resources)
                     )
                     projectiles.empty()

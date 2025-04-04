@@ -130,10 +130,16 @@
     {
       "id": "coin1",
       "type": "coin",
-      "x": 350,
-      "y": 550,
-      "value": 10,
-      "sprite": "assets/map/collectibles/coin.png"
+      "x": 1220,
+      "y": 320,
+      "sprite": "assets/map/collectibles/Sanic_Coin.png"
+    },
+    {
+      "id": "coin2",
+      "type": "coin",
+      "x": 400,
+      "y": 540,
+      "sprite": "assets/map/collectibles/Sanic_Coin.png"
     },
     {
       "id": "power_up1",

@@ -6,7 +6,7 @@ from src.Entity.Player import Player
 from src.Entity.Enemy import Enemy
 from src.Entity.Checkpoint import Checkpoint
 from src.Entity.Exit import Exit
-
+from src.Entity.Coin import Coin
 
 class MapParser:
     def __init__(self, game_resources):
@@ -101,9 +101,23 @@ class MapParser:
                 self.all_sprites.add(platform)
 
         # Create collectibles (requires Collectible class implementation)
+        # In MapParser.create_map_objects()
+        # In MapParser.create_map_objects()
         if "collectibles" in map_data:
-            pass  # You'll need to implement collectible creation
+            print(f"Found {len(map_data['collectibles'])} collectibles")
+            for collectible_data in map_data["collectibles"]:
+                if collectible_data["type"] == "coin":
+                    print(f"Creating coin at ({collectible_data['x']}, {collectible_data['y']})")
+                    sprite_path = collectible_data.get("sprite", "")
+                    print(f"Using sprite path: {sprite_path}")
 
+                    # Create and add the coin
+                    coin = Coin(
+                        pos=(collectible_data["x"], collectible_data["y"]),
+                        texturePath=sprite_path
+                    )
+                    self.collectibles.add(coin)
+                    self.all_sprites.add(coin)
         # Create background image
         if "background" in map_data:
             if os.path.isfile(map_data["background"]):
@@ -127,6 +141,10 @@ class MapParser:
                 )
                 self.checkpoints.add(checkpoint)
                 self.all_sprites.add(checkpoint)
+
+        # At the end of MapParser.create_map_objects()
+        print(f"Total sprites: {len(self.all_sprites)}")
+        print(f"Total collectibles: {len(self.collectibles)}")
 
         if "exits" in map_data:
             for exit_data in map_data["exits"]:

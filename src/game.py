@@ -67,6 +67,7 @@ def initialize_game(game_resources, map_file="map/levels/1.json"):
         background,
         map_objects["checkpoints"],
         exits,
+        map_objects["collectibles"],
     )
 
 
@@ -83,7 +84,7 @@ def reset_game_with_checkpoint(map_name, game_resources):
     checkpoint_pos = db.get_checkpoint(map_name)
 
     # Initialize game
-    player, _, platforms, all_sprites, background, checkpoints, exits = initialize_game(
+    player, _, platforms, all_sprites, background, checkpoints, exits, collectibles = initialize_game(
         game_resources, map_name
     )
 
@@ -92,7 +93,7 @@ def reset_game_with_checkpoint(map_name, game_resources):
         player.pos = game_resources.vec(checkpoint_pos[0], checkpoint_pos[1])
         player.update_rect()
 
-    return player, platforms, all_sprites, background, checkpoints
+    return player, platforms, all_sprites, background, checkpoints, collectibles
 
 
 def clear_checkpoint_database():
