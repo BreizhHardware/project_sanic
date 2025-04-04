@@ -79,6 +79,19 @@ class LevelEditor:
         self.pan_start_pos = None
         self.camera_offset = [0, 0]
 
+        self.platform_textures = [
+            "assets/map/platform/grass_texture.png",
+            "assets/map/platform/stone_texture.png",
+            "assets/map/platform/wood_texture.png",
+        ]
+        self.backgrounds = [
+            "assets/map/background/forest_bg.jpg",
+            "assets/map/background/desert_bg.jpg",
+            "assets/map/background/mountain_bg.jpg",
+            "assets/map/background/cave_bg.png",
+        ]
+        self.background = self.backgrounds[0]
+
     def _create_toolbar(self):
         """Create buttons for the editor toolbar"""
         # Tool selection buttons
@@ -219,7 +232,7 @@ class LevelEditor:
             "name": level_name,
             "width": 2400,
             "height": 800,
-            "background": "assets/map/background/forest_bg.jpg",
+            "background": self.background,
             "gravity": 1.0,
             "platforms": [],
             "enemies": [],
@@ -240,7 +253,7 @@ class LevelEditor:
                 "y": platform.rect.y,
                 "width": platform.rect.width,
                 "height": platform.rect.height,
-                "texture": "assets/map/platform/grass_texture.jpg",
+                "texture": platform.texture,
                 "is_moving": False,
             }
 
@@ -503,6 +516,16 @@ class LevelEditor:
                     self.exit_point = None
                 self.selected_object = None
 
+            if event.key == K_b:
+                try:
+                    current_index = self.backgrounds.index(self.background)
+                except ValueError:
+                    current_index = 0
+
+                next_index = (current_index + 1) % len(self.backgrounds)
+                self.background = self.backgrounds[next_index]
+                print(f"Background set to: {self.background}")
+
             if self.selected_object and isinstance(
                 self.selected_object, EditorPlatform
             ):
@@ -560,6 +583,18 @@ class LevelEditor:
                         self.selected_object.distance = max(
                             20, self.selected_object.distance - 20
                         )
+
+                elif event.key == K_p:
+                    current_texture = self.selected_object.texture
+                    try:
+                        current_index = self.platform_textures.index(current_texture)
+                    except ValueError:
+                        current_index = 0
+
+                    next_index = (current_index + 1) % len(self.platform_textures)
+                    self.selected_object.texture = self.platform_textures[next_index]
+                    self.selected_object.update_appearance()
+                    print(f"Platform texture set to: {self.selected_object.texture}")
 
             elif self.selected_object and isinstance(
                 self.selected_object, EditorCollectible
@@ -753,12 +788,14 @@ class LevelEditor:
             "  M: Toggle movement",
             "  D: Toggle direction",
             "  Arrow keys: Adjust speed/distance",
+            "  P: Change texture",
             "For collectibles:",
             "  T: Change type",
             "Pour les sorties:",
             "  N: Changer le niveau suivant",
             "Pour les ennemis:",
             "  T: Changer le type d'ennemi",
+            "B: Change background",
         ]
 
         y_offset = self.game_resources.HEIGHT - 300

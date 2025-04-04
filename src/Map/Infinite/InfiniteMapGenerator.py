@@ -18,9 +18,9 @@ class InfiniteMapGenerator:
             "assets/map/background/cave_bg.png",
         ]
         self.platform_textures = [
-            "assets/map/platform/grass_texture.jpg",
-            "assets/map/platform/stone_texture.jpg",
-            "assets/map/platform/wood_texture.jpg",
+            "assets/map/platform/grass_texture.png",
+            "assets/map/platform/stone_texture.png",
+            "assets/map/platform/wood_texture.png",
         ]
 
         # Create the directory for infinite maps if it doesn't exist

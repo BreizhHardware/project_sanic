@@ -9,7 +9,7 @@ class EditorPlatform(pygame.sprite.Sprite):
         self.rect = pygame.Rect(x, y, width, height)
         # Create surface for drawing
         self.image = pygame.Surface((width, height))
-        self.image.fill((100, 200, 100))  # Green color for platforms
+        self.image.fill((150, 75, 0))  # Green color for platforms
 
         # Store original dimensions
         self.width = width
@@ -20,6 +20,28 @@ class EditorPlatform(pygame.sprite.Sprite):
         self.direction = "horizontal"
         self.speed = 2
         self.distance = 100
+
+        self.texture = "assets/map/platform/grass_texture.png"
+        self.update_appearance()
+
+    def update_appearance(self):
+        """Update the appearance of the platform based on its attributes"""
+        try:
+            # Load the texture if it exists
+            texture = pygame.image.load(self.texture).convert()
+
+            # Resize the texture to fit the platform
+            texture = pygame.transform.scale(
+                texture, (self.rect.width, self.rect.height)
+            )
+
+            # Apply the texture to the platform
+            self.image = texture
+        except Exception as e:
+            print(f"Erreur lors du chargement de la texture : {e}")
+            # Fallback to a default color if the texture fails to load
+            self.image = pygame.Surface((self.rect.width, self.rect.height))
+            self.image.fill((150, 75, 0))
 
 
 class EditorCheckpoint(pygame.sprite.Sprite):
