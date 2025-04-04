@@ -245,6 +245,7 @@ def handler():
             P1.move()
             P1.update()
             P1.attack()
+            projectiles.update(WIDTH, HEIGHT, P1, camera)
 
             # Update camera to follow player
             camera.update(P1)
