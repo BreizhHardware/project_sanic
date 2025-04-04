@@ -137,12 +137,22 @@ class InfiniteMapGenerator:
         collectible_types = ["coin", "health", "shield"]
 
         for i in range(num_collectibles):
-            collectible = {
-                "id": f"collectible{i+1}",
-                "type": random.choice(collectible_types),
-                "x": random.randint(400, self.width - 100),
-                "y": random.randint(100, 400),
-            }
+            rand = random.choice(collectible_types)
+            if rand == "coin":
+                collectible = {
+                    "id": f"collectible{i + 1}",
+                    "type": random.choice(collectible_types),
+                    "x": random.randint(400, self.width - 100),
+                    "y": random.randint(100, 400),
+                    "sprite": "assets/map/collectibles/Sanic_Coin.png",
+                }
+            else:
+                collectible = {
+                    "id": f"collectible{i+1}",
+                    "type": random.choice(collectible_types),
+                    "x": random.randint(400, self.width - 100),
+                    "y": random.randint(100, 400),
+                }
             collectibles.append(collectible)
 
         return collectibles
