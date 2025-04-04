@@ -41,6 +41,7 @@ class MapParser:
                 },
                 "checkpoints": self.checkpoints,
                 "exits": self.exits,
+                "background": getattr(self, "background", None),
             }
         except Exception as e:
             print(f"Error loading map: {e}")

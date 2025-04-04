@@ -15,6 +15,7 @@ class InfiniteMapGenerator:
             "assets/map/background/forest_bg.jpg",
             "assets/map/background/desert_bg.jpg",
             "assets/map/background/mountain_bg.jpg",
+            "assets/map/background/cave_bg.png",
         ]
         self.platform_textures = [
             "assets/map/platform/grass_texture.jpg",

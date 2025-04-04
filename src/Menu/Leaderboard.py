@@ -30,6 +30,8 @@ class Leaderboard:
         title_rect = title.get_rect(center=(self.WIDTH // 2, 40))
         surface.blit(title, title_rect)
 
+        font = pygame.font.SysFont("Arial", 20)
+
         # Draw tabs
         for i, button in enumerate(self.tab_buttons):
             if i == self.current_tab:
@@ -38,7 +40,7 @@ class Leaderboard:
                     (100, 149, 237),
                     (button.x, button.y, button.width, button.height),
                 )
-            button.draw(surface)
+            button.draw(surface, font)
 
         # Draw scores
         y_pos = 150
@@ -51,7 +53,7 @@ class Leaderboard:
             )
             y_pos += 40
 
-        self.back_button.draw(surface)
+        self.back_button.draw(surface, font)
 
     def handle_event(self, event):
         action = self.back_button.handle_event(event)

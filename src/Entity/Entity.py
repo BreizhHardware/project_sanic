@@ -22,8 +22,7 @@ class Entity(pygame.sprite.Sprite):
             self.surf = pygame.transform.scale(self.surf, size)
             self.rect = self.surf.get_rect()
         else:
-            print("Texture path not found")
-            print(texturePath)
+            print(f"Texture path not found: {texturePath}")
 
     def update_rect(self):
         """Update rect position based on entity position"""

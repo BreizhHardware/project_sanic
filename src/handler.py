@@ -301,10 +301,54 @@ def handler():
                     )
 
             if background:
+                bg_width = WIDTH * 1.5
+                bg_height = HEIGHT * 1
+
+                # Resize the background if necessary
+                if (
+                    background.get_width() != bg_width
+                    or background.get_height() != bg_height
+                ):
+                    background = pygame.transform.scale(
+                        background, (bg_width, bg_height)
+                    )
+
+                # Parallax effect factor (if small, the background moves slower)
                 parallax_factor = 0.3
-                bg_x = camera.camera.x * parallax_factor
-                bg_y = camera.camera.y * parallax_factor
+
+                # Calculate the background position based on camera position
+                bg_x = -(camera.camera.x * parallax_factor) % bg_width
+                bg_y = -(camera.camera.y * parallax_factor) % bg_height
+
                 displaysurface.blit(background, (bg_x, bg_y))
+
+                # Draw the background in all four corners to create a seamless effect
+                if bg_x > 0:
+                    displaysurface.blit(background, (bg_x - bg_width, bg_y))
+                if bg_x + bg_width < WIDTH:
+                    displaysurface.blit(background, (bg_x + bg_width, bg_y))
+
+                if bg_y > 0:
+                    displaysurface.blit(background, (bg_x, bg_y - bg_height))
+                    if bg_x > 0:
+                        displaysurface.blit(
+                            background, (bg_x - bg_width, bg_y - bg_height)
+                        )
+                    if bg_x + bg_width < WIDTH:
+                        displaysurface.blit(
+                            background, (bg_x + bg_width, bg_y - bg_height)
+                        )
+
+                if bg_y + bg_height < HEIGHT:
+                    displaysurface.blit(background, (bg_x, bg_y + bg_height))
+                    if bg_x > 0:
+                        displaysurface.blit(
+                            background, (bg_x - bg_width, bg_y + bg_height)
+                        )
+                    if bg_x + bg_width < WIDTH:
+                        displaysurface.blit(
+                            background, (bg_x + bg_width, bg_y + bg_height)
+                        )
 
             # Draw all sprites with camera offset applied
             for entity in all_sprites:
