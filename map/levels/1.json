@@ -89,16 +89,17 @@
       "id": "enemy1",
       "type": "walker",
       "x": 500,
-      "y": 620,
+      "y": 660,
       "health": 1,
       "damage": 1,
       "behavior": "patrol",
       "patrol_points": [
-        {"x": 400, "y": 620},
-        {"x": 600, "y": 620}
+        {"x": 400, "y": 660},
+        {"x": 600, "y": 660}
       ],
       "speed": 1.5,
-      "sprite_sheet": "assets/map/enemy/walker_enemy.png"
+      "sprite_sheet": "assets/map/enemy/walker_enemy.png",
+      "size": [50,50]
     },
     {
       "id": "enemy2",
@@ -110,7 +111,8 @@
       "behavior": "chase",
       "detection_radius": 200,
       "speed": 2.0,
-      "sprite_sheet": "assets/map/enemy/flying_enemy.png"
+      "sprite_sheet": "assets/map/enemy/flying_enemy.png",
+      "size": [50,50]
     },
     {
       "id": "enemy3",
@@ -122,7 +124,8 @@
       "behavior": "stationary",
       "attack_interval": 2.0,
       "attack_range": 300,
-      "sprite_sheet": "assets/map/enemy/turret_enemy.png"
+      "sprite_sheet": "assets/map/enemy/turret_enemy.png",
+      "size": [50,100]
     }
   ],
 
