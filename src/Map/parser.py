@@ -198,7 +198,7 @@ class MapParser:
             "Once upon a time in a land far away...",
             "A brave hero named Sanic...",
             "And a beautiful princess named Zeldo...",
-            "As been captured by the evil boss...",
+            "Has been captured by the evil boss...",
             "Wheatly !!!",
             "Sanic must rescue Zeldo...",
         ]
