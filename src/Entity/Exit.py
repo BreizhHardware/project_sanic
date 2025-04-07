@@ -1,5 +1,7 @@
 import pygame
 from src.Entity.Entity import Entity
+from moviepy import VideoFileClip
+import moviepy as mp
 
 
 class Exit(Entity):
@@ -53,10 +55,42 @@ class Exit(Entity):
 
         # Check if player is colliding with exit
         if self.rect.colliderect(self.player.rect):
-            # Create and post a level complete event
-            exit_event = pygame.event.Event(
-                pygame.USEREVENT,
-                {"action": "level_complete", "next_level": self.next_level},
-            )
-            pygame.event.post(exit_event)
+            # Play the video and return to menu
+            self.play_video_and_return_to_menu("assets/map/exit/Zeldo Motus.mp4")
             self.active = False  # Prevent multiple triggers
+
+    def play_video_and_return_to_menu(self, video_path):
+        """
+        Play a video and then return to the menu.
+
+        Args:
+            video_path (str): Path to the video file
+        """
+        clip = VideoFileClip(video_path)
+        screen = pygame.display.get_surface()
+        screen_size = screen.get_size()
+        clip = clip.resized(new_size=screen_size)
+        clock = pygame.time.Clock()
+
+        # Extract audio from the video
+        audio = mp.AudioFileClip(video_path)
+        audio.write_audiofile("temp_audio.mp3")
+        pygame.mixer.init()
+        pygame.mixer.music.load("temp_audio.mp3")
+        pygame.mixer.music.play()
+
+        for frame in clip.iter_frames(fps=24, dtype="uint8"):
+            frame_surface = pygame.surfarray.make_surface(frame.swapaxes(0, 1))
+            screen.blit(frame_surface, (0, 0))
+            pygame.display.flip()
+            clock.tick(24)
+
+        clip.close()
+        pygame.mixer.music.stop()
+        pygame.mixer.quit()
+
+        # Create and post a return to menu event
+        return_event = pygame.event.Event(
+            pygame.USEREVENT, {"action": "return_to_menu"}
+        )
+        pygame.event.post(return_event)
