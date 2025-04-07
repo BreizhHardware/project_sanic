@@ -14,6 +14,7 @@ class Enemy(Entity):
         self.damage = enemy_data.get("damage", 1)
         self.behavior = enemy_data.get("behavior", "stationary")
         self.speed = enemy_data.get("speed", 1.5)
+        self.size = enemy_data.get("size", [50, 50])
 
         # Initial position
         self.pos = vec(enemy_data.get("x", 0), enemy_data.get("y", 0))
@@ -21,7 +22,7 @@ class Enemy(Entity):
         sprite_path = enemy_data.get("sprite_sheet", "assets/enemy/default_enemy.png")
         try:
             self.surf = pygame.image.load(sprite_path).convert_alpha()
-            self.surf = pygame.transform.scale(self.surf, (40, 40))
+            self.surf = pygame.transform.scale(self.surf, self.size)
         except:
             # Default sprite
             self.surf = pygame.Surface((40, 40))
@@ -123,6 +124,8 @@ class Enemy(Entity):
                 speed=self.speed,
                 damage=self.damage,
                 enemy_proj=True,
+                texturePath="assets/map/enemy/Laser.png",
+                size=(50, 10),
             )
 
             # Add projectile to the sprite group (to be placed in main.py)

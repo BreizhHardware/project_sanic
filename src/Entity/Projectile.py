@@ -13,9 +13,10 @@ class Projectile(Entity):
         color=(0, 0, 255),
         enemy_proj=False,
         texturePath="",
+        size=(10, 10),
     ):
         # Appel du constructeur parent avec les paramètres appropriés
-        super().__init__(pos=pos, size=(50, 50), color=color, texturePath=texturePath)
+        super().__init__(pos=pos, size=size, color=color, texturePath=texturePath)
 
         # Attributs spécifiques aux projectiles
         self.direction = direction.normalize() if direction.length() > 0 else vec(1, 0)
