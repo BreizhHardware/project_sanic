@@ -9,7 +9,7 @@ class EditorPlatform(pygame.sprite.Sprite):
         self.rect = pygame.Rect(x, y, width, height)
         # Create surface for drawing
         self.image = pygame.Surface((width, height))
-        self.image.fill((150, 75, 0))  # Green color for platforms
+        self.image.fill((150, 75, 0))  # Brown color for platforms
 
         # Store original dimensions
         self.width = width
