@@ -1,4 +1,5 @@
 import pygame
+import random
 from src.Entity.Entity import Entity
 from pygame.math import Vector2 as vec
 from src.Entity.Projectile import Projectile
@@ -136,11 +137,19 @@ class Enemy(Entity):
                 )
             )
 
-    def take_damage(self, amount):
+    def take_damage(self, amount, player):
         """Deal damage to the enemy and check if it should be destroyed"""
         self.health -= amount
         if self.health <= 0:
             self.kill()
+            if random.random() < 0.3:
+                pygame.event.post(
+                    pygame.event.Event(
+                        pygame.USEREVENT,
+                        {"action": "add_projectiles"}
+                    )
+                )
+                player.add_projectiles()
             return True
         return False
 
@@ -150,7 +159,7 @@ class Enemy(Entity):
             # Colide on top
             if player.rect.bottom <= self.rect.top + 10 and player.vel.y > 0:
                 # Enemy takes damage
-                self.take_damage(1)
+                self.take_damage(1, player)
                 # Player bump
                 player.vel.y = -15
             else:

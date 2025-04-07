@@ -56,7 +56,7 @@ class Projectile(Entity):
             self.kill()
 
         if enemy and self.rect.colliderect(enemy.rect) and not self.enemy_proj:
-            enemy.take_damage(self.damage)
+            enemy.take_damage(self.damage, player)
             self.kill()
 
     # Surcharge pour utiliser center au lieu de midbottom

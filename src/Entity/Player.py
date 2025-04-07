@@ -61,6 +61,8 @@ class Player(Entity):
 
         # Coins amount
         self.coins = 0
+        # Projectiles amount
+        self.projectiles = 0
 
         # Override initial surface if images are loaded
         if self.static_image:
@@ -512,6 +514,29 @@ class Player(Entity):
                         {"action": "create_projectile", "projectile": projectile},
                     )
                 )
+                if self.projectiles>0:
+                    self.is_attacking = True
+                    self.attack_start_time = current_time
+                    self.last_attack_time = current_time
+                    # Calculate direction to player
+                    direction = vec(-self.pos.x, 0)
+                    projectile = Projectile(
+                        pos=vec(self.pos.x - 50, self.pos.y - 50),
+                        direction=direction,
+                        speed=2,
+                        damage=1,
+                        color=(165, 42, 42),
+                        enemy_proj=False,
+                        texturePath="assets/player/Boule de feu.png",
+                    )
+                    # Add projectile to the sprite group (to be placed in main.py)
+                    pygame.event.post(
+                        pygame.event.Event(
+                            pygame.USEREVENT,
+                            {"action": "create_projectile", "projectile": projectile},
+                        )
+                    )
+                    self.projectiles -= 1
 
         if pressed_keys[K_d] and pressed_keys[K_v]:
             if current_time - self.last_attack_time >= self.attack_cooldown:
@@ -537,3 +562,60 @@ class Player(Entity):
                         {"action": "create_projectile", "projectile": projectile},
                     )
                 )
+                if self.projectiles>0:
+                    self.is_attacking = True
+                    self.attack_start_time = current_time
+                    self.last_attack_time = current_time
+                    # Calculate direction to player
+                    direction = vec(self.pos.x, 0)
+                    projectile = Projectile(
+                        pos=vec(self.pos.x + 50, self.pos.y - 50),
+                        direction=direction,
+                        speed=2,
+                        damage=1,
+                        color=(165, 42, 42),
+                        enemy_proj=False,
+                        texturePath="assets/player/Boule de feu.png",
+                    )
+                    pygame.event.post(
+                        pygame.event.Event(
+                            pygame.USEREVENT,
+                            {"action": "create_projectile", "projectile": projectile},
+                        )
+                    )
+                    self.projectiles -= 1
+
+    def add_projectiles(self):
+        """Set player projectiles to 3"""
+        self.projectiles = 3;
+
+    def draw_projectiles_amount(self, surface):
+        """Draws the projectiles counter with icon in the top left corner"""
+        # Load coin texture (do this in __init__ for better performance)
+        projectiles_texture = pygame.image.load(
+            "assets/player/Boule de feu.png"
+        ).convert_alpha()
+        projectile_size = 30
+        projectiles_texture = pygame.transform.scale(projectiles_texture, (projectile_size, projectile_size))
+
+        # Position for coin display
+        start_x = 300
+        start_y = 10
+
+        # Draw coin icon
+        surface.blit(projectiles_texture, (start_x, start_y))
+
+        # Use custom font
+        try:
+            font = pygame.font.Font("assets/fonts/sanicfont.ttf", 20)
+        except:
+            # Fallback to default font if custom font fails to load
+            font = pygame.font.Font(None, 20)
+
+        projectiles_text = font.render(f"x{self.projectiles}", True, (58, 83, 200))
+
+        # Position text next to coin icon with small spacing
+        text_x = start_x + projectile_size + 5
+        text_y = start_y + (projectile_size - projectiles_text.get_height()) // 2
+
+        surface.blit(projectiles_text, (text_x, text_y))
