@@ -90,3 +90,6 @@ Un seul gros niveau avec une cave au début : Niveau horizontal, puis un niveau 
 Points de Vie : Affichés sous forme de barre de vie en haut de l'écran.
 
 Power-ups Disponibles : Affichés de manière visible pour que le joueur sache quels power-ups sont disponibles et prêts à être utilisés
+
+## Strcture du Projet
+La structure du projet est disponible dans le fichier [PROJECT_STRUCTURE](PROJECT_STRUCTURE.MD). Ce fichier contient une description détaillée de l'organisation des fichiers et des dossiers du projet.
