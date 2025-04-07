@@ -19,12 +19,9 @@ class Coin(Entity):
                 if os.path.exists(texturePath):
                     texture = pygame.image.load(texturePath).convert_alpha()
                     self.surf = pygame.transform.scale(texture, size)
-                    print(f"Coin texture loaded successfully at {pos}")
                 else:
-                    print(f"Coin texture file not found: {texturePath}")
                     self.draw_fallback(color, size)
             except Exception as e:
-                print(f"Error loading coin texture: {e}")
                 self.draw_fallback(color, size)
         else:
             self.draw_fallback(color, size)
@@ -37,12 +34,9 @@ class Coin(Entity):
         """Draw a yellow circle as fallback"""
         self.surf.fill((0, 0, 0, 0))  # Clear with transparency
         pygame.draw.circle(self.surf, color, (size[0] // 2, size[1] // 2), size[0] // 2)
-        print(f"Drew fallback circle at {self.rect.topleft}")
 
     def on_collision(self):
         """Handle coin collision with player"""
-        print(self.collected)
         if not self.collected:
             self.collected = True
-            print("Coin collected")  # Debug line
             self.kill()  # This removes the coin from all sprite groups

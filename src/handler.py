@@ -438,6 +438,7 @@ def handler():
             P1.draw_dash_cooldown_bar(displaysurface)
             P1.draw_lives(displaysurface)
             P1.draw_coins(displaysurface)
+            P1.draw_projectiles_amount(displaysurface)
 
         elif current_state == INFINITE:
             (
