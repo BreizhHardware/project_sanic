@@ -78,9 +78,8 @@ class Enemy(Entity):
                 self.frames.append(frame_surface)
                 frame_count += 1
 
-            print(f"Chargé {frame_count} frames depuis {gif_path}")
         except Exception as e:
-            print(f"Erreur lors du chargement du GIF: {e}")
+            print(f"Error while loading the GIF: {e}")
             self.frames = []
 
     def update(self, player=None, dt=1 / 60):
@@ -190,10 +189,7 @@ class Enemy(Entity):
             self.kill()
             if random.random() < 0.3:
                 pygame.event.post(
-                    pygame.event.Event(
-                        pygame.USEREVENT,
-                        {"action": "add_projectiles"}
-                    )
+                    pygame.event.Event(pygame.USEREVENT, {"action": "add_projectiles"})
                 )
                 player.add_projectiles()
             return True

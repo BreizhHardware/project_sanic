@@ -2,6 +2,8 @@ import json
 
 import pygame
 import sys
+
+from moviepy.decorators import preprocess_args
 from pygame.locals import *
 
 from src.Database.LevelDB import LevelDB
@@ -60,9 +62,8 @@ def initialize_game(game_resources, map_file="map/levels/1.json"):
     if background is None:
         background = pygame.Surface((game_resources.WIDTH, game_resources.HEIGHT))
         background.fill((0, 0, 0))
-        print("Aucun background trouvé, utilisation d'un fond noir")
     else:
-        print("Background chargé avec succès")
+        pass
 
     return (
         map_objects["player"],
@@ -89,8 +90,8 @@ def reset_game_with_checkpoint(map_name, game_resources):
     checkpoint_pos = db.get_checkpoint(map_name)
 
     # Initialize game
-    player, _, platforms, all_sprites, background, checkpoints, exits, collectibles = initialize_game(
-        game_resources, map_name
+    player, _, platforms, all_sprites, background, checkpoints, exits, collectibles = (
+        initialize_game(game_resources, map_name)
     )
 
     # If checkpoint exists, respawn player at checkpoint
@@ -110,7 +111,6 @@ def clear_checkpoint_database():
         db = CheckpointDB()
         db.clear_all()
         db.close()
-        print("Checkpoint database cleared successfully")
     except Exception as e:
         print(f"Error clearing checkpoint database: {e}")
 
@@ -124,7 +124,6 @@ def clear_level_progress():
         db = LevelDB()
         db.reset_progress()
         db.close()
-        print("Level progress cleared successfully")
     except Exception as e:
         print(f"Error clearing level progress: {e}")
 

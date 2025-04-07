@@ -126,14 +126,9 @@ class MapParser:
         # In MapParser.create_map_objects()
         # In MapParser.create_map_objects()
         if "collectibles" in map_data:
-            print(f"Found {len(map_data['collectibles'])} collectibles")
             for collectible_data in map_data["collectibles"]:
                 if collectible_data["type"] == "coin":
-                    print(
-                        f"Creating coin at ({collectible_data['x']}, {collectible_data['y']})"
-                    )
                     sprite_path = collectible_data.get("sprite", "")
-                    print(f"Using sprite path: {sprite_path}")
 
                     # Create and add the coin
                     coin = Coin(
@@ -165,10 +160,6 @@ class MapParser:
                 )
                 self.checkpoints.add(checkpoint)
                 self.all_sprites.add(checkpoint)
-
-        # At the end of MapParser.create_map_objects()
-        print(f"Total sprites: {len(self.all_sprites)}")
-        print(f"Total collectibles: {len(self.collectibles)}")
 
         if "exits" in map_data:
             for exit_data in map_data["exits"]:
@@ -206,14 +197,29 @@ class MapParser:
         self.player_image = pygame.transform.scale(self.player_image, (200, 200))
         self.princess_image = pygame.transform.scale(self.princess_image, (200, 200))
 
+        # Initialize the mixer
+        pygame.mixer.init()
+        cinematic_voice = pygame.mixer.Sound("assets/sound/cinematic_voice.mp3")
+
         screen.fill((0, 0, 0))
         for i, line in enumerate(lore_text):
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    return  # Skip the cinematic if any key is pressed
+
+            # Play the voice audio
+            cinematic_voice.play()
+
             if "Sanic" in line:
                 screen.blit(self.player_image, (100, 400))
             if "Zeldo" in line:
                 screen.blit(self.princess_image, (700, 400))
             if "Wheatly" in line:
                 for _ in range(46):
+                    for event in pygame.event.get():
+                        if event.type == pygame.KEYDOWN:
+                            return  # Skip the cinematic if any key is pressed
+
                     boss_frame = self.boss_frames[self.boss_frame_index]
                     boss_frame = boss_frame.convert("RGBA")
                     boss_frame = pygame.image.fromstring(
@@ -231,3 +237,4 @@ class MapParser:
             screen.blit(text_surface, (50, 50 + i * 40))
             pygame.display.flip()
             pygame.time.wait(2000)
+            cinematic_voice.stop()

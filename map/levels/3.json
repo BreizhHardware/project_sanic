@@ -2,13 +2,13 @@
   "name": "Level 3",
   "width": 2400,
   "height": 800,
-  "background": "assets/map/background/mountain_bg.jpg",
+  "background": "assets/map/background/forest_bg.jpg",
   "gravity": 1.0,
   "platforms": [
     {
       "id": "platform1",
-      "x": 180,
-      "y": 280,
+      "x": 100,
+      "y": 140,
       "width": 540,
       "height": 160,
       "texture": "assets/map/platform/grass_texture.png",
@@ -17,7 +17,7 @@
     {
       "id": "platform2",
       "x": 320,
-      "y": 60,
+      "y": 40,
       "width": 200,
       "height": 20,
       "texture": "assets/map/platform/grass_texture.png",
@@ -28,8 +28,8 @@
   "checkpoints": [],
   "exits": [
     {
-      "x": 405,
-      "y": -680,
+      "x": 355,
+      "y": -760,
       "width": 50,
       "height": 80,
       "next_level": "map/levels/1.json",
@@ -39,6 +39,6 @@
   "collectibles": [],
   "spawn_point": {
     "x": 260.0,
-    "y": 200.0
+    "y": 0.0
   }
 }

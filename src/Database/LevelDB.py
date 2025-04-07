@@ -65,7 +65,6 @@ class LevelDB:
             (level_number,),
         )
         self.connection.commit()
-        print(f"Level {level_number} unlocked")
 
     def get_all_unlocked_levels(self):
         """
@@ -89,7 +88,6 @@ class LevelDB:
             self.cursor.execute("DELETE FROM unlocked_levels")
             self.connection.commit()
             self.unlock_level(1)  # Always unlock level 1
-            print("Level progress reset successfully")
         except Exception as e:
             print(f"Error resetting level progress: {e}")
 

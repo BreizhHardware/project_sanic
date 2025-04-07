@@ -38,7 +38,6 @@ class EditorPlatform(pygame.sprite.Sprite):
             # Apply the texture to the platform
             self.image = texture
         except Exception as e:
-            print(f"Erreur lors du chargement de la texture : {e}")
             # Fallback to a default color if the texture fails to load
             self.image = pygame.Surface((self.rect.width, self.rect.height))
             self.image.fill((150, 75, 0))

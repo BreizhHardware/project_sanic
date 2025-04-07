@@ -226,7 +226,7 @@ class LevelEditor:
             self.level_file = f"{level_dir}{new_level_num}.json"
 
         # Name of the level based on the file name
-        level_name = f"Level {self.level_file.split('/')[-1].split('.')[0]}"
+        level_name = f'Level {self.level_file.split("/")[-1].split(".")[0]}'
 
         level_data = {
             "name": level_name,
@@ -241,7 +241,7 @@ class LevelEditor:
             "collectibles": [],
             "spawn_point": {
                 "x": self.player_start.x if self.player_start else 100,
-                "y": self.player_start.y if self.player_start else 100,
+                "y": (self.player_start.y - 100) if self.player_start else 0,
             },
         }
 
@@ -362,6 +362,7 @@ class LevelEditor:
                 enemy_data["behavior"] = "chase"
                 enemy_data["detection_radius"] = 200
                 enemy_data["speed"] = 2.0
+                enemy_data["sprite_sheet"] = "assets/map/enemy/flying_enemy.png"
             elif enemy_type == "turret":
                 enemy_data["behavior"] = "stationary"
                 enemy_data["attack_interval"] = 2.0
@@ -380,17 +381,23 @@ class LevelEditor:
             print(f"Error saving level: {e}")
             return False
 
+    def update_hitboxes(self):
+        """Update collision boxes for all sprites"""
+        for sprite in self.all_sprites:
+            screen_pos = self.world_to_screen((sprite.rect.x, sprite.rect.y))
+            sprite.rect.topleft = screen_pos
+
     def handle_event(self, event):
         """
-        Handle user input events.
+        Handle user events in the level editor.
 
         Args:
-            event: Pygame event to process
+            event: Pygame event to handle
 
         Returns:
-            str/dict/None: Action to perform based on user interaction, or None
+            str/dict/None: Action to perform or None
         """
-        # Check for CTRL+S to save
+        # Check for CTRL+S to save the level
         if (
             event.type == KEYDOWN
             and event.key == K_s
@@ -399,7 +406,7 @@ class LevelEditor:
             self.save_level()
             return None
 
-        # Check UI button clicks
+        # Check for button clicks
         for button in self.buttons:
             action = button.handle_event(event)
             if action:
@@ -414,11 +421,11 @@ class LevelEditor:
                     self.creating = False
                 return None
 
-        # Handle mouse actions based on current tool
+        # Handle mouse events for selecting and placing objects
         if event.type == MOUSEBUTTONDOWN:
             pos = self._snap_to_grid(pygame.mouse.get_pos())
 
-            # Select object
+            # Sélectionne l'objet
             if self.current_tool == "select":
                 self.selected_object = None
                 for sprite in self.all_sprites:
@@ -429,41 +436,41 @@ class LevelEditor:
                         self.offset_y = sprite.rect.y - event.pos[1]
                         break
 
-            # Place player start point
+            # Place the player start position
             elif self.current_tool == "player":
                 self.player_start = self.game_resources.vec(pos[0], pos[1])
 
-            # Start creating platform
+            # Begin creating a platform
             elif self.current_tool == "platform":
                 self.creating = True
                 self.start_pos = pos
 
-            # Place checkpoint
+            # Place a checkpoint
             elif self.current_tool == "checkpoint":
                 checkpoint = EditorCheckpoint(pos[0], pos[1])
                 self.checkpoints.add(checkpoint)
                 self.all_sprites.add(checkpoint)
 
-            # Place exit
+            # Place an exit point
             elif self.current_tool == "exit":
                 if self.exit_point:
                     self.all_sprites.remove(self.exit_point)
                 self.exit_point = EditorExit(pos[0], pos[1], 50, 50)
                 self.all_sprites.add(self.exit_point)
 
-            # Place enemy
+            # Place an enemy
             elif self.current_tool == "enemy":
                 enemy = EditorEnemy(self.game_resources, pos[0], pos[1])
                 self.enemies.add(enemy)
                 self.all_sprites.add(enemy)
 
-            # Place collectible
+            # Place a collectible
             elif self.current_tool == "collectible":
                 collectible = EditorCollectible(pos[0], pos[1], self.collectible_type)
                 self.collectibles.add(collectible)
                 self.all_sprites.add(collectible)
 
-        # Handle mouse movement during platform creation or object dragging
+        # Handle mouse motion for dragging objects
         elif event.type == MOUSEMOTION:
             if self.dragging and self.selected_object:
                 pos = self._snap_to_grid(
@@ -472,19 +479,22 @@ class LevelEditor:
                 self.selected_object.rect.x = pos[0]
                 self.selected_object.rect.y = pos[1]
 
-                # Update position attribute if exists
+                # Update position for specific objects
                 if hasattr(self.selected_object, "pos"):
                     self.selected_object.pos.x = pos[0]
                     self.selected_object.pos.y = pos[1]
 
-        # Finish creating object or stop dragging
+                # Update hitboxes
+                self.update_hitboxes()
+
+        # Finish creating a platform or stop dragging
         elif event.type == MOUSEBUTTONUP:
             if self.creating and self.current_tool == "platform":
                 end_pos = self._snap_to_grid(pygame.mouse.get_pos())
                 width = abs(end_pos[0] - self.start_pos[0])
                 height = abs(end_pos[1] - self.start_pos[1])
 
-                # Ensure minimum size
+                # Handle minimal size
                 width = max(width, 20)
                 height = max(height, 20)
 
@@ -499,10 +509,9 @@ class LevelEditor:
             self.creating = False
             self.dragging = False
 
-        # Handle keyboard controls for platform properties
+        # Handle keyboard events
         if event.type == KEYDOWN:
             if event.key == K_BACKSPACE and self.selected_object:
-                # Vérifier que l'objet est bien dans les groupes avant de le supprimer
                 if self.selected_object in self.all_sprites:
                     self.all_sprites.remove(self.selected_object)
                 if isinstance(self.selected_object, EditorPlatform):
@@ -613,11 +622,10 @@ class LevelEditor:
 
                     # Update appearance based on type
                     if self.selected_object.collectible_type == "coin":
-                        self.selected_object.image.fill((255, 215, 0))  # Gold
+                        self.selected_object.image.fill((255, 215, 0))
 
             elif self.selected_object and isinstance(self.selected_object, EditorExit):
                 if event.key == K_n:
-                    # Navigation between levels
                     level_dir = "map/levels/"
                     levels = [f for f in os.listdir(level_dir) if f.endswith(".json")]
 
@@ -704,8 +712,11 @@ class LevelEditor:
         for sprite in self.all_sprites:
             screen_pos = self.world_to_screen((sprite.rect.x, sprite.rect.y))
             temp_rect = sprite.rect.copy()
-            temp_rect.x, temp_rect.y = screen_pos
+            temp_rect.topleft = screen_pos
             surface.blit(sprite.image, temp_rect)
+
+            # Draw hitbox
+            pygame.draw.rect(surface, (255, 0, 0), temp_rect, 2)
 
         # Draw player start position
         if self.player_start:
@@ -721,7 +732,12 @@ class LevelEditor:
 
         # Draw outline for selected object
         if self.selected_object:
-            pygame.draw.rect(surface, (255, 255, 0), self.selected_object.rect, 2)
+            screen_pos = self.world_to_screen(
+                (self.selected_object.rect.x, self.selected_object.rect.y)
+            )
+            temp_rect = self.selected_object.rect.copy()
+            temp_rect.topleft = screen_pos
+            pygame.draw.rect(surface, (255, 255, 0), temp_rect, 2)
 
             # Show properties for selected platform
             if isinstance(self.selected_object, EditorPlatform):

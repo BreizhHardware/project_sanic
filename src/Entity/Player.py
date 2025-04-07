@@ -366,7 +366,6 @@ class Player(Entity):
         """Display menu to the player"""
         death_event = pygame.event.Event(pygame.USEREVENT, {"action": "player_death"})
         pygame.event.post(death_event)
-        print("Player died! Returning to menu...")
 
     def draw_lives(self, surface):
         """Draws the player's remaining lives as icons in the top right corner."""
@@ -514,7 +513,7 @@ class Player(Entity):
                         {"action": "create_projectile", "projectile": projectile},
                     )
                 )
-                if self.projectiles>0:
+                if self.projectiles > 0:
                     self.is_attacking = True
                     self.attack_start_time = current_time
                     self.last_attack_time = current_time
@@ -562,7 +561,7 @@ class Player(Entity):
                         {"action": "create_projectile", "projectile": projectile},
                     )
                 )
-                if self.projectiles>0:
+                if self.projectiles > 0:
                     self.is_attacking = True
                     self.attack_start_time = current_time
                     self.last_attack_time = current_time
@@ -587,7 +586,7 @@ class Player(Entity):
 
     def add_projectiles(self):
         """Set player projectiles to 3"""
-        self.projectiles = 3;
+        self.projectiles = 3
 
     def draw_projectiles_amount(self, surface):
         """Draws the projectiles counter with icon in the top left corner"""
@@ -596,7 +595,9 @@ class Player(Entity):
             "assets/player/Boule de feu.png"
         ).convert_alpha()
         projectile_size = 30
-        projectiles_texture = pygame.transform.scale(projectiles_texture, (projectile_size, projectile_size))
+        projectiles_texture = pygame.transform.scale(
+            projectiles_texture, (projectile_size, projectile_size)
+        )
 
         # Position for coin display
         start_x = 300

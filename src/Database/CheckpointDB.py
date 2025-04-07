@@ -48,7 +48,6 @@ class CheckpointDB:
                 (map_name, pos_x, pos_y),
             )
             self.conn.commit()
-            print("Checkpoint saved")
         except Exception as e:
             print(f"Error saving checkpoint: {e}")
 
@@ -62,7 +61,6 @@ class CheckpointDB:
         Returns:
             Tuple (x, y) if checkpoint exists, None otherwise
         """
-        print(map_name)
         self.cursor.execute(
             "SELECT pos_x, pos_y FROM checkpoints WHERE map_name = ?", (map_name,)
         )

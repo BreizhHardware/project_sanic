@@ -54,7 +54,6 @@ def handler():
     checkpoint_data = None
     try:
         death_image = pygame.image.load("assets/player/dead.jpg")
-        print("Image dead.jpg chargée avec succès")
     except Exception as e:
         print(f"Erreur de chargement de l'image: {e}")
         death_image = None
@@ -62,7 +61,6 @@ def handler():
     try:
         death_sound = pygame.mixer.Sound("assets/sound/Death.mp3")
         death_display_time = death_sound.get_length()
-        print(f"Son Death.mp3 chargé avec succès, durée: {death_display_time} secondes")
     except Exception as e:
         print(f"Erreur de chargement du son Death.mp3: {e}")
         death_sound = None
@@ -184,7 +182,6 @@ def handler():
                             and action.get("action") == "select_level"
                         ):
                             level_file = action.get("level_file")
-                            print(level_file)
                             (
                                 P1,
                                 PT1,
