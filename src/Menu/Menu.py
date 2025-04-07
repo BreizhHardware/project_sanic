@@ -85,26 +85,22 @@ class Menu:
 
     def draw(self, surface):
         if self.background:
-            # Réduire le facteur de parallaxe
             parallax_factor = 0.4
             time_factor = pygame.time.get_ticks() / 1000
 
-            # Calculer le centre du background
             center_x = (self.background.get_width() - surface.get_width()) / 2
             center_y = (self.background.get_height() - surface.get_height()) / 2
 
-            # Appliquer un léger mouvement de parallaxe autour du centre
             bg_x = -center_x + math.sin(time_factor) * 50 * parallax_factor
             bg_y = -center_y + math.cos(time_factor) * 30 * parallax_factor
 
-            # Afficher le background
             surface.blit(self.background, (bg_x, bg_y))
         else:
             surface.fill((0, 0, 0))
 
         # Draw title
         title = pygame.font.SysFont("Arial", 72).render(
-            "Project Sanic", True, (0, 191, 255)
+            "Sanic et la princesse Zeldo", True, (0, 191, 255)
         )
         title_rect = title.get_rect(
             center=(self.game_resources.WIDTH // 2, self.game_resources.HEIGHT // 4)

@@ -124,7 +124,7 @@
       "behavior": "stationary",
       "attack_interval": 2.0,
       "attack_range": 300,
-      "sprite_sheet": "assets/map/enemy/turret_enemy.png",
+      "sprite_sheet": "assets/map/enemy/turret.gif",
       "size": [50,100]
     }
   ],

@@ -1,8 +1,10 @@
 black==25.1.0
 click==8.1.8
+colorama==0.4.6
 mypy-extensions==1.0.0
 numpy==2.2.4
 packaging==24.2
 pathspec==0.12.1
+pillow==11.1.0
 platformdirs==4.3.7
 pygame==2.6.1
