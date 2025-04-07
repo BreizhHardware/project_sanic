@@ -120,13 +120,41 @@ class InfiniteMapGenerator:
         enemy_types = ["walker", "flyer", "turret"]
 
         for i in range(num_enemies):
+            type = random.choice(enemy_types)
             enemy = {
                 "id": f"enemy{i+1}",
-                "type": random.choice(enemy_types),
+                "type": type,
                 "x": random.randint(600, self.width - 200),
                 "y": random.randint(100, 400),
                 "patrol_distance": random.randint(100, 300),
             }
+            if type == "flyer":
+                enemy["sprite_sheet"] = "assets/map/enemy/flying_enemy.png"
+                enemy["health"] = 1
+                enemy["damage"] = 1
+                enemy["behavior"] = "chase"
+                enemy["detection_radius"] = random.randint(100, 500)
+                enemy["speed"] = 2.0
+                enemy["size"] = [50, 50]
+            elif type == "walker":
+                enemy["sprite_sheet"] = "assets/map/enemy/walker_enemy.png"
+                enemy["health"] = 1
+                enemy["damage"] = 1
+                enemy["behavior"] = "patrol"
+                enemy["patrol_points"] = [
+                    {"x": enemy["x"], "y": enemy["y"]},
+                    {"x": enemy["x"] + enemy["patrol_distance"], "y": enemy["y"]},
+                ]
+                enemy["speed"] = 1.5
+                enemy["size"] = [50, 50]
+            elif type == "turret":
+                enemy["sprite_sheet"] = "assets/map/enemy/turret.gif"
+                enemy["health"] = 1
+                enemy["damage"] = 1
+                enemy["behavior"] = "stationary"
+                enemy["attack_interval"] = random.uniform(0.5, 3.0)
+                enemy["attack_range"] = random.randint(100, 500)
+                enemy["size"] = [50, 50]
             enemies.append(enemy)
 
         return enemies
@@ -134,7 +162,7 @@ class InfiniteMapGenerator:
     def _generate_collectibles(self, difficulty):
         collectibles = []
         num_collectibles = 5 + difficulty
-        collectible_types = ["coin", "health", "shield"]
+        collectible_types = ["coin"]
 
         for i in range(num_collectibles):
             rand = random.choice(collectible_types)

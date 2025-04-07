@@ -348,6 +348,7 @@ class LevelEditor:
                 "health": 1,
                 "damage": 1,
                 "sprite_sheet": f"assets/map/enemy/{enemy_type}_enemy.png",
+                "size": [50, 100],
             }
 
             if enemy_type == "walker":
@@ -365,6 +366,7 @@ class LevelEditor:
                 enemy_data["behavior"] = "stationary"
                 enemy_data["attack_interval"] = 2.0
                 enemy_data["attack_range"] = 300
+                enemy_data["sprite_sheet"] = "assets/map/enemy/turret.gif"
 
             level_data["enemies"].append(enemy_data)
 
@@ -600,7 +602,7 @@ class LevelEditor:
                 self.selected_object, EditorCollectible
             ):
                 if event.key == K_t:
-                    types = ["coin", "speed_boost", "health", "shield"]
+                    types = ["coin"]
                     current_index = (
                         types.index(self.selected_object.collectible_type)
                         if self.selected_object.collectible_type in types
@@ -612,12 +614,6 @@ class LevelEditor:
                     # Update appearance based on type
                     if self.selected_object.collectible_type == "coin":
                         self.selected_object.image.fill((255, 215, 0))  # Gold
-                    elif self.selected_object.collectible_type == "speed_boost":
-                        self.selected_object.image.fill((0, 0, 255))  # Blue
-                    elif self.selected_object.collectible_type == "health":
-                        self.selected_object.image.fill((255, 0, 0))  # Red
-                    elif self.selected_object.collectible_type == "shield":
-                        self.selected_object.image.fill((128, 128, 128))  # Gray
 
             elif self.selected_object and isinstance(self.selected_object, EditorExit):
                 if event.key == K_n:

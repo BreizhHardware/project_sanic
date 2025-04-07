@@ -146,8 +146,16 @@ def handler():
                         if death_sound:
                             death_sound.play()
 
-                        db = CheckpointDB()
-                        checkpoint_data = db.get_checkpoint(level_file)
+                        is_infinite_mode = (
+                            hasattr(game_resources, "infinite_mode")
+                            and game_resources.infinite_mode
+                        )
+
+                        if not is_infinite_mode:
+                            db = CheckpointDB()
+                            checkpoint_data = db.get_checkpoint(level_file)
+                        else:
+                            checkpoint_data = None
 
                     if event.dict.get("action") == "create_projectile":
                         projectile = event.dict.get("projectile")
@@ -479,6 +487,8 @@ def handler():
                     projectiles.empty()
                     current_state = PLAYING
                 else:
+                    if hasattr(game_resources, "infinite_mode"):
+                        game_resources.infinite_mode = False
                     current_state = MENU
 
         pygame.display.update()

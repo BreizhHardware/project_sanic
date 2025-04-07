@@ -11,7 +11,7 @@
       "y": 780,
       "width": 1800,
       "height": 200,
-      "texture": "assets/map/platform/grass_texture.jpg"
+      "texture": "assets/map/platform/grass_texture.png"
     },
     {
       "id": "main_ground_2",
@@ -19,7 +19,7 @@
       "y": 900,
       "width": 1800,
       "height": 200,
-      "texture": "assets/map/platform/grass_texture.jpg"
+      "texture": "assets/map/platform/stone_texture.png"
     },
     {
       "id": "platform1",
@@ -27,7 +27,7 @@
       "y": 600,
       "width": 200,
       "height": 20,
-      "texture": "assets/map/platform/grass_texture.jpg",
+      "texture": "assets/map/platform/grass_texture.png",
       "is_moving": false
     },
     {
@@ -36,7 +36,7 @@
       "y": 500,
       "width": 150,
       "height": 20,
-      "texture": "assets/map/platform/grass_texture.jpg",
+      "texture": "assets/map/platform/wood_texture.png",
       "is_moving": true,
       "movement": {
         "type": "linear",
@@ -54,7 +54,7 @@
       "y": 750,
       "width": 150,
       "height": 20,
-      "texture": "assets/map/platform/grass_texture.jpg",
+      "texture": "assets/map/platform/grass_texture.png",
       "is_moving": true,
       "movement": {
         "type": "linear",
@@ -72,7 +72,7 @@
       "y": 400,
       "width": 100,
       "height": 20,
-      "texture": "assets/map/platform/grass_texture.jpg",
+      "texture": "assets/map/platform/wood_texture.png",
       "is_moving": true,
       "movement": {
         "type": "circular",
@@ -124,7 +124,7 @@
       "behavior": "stationary",
       "attack_interval": 2.0,
       "attack_range": 300,
-      "sprite_sheet": "assets/map/enemy/turret_enemy.png",
+      "sprite_sheet": "assets/map/enemy/turret.gif",
       "size": [50,100]
     }
   ],
@@ -143,14 +143,6 @@
       "x": 400,
       "y": 540,
       "sprite": "assets/map/collectibles/Sanic_Coin.png"
-    },
-    {
-      "id": "power_up1",
-      "type": "speed_boost",
-      "x": 900,
-      "y": 450,
-      "duration": 5.0,
-      "sprite": "assets/map/collectibles/speed_boost.png"
     }
   ],
 
@@ -171,13 +163,13 @@
   },
 
   "exits": [
-      {
-        "x": 2300,
-        "y": 700,
-        "width": 50,
-        "height": 80,
-        "next_level": "Level 2",
-        "sprite": "assets/map/exit/Zeldo.png"
+    {
+      "x": 2300,
+      "y": 700,
+      "width": 50,
+      "height": 80,
+      "next_level": "Level 2",
+      "sprite": "assets/map/exit/Zeldo.png"
     }
   ]
 }
