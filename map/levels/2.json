@@ -4,141 +4,171 @@
   "height": 800,
   "background": "assets/map/background/forest_bg.jpg",
   "gravity": 1.0,
-
-  "ground": [
-    {
-      "id": "main_ground",
-      "x": -1000,
-      "y": 780,
-      "width": 1800,
-      "height": 200,
-      "texture": "assets/map/platform/grass_texture.jpg"
-    },
-    {
-      "id": "pit",
-      "x": 800,
-      "y": 780,
-      "width": 200,
-      "height": 20,
-      "is_hole": true
-    },
-    {
-      "id": "main_ground_2",
-      "x": 1000,
-      "y": 900,
-      "width": 1800,
-      "height": 200,
-      "texture": "assets/map/platform/grass_texture.jpg"
-    }
-  ],
-
   "platforms": [
     {
       "id": "platform1",
-      "x": 300,
-      "y": 600,
-      "width": 200,
-      "height": 20,
-      "texture": "assets/map/platform/grass_texture.jpg",
+      "x": -1000,
+      "y": 520,
+      "width": 1800,
+      "height": 200,
+      "texture": "assets/map/platform/grass_texture.png",
       "is_moving": false
     },
     {
       "id": "platform2",
-      "x": 700,
-      "y": 500,
-      "width": 150,
-      "height": 20,
-      "texture": "assets/map/platform/grass_texture.jpg",
-      "is_moving": true,
-      "movement": {
-        "type": "linear",
-        "points": [
-          {"x": 700, "y": 300},
-          {"x": 700, "y": 500}
-        ],
-        "speed": 2.0,
-        "wait_time": 1.0
-      }
-    },
-    {
-      "id": "platform21",
-      "x": 900,
-      "y": 500,
-      "width": 150,
-      "height": 20,
-      "texture": "assets/map/platform/grass_texture.jpg",
-      "is_moving": true,
-      "movement": {
-        "type": "linear",
-        "points": [
-          {"x": 700, "y": 500},
-          {"x": 800, "y": 500}
-        ],
-        "speed": 2.0,
-        "wait_time": 1.0
-      }
+      "x": 1000,
+      "y": 600,
+      "width": 1800,
+      "height": 200,
+      "texture": "assets/map/platform/grass_texture.png",
+      "is_moving": false
     },
     {
       "id": "platform3",
-      "x": 1200,
-      "y": 400,
-      "width": 100,
+      "x": 300,
+      "y": 570,
+      "width": 200,
       "height": 20,
-      "texture": "assets/map/platform/grass_texture.jpg",
-      "is_moving": true,
-      "movement": {
-        "type": "circular",
-        "center": {"x": 1200, "y": 400},
-        "radius": 100,
-        "speed": 0.02,
-        "clockwise": true
-      }
-    }
-  ],
-
-  "collectibles": [
-    {
-      "id": "coin1",
-      "type": "coin",
-      "x": 350,
-      "y": 550,
-      "value": 10,
-      "sprite": "assets/map/collectibles/coin.png"
+      "texture": "assets/map/platform/grass_texture.png",
+      "is_moving": false
     },
     {
-      "id": "power_up1",
-      "type": "speed_boost",
+      "id": "platform4",
+      "x": 700,
+      "y": 470,
+      "width": 150,
+      "height": 20,
+      "texture": "assets/map/platform/grass_texture.png",
+      "is_moving": false
+    },
+    {
+      "id": "platform5",
       "x": 900,
-      "y": 450,
-      "duration": 5.0,
-      "sprite": "assets/map/collectibles/speed_boost.png"
+      "y": 470,
+      "width": 150,
+      "height": 20,
+      "texture": "assets/map/platform/grass_texture.png",
+      "is_moving": false
+    },
+    {
+      "id": "platform6",
+      "x": 1200,
+      "y": 370,
+      "width": 100,
+      "height": 20,
+      "texture": "assets/map/platform/grass_texture.png",
+      "is_moving": false
+    },
+    {
+      "id": "platform7",
+      "x": 300,
+      "y": 240,
+      "width": 260,
+      "height": 40,
+      "texture": "assets/map/platform/grass_texture.png",
+      "is_moving": false
+    },
+    {
+      "id": "platform8",
+      "x": 720,
+      "y": 220,
+      "width": 240,
+      "height": 60,
+      "texture": "assets/map/platform/grass_texture.png",
+      "is_moving": false
+    },
+    {
+      "id": "platform9",
+      "x": 520,
+      "y": 0,
+      "width": 240,
+      "height": 60,
+      "texture": "assets/map/platform/grass_texture.png",
+      "is_moving": false
     }
   ],
-
+  "enemies": [
+    {
+      "id": "enemy1",
+      "type": "turret",
+      "x": 260,
+      "y": 100,
+      "health": 1,
+      "damage": 1,
+      "sprite_sheet": "assets/map/enemy/turret.gif",
+      "size": [
+        50,
+        100
+      ],
+      "behavior": "stationary",
+      "attack_interval": 2.0,
+      "attack_range": 300
+    },
+    {
+      "id": "enemy2",
+      "type": "walker",
+      "x": 770,
+      "y": 140,
+      "health": 1,
+      "damage": 1,
+      "sprite_sheet": "assets/map/enemy/walker_enemy.png",
+      "size": [
+        50,
+        100
+      ],
+      "behavior": "patrol",
+      "patrol_points": [
+        {
+          "x": 670,
+          "y": 140
+        },
+        {
+          "x": 870,
+          "y": 140
+        }
+      ],
+      "speed": 1.5
+    },
+    {
+      "id": "enemy3",
+      "type": "flyer",
+      "x": 420,
+      "y": 520,
+      "health": 1,
+      "damage": 1,
+      "sprite_sheet": "assets/map/enemy/flying_enemy.png",
+      "size": [
+        50,
+        100
+      ],
+      "behavior": "chase",
+      "detection_radius": 200,
+      "speed": 2.0
+    }
+  ],
   "checkpoints": [
     {
       "id": "checkpoint1",
-      "x": 1200,
-      "y": 760,
+      "x": 1080,
+      "y": 450,
       "width": 50,
       "height": 50,
-      "sprite": "assets/map/checkpoints/checkpoint.png"
+      "sprite": "assets/map/checkpoints/checkpoint_uncheck.png"
     }
   ],
-
-  "spawn_point": {
-    "x": 50,
-    "y": 650
-  },
-
   "exits": [
-      {
-        "x": 2300,
-        "y": 700,
-        "width": 50,
-        "height": 80,
-        "next_level": "Level 3",
-        "sprite": "assets/map/exit/door.png"
+    {
+      "x": 2225,
+      "y": 500,
+      "width": 50,
+      "height": 80,
+      "next_level": "map/levels/1.json",
+      "sprite": "assets/map/exit/Zeldo.png"
     }
-  ]
+  ],
+  "collectibles": [],
+  "spawn_point": {
+    "x": 50.0,
+    "y": 350.0
+  }
 }

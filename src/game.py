@@ -2,6 +2,8 @@ import json
 
 import pygame
 import sys
+
+from moviepy.decorators import preprocess_args
 from pygame.locals import *
 
 from src.Database.LevelDB import LevelDB
@@ -9,6 +11,7 @@ from src.Entity.Platform import Platform
 from src.Entity.Player import Player
 from src.Map.parser import MapParser
 from src.Database.CheckpointDB import CheckpointDB
+from src.Map.Infinite.InfiniteMapManager import InfiniteMapManager
 
 
 def initialize_game(game_resources, map_file="map/levels/1.json"):
@@ -53,14 +56,24 @@ def initialize_game(game_resources, map_file="map/levels/1.json"):
         for exit_obj in exits:
             exit_obj.set_player(map_objects["player"])
 
+    background = map_objects.get("background", None)
+
+    # If no background is found, use a default black background
+    if background is None:
+        background = pygame.Surface((game_resources.WIDTH, game_resources.HEIGHT))
+        background.fill((0, 0, 0))
+    else:
+        pass
+
     return (
         map_objects["player"],
         None,
         map_objects["platforms"],
         map_objects["all_sprites"],
-        parser.background,
+        background,
         map_objects["checkpoints"],
         exits,
+        map_objects["collectibles"],
     )
 
 
@@ -77,8 +90,8 @@ def reset_game_with_checkpoint(map_name, game_resources):
     checkpoint_pos = db.get_checkpoint(map_name)
 
     # Initialize game
-    player, _, platforms, all_sprites, background, checkpoints, exits = initialize_game(
-        game_resources, map_name
+    player, _, platforms, all_sprites, background, checkpoints, exits, collectibles = (
+        initialize_game(game_resources, map_name)
     )
 
     # If checkpoint exists, respawn player at checkpoint
@@ -86,7 +99,7 @@ def reset_game_with_checkpoint(map_name, game_resources):
         player.pos = game_resources.vec(checkpoint_pos[0], checkpoint_pos[1])
         player.update_rect()
 
-    return player, platforms, all_sprites, background, checkpoints
+    return player, platforms, all_sprites, background, checkpoints, collectibles
 
 
 def clear_checkpoint_database():
@@ -98,7 +111,6 @@ def clear_checkpoint_database():
         db = CheckpointDB()
         db.clear_all()
         db.close()
-        print("Checkpoint database cleared successfully")
     except Exception as e:
         print(f"Error clearing checkpoint database: {e}")
 
@@ -112,9 +124,34 @@ def clear_level_progress():
         db = LevelDB()
         db.reset_progress()
         db.close()
-        print("Level progress cleared successfully")
     except Exception as e:
         print(f"Error clearing level progress: {e}")
+
+
+def start_infinite_mode(game_resources):
+    """Start the infinite mode of the game"""
+    # Create a new InfiniteMapManager
+    infinite_manager = InfiniteMapManager(game_resources)
+    game_resources.infinite_manager = infinite_manager
+    game_resources.infinite_mode = True
+
+    # Generate the first level
+    first_level = infinite_manager.start_infinite_mode()
+
+    # Initialize the game with the generated level
+    return initialize_game(game_resources, first_level)
+
+
+def handle_exit_collision(exit_obj, game_resources, level_file):
+    """Handle exit collision and transition to next level, including infinite mode"""
+    next_level = exit_obj.next_level
+
+    # Mod infinite: if the next level is "NEXT_INFINITE_LEVEL", generate a new level
+    if hasattr(game_resources, "infinite_mode") and game_resources.infinite_mode:
+        if next_level == "NEXT_INFINITE_LEVEL":
+            next_level = game_resources.infinite_manager.advance_to_next_level()
+
+    return initialize_game(game_resources, next_level)
 
 
 if __name__ == "__main__":

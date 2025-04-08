@@ -2,25 +2,16 @@
   "name": "Level 1",
   "width": 2400,
   "height": 800,
-  "background": "assets/map/background/forest_bg.jpg",
+  "background": "assets/map/background/cave_bg.png",
   "gravity": 1.0,
-
-  "ground": [
+  "platforms": [
     {
       "id": "main_ground",
       "x": -1000,
       "y": 780,
       "width": 1800,
       "height": 200,
-      "texture": "assets/map/platform/grass_texture.jpg"
-    },
-    {
-      "id": "pit",
-      "x": 800,
-      "y": 780,
-      "width": 200,
-      "height": 20,
-      "is_hole": true
+      "texture": "assets/map/platform/grass_texture.png"
     },
     {
       "id": "main_ground_2",
@@ -28,18 +19,15 @@
       "y": 900,
       "width": 1800,
       "height": 200,
-      "texture": "assets/map/platform/grass_texture.jpg"
-    }
-  ],
-
-  "platforms": [
+      "texture": "assets/map/platform/stone_texture.png"
+    },
     {
       "id": "platform1",
       "x": 300,
       "y": 600,
       "width": 200,
       "height": 20,
-      "texture": "assets/map/platform/grass_texture.jpg",
+      "texture": "assets/map/platform/grass_texture.png",
       "is_moving": false
     },
     {
@@ -48,7 +36,7 @@
       "y": 500,
       "width": 150,
       "height": 20,
-      "texture": "assets/map/platform/grass_texture.jpg",
+      "texture": "assets/map/platform/wood_texture.png",
       "is_moving": true,
       "movement": {
         "type": "linear",
@@ -66,7 +54,7 @@
       "y": 750,
       "width": 150,
       "height": 20,
-      "texture": "assets/map/platform/grass_texture.jpg",
+      "texture": "assets/map/platform/grass_texture.png",
       "is_moving": true,
       "movement": {
         "type": "linear",
@@ -84,7 +72,7 @@
       "y": 400,
       "width": 100,
       "height": 20,
-      "texture": "assets/map/platform/grass_texture.jpg",
+      "texture": "assets/map/platform/wood_texture.png",
       "is_moving": true,
       "movement": {
         "type": "circular",
@@ -101,16 +89,17 @@
       "id": "enemy1",
       "type": "walker",
       "x": 500,
-      "y": 620,
+      "y": 660,
       "health": 1,
       "damage": 1,
       "behavior": "patrol",
       "patrol_points": [
-        {"x": 400, "y": 620},
-        {"x": 600, "y": 620}
+        {"x": 400, "y": 660},
+        {"x": 600, "y": 660}
       ],
       "speed": 1.5,
-      "sprite_sheet": "assets/map/enemy/walker_enemy.png"
+      "sprite_sheet": "assets/map/enemy/walker_enemy.png",
+      "size": [50,50]
     },
     {
       "id": "enemy2",
@@ -122,7 +111,8 @@
       "behavior": "chase",
       "detection_radius": 200,
       "speed": 2.0,
-      "sprite_sheet": "assets/map/enemy/flying_enemy.png"
+      "sprite_sheet": "assets/map/enemy/flying_enemy.png",
+      "size": [50,50]
     },
     {
       "id": "enemy3",
@@ -134,7 +124,8 @@
       "behavior": "stationary",
       "attack_interval": 2.0,
       "attack_range": 300,
-      "sprite_sheet": "assets/map/enemy/turret_enemy.png"
+      "sprite_sheet": "assets/map/enemy/turret.gif",
+      "size": [50,100]
     }
   ],
 
@@ -142,18 +133,16 @@
     {
       "id": "coin1",
       "type": "coin",
-      "x": 350,
-      "y": 550,
-      "value": 10,
-      "sprite": "assets/map/collectibles/coin.png"
+      "x": 1220,
+      "y": 320,
+      "sprite": "assets/map/collectibles/Sanic_Coin.png"
     },
     {
-      "id": "power_up1",
-      "type": "speed_boost",
-      "x": 900,
-      "y": 450,
-      "duration": 5.0,
-      "sprite": "assets/map/collectibles/speed_boost.png"
+      "id": "coin2",
+      "type": "coin",
+      "x": 400,
+      "y": 540,
+      "sprite": "assets/map/collectibles/Sanic_Coin.png"
     }
   ],
 
@@ -174,13 +163,13 @@
   },
 
   "exits": [
-      {
-        "x": 2300,
-        "y": 700,
-        "width": 50,
-        "height": 80,
-        "next_level": "Level 2",
-        "sprite": "assets/map/exit/door.png"
+    {
+      "x": 2300,
+      "y": 700,
+      "width": 50,
+      "height": 80,
+      "next_level": "Level 2",
+      "sprite": "assets/map/exit/Zeldo.png"
     }
   ]
 }

@@ -75,6 +75,23 @@ class LevelEditor:
         if level_file:
             self._load_level(level_file)
 
+        self.panning = False
+        self.pan_start_pos = None
+        self.camera_offset = [0, 0]
+
+        self.platform_textures = [
+            "assets/map/platform/grass_texture.png",
+            "assets/map/platform/stone_texture.png",
+            "assets/map/platform/wood_texture.png",
+        ]
+        self.backgrounds = [
+            "assets/map/background/forest_bg.jpg",
+            "assets/map/background/desert_bg.jpg",
+            "assets/map/background/mountain_bg.jpg",
+            "assets/map/background/cave_bg.png",
+        ]
+        self.background = self.backgrounds[0]
+
     def _create_toolbar(self):
         """Create buttons for the editor toolbar"""
         # Tool selection buttons
@@ -187,7 +204,8 @@ class LevelEditor:
 
     def _snap_to_grid(self, pos):
         """Snap a position to the grid"""
-        x, y = pos
+        world_pos = self.screen_to_world(pos)
+        x, y = world_pos
         return (
             round(x / self.grid_size) * self.grid_size,
             round(y / self.grid_size) * self.grid_size,
@@ -208,24 +226,14 @@ class LevelEditor:
             self.level_file = f"{level_dir}{new_level_num}.json"
 
         # Name of the level based on the file name
-        level_name = f"Level {self.level_file.split('/')[-1].split('.')[0]}"
+        level_name = f'Level {self.level_file.split("/")[-1].split(".")[0]}'
 
         level_data = {
             "name": level_name,
             "width": 2400,
             "height": 800,
-            "background": "assets/map/background/forest_bg.jpg",
+            "background": self.background,
             "gravity": 1.0,
-            "ground": [
-                {
-                    "id": "main_ground",
-                    "x": -1000,
-                    "y": 780,
-                    "width": 1800,
-                    "height": 200,
-                    "texture": "assets/map/platform/grass_texture.jpg",
-                }
-            ],
             "platforms": [],
             "enemies": [],
             "checkpoints": [],
@@ -233,7 +241,7 @@ class LevelEditor:
             "collectibles": [],
             "spawn_point": {
                 "x": self.player_start.x if self.player_start else 100,
-                "y": self.player_start.y if self.player_start else 100,
+                "y": (self.player_start.y - 100) if self.player_start else 0,
             },
         }
 
@@ -245,7 +253,7 @@ class LevelEditor:
                 "y": platform.rect.y,
                 "width": platform.rect.width,
                 "height": platform.rect.height,
-                "texture": "assets/map/platform/grass_texture.jpg",
+                "texture": platform.texture,
                 "is_moving": False,
             }
 
@@ -325,7 +333,7 @@ class LevelEditor:
                     "width": 50,
                     "height": 80,
                     "next_level": getattr(self.exit_point, "next_level", next_level),
-                    "sprite": "assets/map/exit/door.png",
+                    "sprite": "assets/map/exit/Zeldo.png",
                 }
             )
 
@@ -340,6 +348,7 @@ class LevelEditor:
                 "health": 1,
                 "damage": 1,
                 "sprite_sheet": f"assets/map/enemy/{enemy_type}_enemy.png",
+                "size": [50, 100],
             }
 
             if enemy_type == "walker":
@@ -353,10 +362,12 @@ class LevelEditor:
                 enemy_data["behavior"] = "chase"
                 enemy_data["detection_radius"] = 200
                 enemy_data["speed"] = 2.0
+                enemy_data["sprite_sheet"] = "assets/map/enemy/flying_enemy.png"
             elif enemy_type == "turret":
                 enemy_data["behavior"] = "stationary"
                 enemy_data["attack_interval"] = 2.0
                 enemy_data["attack_range"] = 300
+                enemy_data["sprite_sheet"] = "assets/map/enemy/turret.gif"
 
             level_data["enemies"].append(enemy_data)
 
@@ -370,17 +381,23 @@ class LevelEditor:
             print(f"Error saving level: {e}")
             return False
 
+    def update_hitboxes(self):
+        """Update collision boxes for all sprites"""
+        for sprite in self.all_sprites:
+            screen_pos = self.world_to_screen((sprite.rect.x, sprite.rect.y))
+            sprite.rect.topleft = screen_pos
+
     def handle_event(self, event):
         """
-        Handle user input events.
+        Handle user events in the level editor.
 
         Args:
-            event: Pygame event to process
+            event: Pygame event to handle
 
         Returns:
-            str/dict/None: Action to perform based on user interaction, or None
+            str/dict/None: Action to perform or None
         """
-        # Check for CTRL+S to save
+        # Check for CTRL+S to save the level
         if (
             event.type == KEYDOWN
             and event.key == K_s
@@ -389,7 +406,7 @@ class LevelEditor:
             self.save_level()
             return None
 
-        # Check UI button clicks
+        # Check for button clicks
         for button in self.buttons:
             action = button.handle_event(event)
             if action:
@@ -404,11 +421,11 @@ class LevelEditor:
                     self.creating = False
                 return None
 
-        # Handle mouse actions based on current tool
+        # Handle mouse events for selecting and placing objects
         if event.type == MOUSEBUTTONDOWN:
             pos = self._snap_to_grid(pygame.mouse.get_pos())
 
-            # Select object
+            # Sélectionne l'objet
             if self.current_tool == "select":
                 self.selected_object = None
                 for sprite in self.all_sprites:
@@ -419,41 +436,41 @@ class LevelEditor:
                         self.offset_y = sprite.rect.y - event.pos[1]
                         break
 
-            # Place player start point
+            # Place the player start position
             elif self.current_tool == "player":
                 self.player_start = self.game_resources.vec(pos[0], pos[1])
 
-            # Start creating platform
+            # Begin creating a platform
             elif self.current_tool == "platform":
                 self.creating = True
                 self.start_pos = pos
 
-            # Place checkpoint
+            # Place a checkpoint
             elif self.current_tool == "checkpoint":
                 checkpoint = EditorCheckpoint(pos[0], pos[1])
                 self.checkpoints.add(checkpoint)
                 self.all_sprites.add(checkpoint)
 
-            # Place exit
+            # Place an exit point
             elif self.current_tool == "exit":
                 if self.exit_point:
                     self.all_sprites.remove(self.exit_point)
                 self.exit_point = EditorExit(pos[0], pos[1], 50, 50)
                 self.all_sprites.add(self.exit_point)
 
-            # Place enemy
+            # Place an enemy
             elif self.current_tool == "enemy":
                 enemy = EditorEnemy(self.game_resources, pos[0], pos[1])
                 self.enemies.add(enemy)
                 self.all_sprites.add(enemy)
 
-            # Place collectible
+            # Place a collectible
             elif self.current_tool == "collectible":
                 collectible = EditorCollectible(pos[0], pos[1], self.collectible_type)
                 self.collectibles.add(collectible)
                 self.all_sprites.add(collectible)
 
-        # Handle mouse movement during platform creation or object dragging
+        # Handle mouse motion for dragging objects
         elif event.type == MOUSEMOTION:
             if self.dragging and self.selected_object:
                 pos = self._snap_to_grid(
@@ -462,19 +479,22 @@ class LevelEditor:
                 self.selected_object.rect.x = pos[0]
                 self.selected_object.rect.y = pos[1]
 
-                # Update position attribute if exists
+                # Update position for specific objects
                 if hasattr(self.selected_object, "pos"):
                     self.selected_object.pos.x = pos[0]
                     self.selected_object.pos.y = pos[1]
 
-        # Finish creating object or stop dragging
+                # Update hitboxes
+                self.update_hitboxes()
+
+        # Finish creating a platform or stop dragging
         elif event.type == MOUSEBUTTONUP:
             if self.creating and self.current_tool == "platform":
                 end_pos = self._snap_to_grid(pygame.mouse.get_pos())
                 width = abs(end_pos[0] - self.start_pos[0])
                 height = abs(end_pos[1] - self.start_pos[1])
 
-                # Ensure minimum size
+                # Handle minimal size
                 width = max(width, 20)
                 height = max(height, 20)
 
@@ -489,10 +509,9 @@ class LevelEditor:
             self.creating = False
             self.dragging = False
 
-        # Handle keyboard controls for platform properties
+        # Handle keyboard events
         if event.type == KEYDOWN:
             if event.key == K_BACKSPACE and self.selected_object:
-                # Vérifier que l'objet est bien dans les groupes avant de le supprimer
                 if self.selected_object in self.all_sprites:
                     self.all_sprites.remove(self.selected_object)
                 if isinstance(self.selected_object, EditorPlatform):
@@ -507,6 +526,16 @@ class LevelEditor:
                 elif self.selected_object == self.exit_point:
                     self.exit_point = None
                 self.selected_object = None
+
+            if event.key == K_b:
+                try:
+                    current_index = self.backgrounds.index(self.background)
+                except ValueError:
+                    current_index = 0
+
+                next_index = (current_index + 1) % len(self.backgrounds)
+                self.background = self.backgrounds[next_index]
+                print(f"Background set to: {self.background}")
 
             if self.selected_object and isinstance(
                 self.selected_object, EditorPlatform
@@ -566,11 +595,23 @@ class LevelEditor:
                             20, self.selected_object.distance - 20
                         )
 
+                elif event.key == K_p:
+                    current_texture = self.selected_object.texture
+                    try:
+                        current_index = self.platform_textures.index(current_texture)
+                    except ValueError:
+                        current_index = 0
+
+                    next_index = (current_index + 1) % len(self.platform_textures)
+                    self.selected_object.texture = self.platform_textures[next_index]
+                    self.selected_object.update_appearance()
+                    print(f"Platform texture set to: {self.selected_object.texture}")
+
             elif self.selected_object and isinstance(
                 self.selected_object, EditorCollectible
             ):
                 if event.key == K_t:
-                    types = ["coin", "speed_boost", "health", "shield"]
+                    types = ["coin"]
                     current_index = (
                         types.index(self.selected_object.collectible_type)
                         if self.selected_object.collectible_type in types
@@ -581,17 +622,10 @@ class LevelEditor:
 
                     # Update appearance based on type
                     if self.selected_object.collectible_type == "coin":
-                        self.selected_object.image.fill((255, 215, 0))  # Gold
-                    elif self.selected_object.collectible_type == "speed_boost":
-                        self.selected_object.image.fill((0, 0, 255))  # Blue
-                    elif self.selected_object.collectible_type == "health":
-                        self.selected_object.image.fill((255, 0, 0))  # Red
-                    elif self.selected_object.collectible_type == "shield":
-                        self.selected_object.image.fill((128, 128, 128))  # Gray
+                        self.selected_object.image.fill((255, 215, 0))
 
             elif self.selected_object and isinstance(self.selected_object, EditorExit):
                 if event.key == K_n:
-                    # Navigation between levels
                     level_dir = "map/levels/"
                     levels = [f for f in os.listdir(level_dir) if f.endswith(".json")]
 
@@ -625,6 +659,25 @@ class LevelEditor:
                     self.selected_object.update_appearance()
                     print(f"Enemy type set to: {self.selected_object.enemy_type}")
 
+        if event.type == MOUSEBUTTONDOWN and event.button == 3:
+            self.panning = True
+            self.pan_start_pos = event.pos
+            return None
+
+        elif event.type == MOUSEMOTION and self.panning:
+            dx = event.pos[0] - self.pan_start_pos[0]
+            dy = event.pos[1] - self.pan_start_pos[1]
+
+            self.camera_offset[0] += dx
+            self.camera_offset[1] += dy
+
+            self.pan_start_pos = event.pos
+            return None
+
+        elif event.type == MOUSEBUTTONUP and event.button == 3:
+            self.panning = False
+            return None
+
         return None
 
     def draw(self, surface):
@@ -637,31 +690,54 @@ class LevelEditor:
         # Clear the screen
         surface.fill((40, 40, 40))
 
-        # Draw grid
-        for x in range(0, self.game_resources.WIDTH, self.grid_size):
+        # Draw grid with camera offset
+        for x in range(
+            -self.camera_offset[0] % self.grid_size,
+            self.game_resources.WIDTH,
+            self.grid_size,
+        ):
             pygame.draw.line(
                 surface, (60, 60, 60), (x, 0), (x, self.game_resources.HEIGHT)
             )
-        for y in range(0, self.game_resources.HEIGHT, self.grid_size):
+        for y in range(
+            -self.camera_offset[1] % self.grid_size,
+            self.game_resources.HEIGHT,
+            self.grid_size,
+        ):
             pygame.draw.line(
                 surface, (60, 60, 60), (0, y), (self.game_resources.WIDTH, y)
             )
 
         # Draw all sprites
-        self.all_sprites.draw(surface)
+        for sprite in self.all_sprites:
+            screen_pos = self.world_to_screen((sprite.rect.x, sprite.rect.y))
+            temp_rect = sprite.rect.copy()
+            temp_rect.topleft = screen_pos
+            surface.blit(sprite.image, temp_rect)
+
+            # Draw hitbox
+            pygame.draw.rect(surface, (255, 0, 0), temp_rect, 2)
 
         # Draw player start position
         if self.player_start:
+            screen_pos = self.world_to_screen(
+                (self.player_start.x, self.player_start.y)
+            )
             pygame.draw.circle(
                 surface,
                 (0, 255, 0),
-                (int(self.player_start.x), int(self.player_start.y)),
+                (int(screen_pos[0]), int(screen_pos[1])),
                 10,
             )
 
         # Draw outline for selected object
         if self.selected_object:
-            pygame.draw.rect(surface, (255, 255, 0), self.selected_object.rect, 2)
+            screen_pos = self.world_to_screen(
+                (self.selected_object.rect.x, self.selected_object.rect.y)
+            )
+            temp_rect = self.selected_object.rect.copy()
+            temp_rect.topleft = screen_pos
+            pygame.draw.rect(surface, (255, 255, 0), temp_rect, 2)
 
             # Show properties for selected platform
             if isinstance(self.selected_object, EditorPlatform):
@@ -724,12 +800,14 @@ class LevelEditor:
             "  M: Toggle movement",
             "  D: Toggle direction",
             "  Arrow keys: Adjust speed/distance",
+            "  P: Change texture",
             "For collectibles:",
             "  T: Change type",
             "Pour les sorties:",
             "  N: Changer le niveau suivant",
             "Pour les ennemis:",
             "  T: Changer le type d'ennemi",
+            "B: Change background",
         ]
 
         y_offset = self.game_resources.HEIGHT - 300
@@ -737,3 +815,11 @@ class LevelEditor:
             text_surf = self.game_resources.font.render(text, True, (200, 200, 200))
             surface.blit(text_surf, (self.game_resources.WIDTH - 250, y_offset))
             y_offset += 20
+
+    def world_to_screen(self, pos):
+        """Convert world coordinates to screen coordinates."""
+        return pos[0] + self.camera_offset[0], pos[1] + self.camera_offset[1]
+
+    def screen_to_world(self, pos):
+        """Convert screen coordinates to world coordinates."""
+        return pos[0] - self.camera_offset[0], pos[1] - self.camera_offset[1]

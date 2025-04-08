@@ -25,6 +25,23 @@ class Checkpoint(Entity):
         self.activated_color = (0, 100, 0)  # Dark green
         self.db = CheckpointDB()
 
+        # Load texture if provided
+        if texture_path:
+            try:
+                self.image = pygame.image.load(texture_path).convert_alpha()
+                self.image = pygame.transform.scale(self.image, size)
+                self.surf = self.image
+            except Exception as e:
+                print(f"Error loading checkpoint texture: {e}")
+                self.surf = pygame.Surface(size)
+                self.surf.fill(color)
+        else:
+            self.surf = pygame.Surface(size)
+            self.surf.fill(color)
+
+        # Set the rect attribute for positioning
+        self.rect = self.surf.get_rect(topleft=pos)
+
     def activate(self):
         """
         Activate the checkpoint if not already activated.
@@ -35,10 +52,16 @@ class Checkpoint(Entity):
         """
         if not self.activated:
             self.activated = True
-            # Change color to dark green
-            if not hasattr(self, "original_surf"):
-                self.original_surf = self.surf.copy()
-            self.surf.fill(self.activated_color)
+            # Load the new texture
+            try:
+                self.image = pygame.image.load(
+                    "assets/map/checkpoints/checkpoint.png"
+                ).convert_alpha()
+                self.image = pygame.transform.scale(self.image, self.surf.get_size())
+                self.surf = self.image
+            except Exception as e:
+                print(f"Error loading checkpoint texture: {e}")
+                self.surf.fill(self.activated_color)
             # Save checkpoint to database
             self.db.save_checkpoint(self.map_name, self.pos.x, self.pos.y)
 

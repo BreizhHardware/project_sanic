@@ -18,12 +18,19 @@ class Entity(pygame.sprite.Sprite):
         self.rect = self.surf.get_rect()
         self.update_rect()
         if os.path.isfile(texturePath):
-            self.surf = pygame.image.load(texturePath).convert_alpha()
-            self.surf = pygame.transform.scale(self.surf, size)
-            self.rect = self.surf.get_rect()
+            try:
+                self.surf = pygame.image.load(texturePath).convert_alpha()
+                self.surf = pygame.transform.scale(self.surf, size)
+                self.rect = self.surf.get_rect()
+            except Exception as e:
+                print(f"Error loading texture: {e}")
+                # Fallback to default color
+                self.surf = pygame.Surface(size)
+                self.surf.fill(color)
+                self.rect = self.surf.get_rect()
         else:
-            print("Texture path not found")
-            print(texturePath)
+            self.surf.fill(color)
+            self.rect = self.surf.get_rect(center=self.pos)
 
     def update_rect(self):
         """Update rect position based on entity position"""

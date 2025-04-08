@@ -1,4 +1,7 @@
 import pygame
+import os
+from PIL import Image, ImageSequence
+import random
 from src.Entity.Entity import Entity
 from pygame.math import Vector2 as vec
 from src.Entity.Projectile import Projectile
@@ -6,7 +9,8 @@ from src.Entity.Projectile import Projectile
 
 class Enemy(Entity):
     def __init__(self, enemy_data):
-        super().__init__()
+        self.size = enemy_data.get("size", [50, 50])
+        super().__init__(self.size)
 
         # Base attributes
         self.enemy_type = enemy_data.get("type", "turret")
@@ -18,16 +22,31 @@ class Enemy(Entity):
         # Initial position
         self.pos = vec(enemy_data.get("x", 0), enemy_data.get("y", 0))
 
-        sprite_path = enemy_data.get(
-            "sprite_sheet", "assets/map/enemy/default_enemy.png"
-        )
-        try:
-            self.surf = pygame.image.load(sprite_path).convert_alpha()
-            self.surf = pygame.transform.scale(self.surf, (40, 40))
-        except:
-            # Default sprite
-            self.surf = pygame.Surface((40, 40))
-            self.surf.fill((255, 0, 0))
+        # Animation attributes
+        self.frames = []
+        self.current_frame = 0
+        self.animation_speed = enemy_data.get("animation_speed", 0.1)
+        self.animation_timer = 0
+
+        sprite_path = enemy_data.get("sprite_sheet", "assets/enemy/default_enemy.png")
+
+        # Load sprite sheet or GIF depending on enemy type and file extension
+        if sprite_path.lower().endswith(".gif") and self.enemy_type == "turret":
+            self.load_gif_frames(sprite_path)
+            if self.frames:
+                self.surf = self.frames[0]
+            else:
+                # Default sprite
+                self.surf = pygame.Surface((40, 40))
+                self.surf.fill((255, 0, 0))
+        else:
+            try:
+                self.surf = pygame.image.load(sprite_path).convert_alpha()
+                self.surf = pygame.transform.scale(self.surf, self.size)
+            except:
+                # Default sprite
+                self.surf = pygame.Surface((40, 40))
+                self.surf.fill((255, 0, 0))
 
         # Initial rectangle
         self.rect = self.surf.get_rect(center=(self.pos.x, self.pos.y))
@@ -45,7 +64,25 @@ class Enemy(Entity):
         self.is_attacking = False
         self.detected_player = False
 
-    def update(self, player=None):
+    def load_gif_frames(self, gif_path):
+        """Load frames from a GIF file"""
+        try:
+            gif = Image.open(gif_path)
+            frame_count = 0
+
+            for frame in ImageSequence.Iterator(gif):
+                frame_surface = pygame.image.fromstring(
+                    frame.convert("RGBA").tobytes(), frame.size, "RGBA"
+                )
+                frame_surface = pygame.transform.scale(frame_surface, (80, 80))
+                self.frames.append(frame_surface)
+                frame_count += 1
+
+        except Exception as e:
+            print(f"Error while loading the GIF: {e}")
+            self.frames = []
+
+    def update(self, player=None, dt=1 / 60):
         """Updates enemy's status and position"""
         if player:
             self.check_collision_with_player(player)
@@ -56,6 +93,14 @@ class Enemy(Entity):
             self.chase(player)
         elif self.behavior == "stationary" and player:
             self.stationary_attack(player)
+
+        # Animation management for turret enemies
+        if self.enemy_type == "turret" and self.frames:
+            self.animation_timer += dt
+            if self.animation_timer >= self.animation_speed:
+                self.animation_timer = 0
+                self.current_frame = (self.current_frame + 1) % len(self.frames)
+                self.surf = self.frames[self.current_frame]
 
         # Update rect position based on entity position
         self.rect.centerx = self.pos.x
@@ -125,6 +170,8 @@ class Enemy(Entity):
                 speed=self.speed,
                 damage=self.damage,
                 enemy_proj=True,
+                texturePath="assets/map/enemy/Laser.png",
+                size=(50, 10),
             )
 
             # Add projectile to the sprite group (to be placed in main.py)
@@ -135,11 +182,16 @@ class Enemy(Entity):
                 )
             )
 
-    def take_damage(self, amount):
+    def take_damage(self, amount, player):
         """Deal damage to the enemy and check if it should be destroyed"""
         self.health -= amount
         if self.health <= 0:
             self.kill()
+            if random.random() < 0.3:
+                pygame.event.post(
+                    pygame.event.Event(pygame.USEREVENT, {"action": "add_projectiles"})
+                )
+                player.add_projectiles()
             return True
         return False
 
@@ -149,7 +201,7 @@ class Enemy(Entity):
             # Colide on top
             if player.rect.bottom <= self.rect.top + 10 and player.vel.y > 0:
                 # Enemy takes damage
-                self.take_damage(1)
+                self.take_damage(1, player)
                 # Player bump
                 player.vel.y = -15
             else:

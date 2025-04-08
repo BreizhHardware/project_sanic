@@ -59,11 +59,21 @@ class Player(Entity):
         # Load images
         self.load_images()
 
+        # Coins amount
+        self.coins = 0
+        # Projectiles amount
+        self.projectiles = 0
+
         # Override initial surface if images are loaded
         if self.static_image:
             self.surf = self.static_image
         elif self.animation_frames:
             self.surf = self.animation_frames[0]
+
+        # Attacking
+        self.last_attack_time = 0
+        self.attack_start_time = 0
+        self.attack_cooldown = 2000
 
     def load_images(self):
         try:
@@ -273,6 +283,8 @@ class Player(Entity):
         )
 
     def update(self):
+        """Update the player position and check for collisions."""
+        # Define the feet and side rectangles for collision detection
         feet_rect = pygame.Rect(0, 0, self.rect.width * 0.8, 10)
         feet_rect.midbottom = self.rect.midbottom
 
@@ -283,6 +295,7 @@ class Player(Entity):
         right_side_rect.midright = self.rect.midright
 
         hits = []
+        # Check for collisions with the top of platforms
         for platform in self.game_resources.platforms:
             platform_top_rect = pygame.Rect(
                 platform.rect.x, platform.rect.y, platform.rect.width, 5
@@ -299,6 +312,7 @@ class Player(Entity):
 
         side_hits = []
         for platform in self.game_resources.platforms:
+            # Check for collisions with the left and right sides of the player
             platform_left_rect = pygame.Rect(
                 platform.rect.x, platform.rect.y + 5, 5, platform.rect.height - 5
             )
@@ -352,7 +366,6 @@ class Player(Entity):
         """Display menu to the player"""
         death_event = pygame.event.Event(pygame.USEREVENT, {"action": "player_death"})
         pygame.event.post(death_event)
-        print("Player died! Returning to menu...")
 
     def draw_lives(self, surface):
         """Draws the player's remaining lives as icons in the top right corner."""
@@ -389,44 +402,221 @@ class Player(Entity):
                     ),
                 )
 
+    def draw_coins(self, surface):
+        """Draws the coin counter with icon in the top left corner"""
+        # Load coin texture (do this in __init__ for better performance)
+        coin_texture = pygame.image.load(
+            "assets/map/collectibles/Sanic_Coin.png"
+        ).convert_alpha()
+        coin_size = 30
+        coin_texture = pygame.transform.scale(coin_texture, (coin_size, coin_size))
+
+        # Position for coin display
+        start_x = 200
+        start_y = 10
+
+        # Draw coin icon
+        surface.blit(coin_texture, (start_x, start_y))
+
+        # Use custom font
+        try:
+            font = pygame.font.Font("assets/fonts/sanicfont.ttf", 20)
+        except:
+            # Fallback to default font if custom font fails to load
+            font = pygame.font.Font(None, 20)
+
+        coin_text = font.render(f"x{self.coins}", True, (58, 83, 200))
+
+        # Position text next to coin icon with small spacing
+        text_x = start_x + coin_size + 5
+        text_y = start_y + (coin_size - coin_text.get_height()) // 2
+
+        surface.blit(coin_text, (text_x, text_y))
+
+    def collect_coin(self, surface):
+        """Increment coin counter when collecting a coin"""
+        self.coins += 1
+
     def attack(self):
         """Do an attack action on the player"""
-        self.is_attacking = True
 
-        # For turret-type enemies, create a projectile
+        self.is_attacking = False
+        current_time = pygame.time.get_ticks()
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[K_q] and pressed_keys[K_c]:
-            # Calculate direction to player
-            direction = vec(self.pos.x, self.pos.y)
-            projectile = Projectile(
-                pos=vec(self.pos.x, self.pos.y),
-                direction=direction,
-                speed=2,
-                damage=1,
-                enemy_proj=False,
-            )
-            # Add projectile to the sprite group (to be placed in main.py)
-            pygame.event.post(
-                pygame.event.Event(
-                    pygame.USEREVENT,
-                    {"action": "create_projectile", "projectile": projectile},
+            if current_time - self.last_attack_time >= self.attack_cooldown:
+                self.is_attacking = True
+                self.attack_start_time = current_time
+                self.last_attack_time = current_time
+                # Calculate direction to player
+                direction = vec(self.pos.x, self.pos.y)
+                projectile = Projectile(
+                    pos=vec(self.pos.x, self.pos.y),
+                    direction=direction,
+                    speed=2,
+                    damage=1,
+                    color=(165, 42, 42),
+                    enemy_proj=False,
                 )
-            )
+                # Add projectile to the sprite group (to be placed in main.py)
+                pygame.event.post(
+                    pygame.event.Event(
+                        pygame.USEREVENT,
+                        {"action": "create_projectile", "projectile": projectile},
+                    )
+                )
 
         if pressed_keys[K_d] and pressed_keys[K_c]:
-            # Calculate direction to player
-            direction = vec(self.pos.x, self.pos.y)
-            projectile = Projectile(
-                pos=vec(self.pos.x, self.pos.y),
-                direction=direction,
-                speed=2,
-                damage=1,
-                enemy_proj=False,
-            )
-            # Add projectile to the sprite group (to be placed in main.py)
-            pygame.event.post(
-                pygame.event.Event(
-                    pygame.USEREVENT,
-                    {"action": "create_projectile", "projectile": projectile},
+            if current_time - self.last_attack_time >= self.attack_cooldown:
+                self.is_attacking = True
+                self.attack_start_time = current_time
+                self.last_attack_time = current_time
+                # Calculate direction to player
+                direction = vec(self.pos.x, self.pos.y)
+                projectile = Projectile(
+                    pos=vec(self.pos.x, self.pos.y),
+                    direction=direction,
+                    speed=2,
+                    damage=1,
+                    color=(165, 42, 42),
+                    enemy_proj=False,
                 )
-            )
+                # Add projectile to the sprite group (to be placed in main.py)
+                pygame.event.post(
+                    pygame.event.Event(
+                        pygame.USEREVENT,
+                        {"action": "create_projectile", "projectile": projectile},
+                    )
+                )
+
+        if pressed_keys[K_q] and pressed_keys[K_v]:
+            if current_time - self.last_attack_time >= self.attack_cooldown:
+                self.is_attacking = True
+                self.attack_start_time = current_time
+                self.last_attack_time = current_time
+                # Calculate direction to player
+                direction = vec(-self.pos.x, 0)
+                projectile = Projectile(
+                    pos=vec(self.pos.x - 50, self.pos.y - 50),
+                    direction=direction,
+                    speed=2,
+                    damage=1,
+                    color=(165, 42, 42),
+                    enemy_proj=False,
+                    texturePath="assets/player/Boule de feu.png",
+                    size=(50, 50),
+                )
+                # Add projectile to the sprite group (to be placed in main.py)
+                pygame.event.post(
+                    pygame.event.Event(
+                        pygame.USEREVENT,
+                        {"action": "create_projectile", "projectile": projectile},
+                    )
+                )
+                if self.projectiles > 0:
+                    self.is_attacking = True
+                    self.attack_start_time = current_time
+                    self.last_attack_time = current_time
+                    # Calculate direction to player
+                    direction = vec(-self.pos.x, 0)
+                    projectile = Projectile(
+                        pos=vec(self.pos.x - 50, self.pos.y - 50),
+                        direction=direction,
+                        speed=2,
+                        damage=1,
+                        color=(165, 42, 42),
+                        enemy_proj=False,
+                        texturePath="assets/player/Boule de feu.png",
+                    )
+                    # Add projectile to the sprite group (to be placed in main.py)
+                    pygame.event.post(
+                        pygame.event.Event(
+                            pygame.USEREVENT,
+                            {"action": "create_projectile", "projectile": projectile},
+                        )
+                    )
+                    self.projectiles -= 1
+
+        if pressed_keys[K_d] and pressed_keys[K_v]:
+            if current_time - self.last_attack_time >= self.attack_cooldown:
+                self.is_attacking = True
+                self.attack_start_time = current_time
+                self.last_attack_time = current_time
+                # Calculate direction to player
+                direction = vec(self.pos.x, 0)
+                projectile = Projectile(
+                    pos=vec(self.pos.x + 50, self.pos.y - 50),
+                    direction=direction,
+                    speed=2,
+                    damage=1,
+                    color=(165, 42, 42),
+                    enemy_proj=False,
+                    texturePath="assets/player/Boule de feu.png",
+                    size=(50, 50),
+                )
+                # Add projectile to the sprite group (to be placed in main.py)
+                pygame.event.post(
+                    pygame.event.Event(
+                        pygame.USEREVENT,
+                        {"action": "create_projectile", "projectile": projectile},
+                    )
+                )
+                if self.projectiles > 0:
+                    self.is_attacking = True
+                    self.attack_start_time = current_time
+                    self.last_attack_time = current_time
+                    # Calculate direction to player
+                    direction = vec(self.pos.x, 0)
+                    projectile = Projectile(
+                        pos=vec(self.pos.x + 50, self.pos.y - 50),
+                        direction=direction,
+                        speed=2,
+                        damage=1,
+                        color=(165, 42, 42),
+                        enemy_proj=False,
+                        texturePath="assets/player/Boule de feu.png",
+                    )
+                    pygame.event.post(
+                        pygame.event.Event(
+                            pygame.USEREVENT,
+                            {"action": "create_projectile", "projectile": projectile},
+                        )
+                    )
+                    self.projectiles -= 1
+
+    def add_projectiles(self):
+        """Set player projectiles to 3"""
+        self.projectiles = 3
+
+    def draw_projectiles_amount(self, surface):
+        """Draws the projectiles counter with icon in the top left corner"""
+        # Load coin texture (do this in __init__ for better performance)
+        projectiles_texture = pygame.image.load(
+            "assets/player/Boule de feu.png"
+        ).convert_alpha()
+        projectile_size = 30
+        projectiles_texture = pygame.transform.scale(
+            projectiles_texture, (projectile_size, projectile_size)
+        )
+
+        # Position for coin display
+        start_x = 300
+        start_y = 10
+
+        # Draw coin icon
+        surface.blit(projectiles_texture, (start_x, start_y))
+
+        # Use custom font
+        try:
+            font = pygame.font.Font("assets/fonts/sanicfont.ttf", 20)
+        except:
+            # Fallback to default font if custom font fails to load
+            font = pygame.font.Font(None, 20)
+
+        projectiles_text = font.render(f"x{self.projectiles}", True, (58, 83, 200))
+
+        # Position text next to coin icon with small spacing
+        text_x = start_x + projectile_size + 5
+        text_y = start_y + (projectile_size - projectiles_text.get_height()) // 2
+
+        surface.blit(projectiles_text, (text_x, text_y))
