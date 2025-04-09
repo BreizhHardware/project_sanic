@@ -487,7 +487,7 @@ class Player(Entity):
         coin_sound = pygame.mixer.Sound("assets/sound/Coin.mp3")
         coin_sound.play()
         self.coins += 1
-        if self.lives != 5:
+        if self.lives < self.max_lives:
             self.lives += 1
             self.draw_lives(surface)
         if speedrun_timer:

@@ -70,7 +70,7 @@ class SpeedBoost(Entity):
             # Simple floating animation
             self.rect.y += [-1, 0, 1, 0][self.animation_frame]
 
-    def on_collision(self, player, game_ressources):
+    def on_collision(self, player, game_resources):
         """
         Handle speed boost collision with player
 
