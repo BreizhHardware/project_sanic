@@ -27,6 +27,9 @@ def initialize_game(game_resources, map_file="map/levels/1.json"):
     Returns:
         tuple: (player, platform, platforms_group, all_sprites, background, checkpoints, exits)
     """
+    checkpointDB = CheckpointDB()
+    checkpointDB.reset_level(map_file)
+    checkpointDB.close()
     parser = MapParser(game_resources)
     map_objects = parser.load_map(map_file)
 
