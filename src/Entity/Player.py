@@ -83,6 +83,9 @@ class Player(Entity):
         self.attack_start_time = 0
         self.attack_cooldown = 2000
 
+        # Initilize mixer
+        pygame.mixer.init()
+
     def load_images(self):
         """Load images for the player"""
         try:
@@ -295,8 +298,11 @@ class Player(Entity):
 
         # Jumping logic
         if jump and not self.jumping:
-            jump_sound = pygame.mixer.Sound("assets/sound/Jump.mp3")
-            jump_sound.play()
+            try:
+                jump_sound = pygame.mixer.Sound("assets/sound/Jump.mp3")
+                jump_sound.play()
+            except Exception as e:
+                print(f"Error playing jump sound: {e}")
             self.vel.y = -self.jump_power
             self.jumping = True
 
