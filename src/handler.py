@@ -21,6 +21,7 @@ from src.Camera import Camera
 from src.Database.CheckpointDB import CheckpointDB
 from src.Map.Editor.LevelEditor import LevelEditor
 from src.Menu.LevelEditorSelectionMenu import LevelEditorSelectionMenu
+from src.Map.Speedrun.SpeedrunTimer import SpeedrunTimer
 
 
 def initialize_game_resources():
@@ -207,6 +208,11 @@ def handle_menu_events(
                 exits,
                 collectibles,
             ) = initialize_game(game_resources, level_file)
+
+            level_id = level_file.split("/")[-1].split(".")[0]
+            speedrun_timer = SpeedrunTimer(level_id)
+            speedrun_timer.start()
+
             projectiles = pygame.sprite.Group()
             current_state = 1  # PLAYING
             return (
@@ -224,6 +230,7 @@ def handle_menu_events(
                 collectibles,
                 projectiles,
                 editor_select_menu,
+                speedrun_timer,
             )
         elif action == "open_editor":
             editor_select_menu = LevelEditorSelectionMenu(game_resources)
@@ -243,6 +250,7 @@ def handle_menu_events(
                 collectibles,
                 None,
                 editor_select_menu,
+                None,
             )
 
     return (
@@ -260,6 +268,7 @@ def handle_menu_events(
         collectibles,
         None,
         editor_select_menu,
+        None,
     )
 
 
@@ -409,6 +418,7 @@ def draw_playing_state(
     game_resources,
     level_file,
     FramePerSec,
+    speedrun_timer=None,
 ):
     """Draw game state while playing"""
     # Draw background
@@ -436,7 +446,7 @@ def draw_playing_state(
             checkpoint.activate()
 
     # Handle exit collisions
-    result = handle_exits(P1, exits, game_resources, level_file)
+    result = handle_exits(P1, exits, game_resources, level_file, speedrun_timer)
 
     # Handle collectibles
     coins_hit = pygame.sprite.spritecollide(P1, collectibles, False)
@@ -445,18 +455,23 @@ def draw_playing_state(
         P1.collect_coin(displaysurface)
 
     # Draw UI elements
-    draw_ui_elements(displaysurface, P1, FramePerSec, font)
+    draw_ui_elements(displaysurface, P1, FramePerSec, font, speedrun_timer)
 
     return result
 
 
-def handle_exits(P1, exits, game_resources, level_file):
+def handle_exits(P1, exits, game_resources, level_file, speedrun_timer=None):
     """Handle collisions with level exits"""
     exits_hit = pygame.sprite.spritecollide(P1, exits, False) if exits else []
     for exit in exits_hit:
+        if speedrun_timer:
+            speedrun_timer.stop()
+            speedrun_timer.save_time()
+
         if hasattr(game_resources, "infinite_mode") and game_resources.infinite_mode:
             # Infinite mode: load the next level without going back to menu
-            return handle_exit_collision(exit, game_resources, level_file)
+            result = handle_exit_collision(exit, game_resources, level_file)
+            return {"action": "continue_infinite", "result": result}
         else:
             # Normal mode: unlock the next level and return to menu
             current_level_match = re.search(r"(\d+)\.json$", level_file)
@@ -478,7 +493,7 @@ def handle_exits(P1, exits, game_resources, level_file):
     return None
 
 
-def draw_ui_elements(displaysurface, P1, FramePerSec, font):
+def draw_ui_elements(displaysurface, P1, FramePerSec, font, speedrun_timer=None):
     """Draw UI elements like FPS, player position, health, etc."""
     # FPS counter
     fps = int(FramePerSec.get_fps())
@@ -496,6 +511,9 @@ def draw_ui_elements(displaysurface, P1, FramePerSec, font):
     P1.draw_lives(displaysurface)
     P1.draw_coins(displaysurface)
     P1.draw_projectiles_amount(displaysurface)
+
+    if speedrun_timer:
+        speedrun_timer.draw(displaysurface)
 
 
 def handle_death_screen(
@@ -578,11 +596,12 @@ def handler():
         leaderboard,
         projectiles,
         joysticks,
-        editor_select_menu,  # Added editor_select_menu variable
+        editor_select_menu,
     ) = initialize_game_resources()
 
     # Initialize editor variables
     level_editor = None
+    speedrun_timer = None
 
     # Main game loop
     running = True
@@ -646,7 +665,8 @@ def handler():
                             collectibles,
                         ) = result[4:12]
                         projectiles = result[12]
-                        editor_select_menu = result[13]  # Get the editor_select_menu
+                        editor_select_menu = result[13]
+                        speedrun_timer = result[14]
 
                 elif current_state == LEADERBOARD:
                     current_state = handle_leaderboard_events(
@@ -726,6 +746,9 @@ def handler():
                     all_sprites,
                 )
 
+                if speedrun_timer:
+                    speedrun_timer.update()
+
                 # Draw game state and process exit collisions
                 exit_result = draw_playing_state(
                     displaysurface,
@@ -743,16 +766,32 @@ def handler():
                     game_resources,
                     level_file,
                     game_resources.FramePerSec,
+                    speedrun_timer,
                 )
 
                 # Handle level exit result
-                if (
-                    exit_result
-                    and exit_result.get("action") == "return_to_level_select"
-                ):
-                    current_state = exit_result["current_state"]
-                    current_menu = exit_result["current_menu"]
-                    level_select_menu = LevelSelectMenu(game_resources)
+                if exit_result:
+                    if exit_result.get("action") == "return_to_level_select":
+                        current_state = exit_result["current_state"]
+                        current_menu = exit_result["current_menu"]
+                        level_select_menu = LevelSelectMenu(game_resources)
+                    elif exit_result.get("action") == "continue_infinite":
+                        # Récupérer le résultat du handle_exit_collision
+                        infinite_result = exit_result["result"]
+                        # Utiliser le résultat pour continuer en mode infini
+                        if infinite_result:
+                            # Utiliser les valeurs retournées par handle_exit_collision
+                            # Adapter selon la structure du tuple retourné
+                            (
+                                P1,
+                                PT1,
+                                platforms,
+                                all_sprites,
+                                background,
+                                checkpoints,
+                                exits,
+                                collectibles,
+                            ) = infinite_result
 
             elif current_state == INFINITE:
                 # Start infinite mode and switch to playing
