@@ -2,6 +2,7 @@ import pygame
 import os
 import re
 
+from src.Menu.BackgroundManager import BackgroundManager
 from src.Menu.Button import Button
 
 
@@ -20,6 +21,8 @@ class LevelEditorSelectionMenu:
         self.game_resources = game_resources
         self.buttons = []
         self.levels = []
+
+        self.bg_manager = BackgroundManager(game_resources.WIDTH, game_resources.HEIGHT)
 
         # Button dimensions
         self.button_width = 250
@@ -131,6 +134,7 @@ class LevelEditorSelectionMenu:
         Args:
             surface: Pygame surface to draw on
         """
+        self.bg_manager.draw(surface)
         # Draw title
         title = pygame.font.SysFont("Arial", 48).render(
             "Level Editor", True, (0, 191, 255)

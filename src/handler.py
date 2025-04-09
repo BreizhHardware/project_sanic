@@ -212,6 +212,15 @@ def handle_menu_events(
             level_id = level_file.split("/")[-1].split(".")[0]
             speedrun_timer = SpeedrunTimer(level_id)
             speedrun_timer.start()
+            speedrun_timer.total_items = len(
+                [
+                    c
+                    for c in collectibles
+                    if hasattr(c, "__class__")
+                    and c.__class__.__name__ not in ["JumpBoost", "SpeedBoost"]
+                ]
+            )
+            speedrun_timer.collected_items = 0
 
             projectiles = pygame.sprite.Group()
             current_state = 1  # PLAYING
@@ -446,13 +455,28 @@ def draw_playing_state(
             checkpoint.activate()
 
     # Handle exit collisions
-    result = handle_exits(P1, exits, game_resources, level_file, speedrun_timer)
+    result = handle_exits(
+        P1, exits, game_resources, level_file, speedrun_timer, collectibles
+    )
 
     # Handle collectibles
-    coins_hit = pygame.sprite.spritecollide(P1, collectibles, False)
-    for coin in coins_hit:
-        coin.on_collision()
-        P1.collect_coin(displaysurface)
+    collectibles_hit = pygame.sprite.spritecollide(P1, collectibles, False)
+    for collectible in collectibles_hit:
+        # Vérifier le type de collectible et appeler la méthode appropriée
+        if (
+            hasattr(collectible, "__class__")
+            and collectible.__class__.__name__ == "JumpBoost"
+        ):
+            collectible.on_collision(P1)
+        elif (
+            hasattr(collectible, "__class__")
+            and collectible.__class__.__name__ == "SpeedBoost"
+        ):
+            collectible.on_collision(P1, game_resources)
+        else:
+            # Pour les pièces standard et autres collectibles
+            collectible.on_collision()
+            P1.collect_coin(displaysurface, speedrun_timer)
 
     # Draw UI elements
     draw_ui_elements(displaysurface, P1, FramePerSec, font, speedrun_timer)
@@ -460,14 +484,18 @@ def draw_playing_state(
     return result
 
 
-def handle_exits(P1, exits, game_resources, level_file, speedrun_timer=None):
+def handle_exits(
+    P1, exits, game_resources, level_file, speedrun_timer=None, collectibles=[]
+):
     """Handle collisions with level exits"""
     exits_hit = pygame.sprite.spritecollide(P1, exits, False) if exits else []
     for exit in exits_hit:
-        if speedrun_timer:
-            speedrun_timer.stop()
-            speedrun_timer.save_time()
+        if speedrun_timer and speedrun_timer.is_running:
+            collected_coins = speedrun_timer.collected_items
+            total_coins = speedrun_timer.total_items
 
+            speedrun_timer.stop()
+            speedrun_timer.save_time(collected_coins, total_coins)
         if hasattr(game_resources, "infinite_mode") and game_resources.infinite_mode:
             # Infinite mode: load the next level without going back to menu
             result = handle_exit_collision(exit, game_resources, level_file)
@@ -578,6 +606,7 @@ def handler():
     """Main function that handles the game flow"""
     # Game state constants
     MENU, PLAYING, INFINITE, LEADERBOARD, DEATH_SCREEN = 0, 1, 2, 3, 4
+    previous_state = None
 
     # Initialize game resources and states
     (
@@ -710,6 +739,21 @@ def handler():
                         )
                     )
 
+                elif event.type == pygame.USEREVENT + 2:
+                    if hasattr(P1, "active_jump_boost") and P1.active_jump_boost:
+                        P1.jump_power = P1.active_jump_boost["original_power"]
+                        P1.jump_boost_active = False
+                        P1.active_jump_boost = None
+
+                elif event.type == pygame.USEREVENT + 3:  # Speed boost expiration
+                    if hasattr(P1, "active_speed_boost") and P1.active_speed_boost:
+                        # Restore original movement speed
+                        game_resources.ACC = P1.active_speed_boost["original_ACC"]
+                        # Remove visual feedback
+                        P1.speed_boost_active = False
+                        # Clear boost data
+                        P1.active_speed_boost = None
+
             # Clear screen
             displaysurface.fill((0, 0, 0))
 
@@ -732,9 +776,13 @@ def handler():
                     level_editor.draw(displaysurface)
 
             elif current_state == LEADERBOARD:
+                if previous_state != "LEADERBOARD":
+                    leaderboard.refresh_scores(previous_state)
+                    previous_state = "LEADERBOARD"
                 leaderboard.draw(displaysurface)
 
             elif current_state == PLAYING:
+                previous_state = "PLAYING"
                 # Update game state
                 update_playing_state(
                     P1,
@@ -794,6 +842,7 @@ def handler():
                             ) = infinite_result
 
             elif current_state == INFINITE:
+                previous_state = "INFINITE"
                 # Start infinite mode and switch to playing
                 (
                     P1,

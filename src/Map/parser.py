@@ -8,6 +8,8 @@ from src.Entity.Enemy import Enemy
 from src.Entity.Checkpoint import Checkpoint
 from src.Entity.Exit import Exit
 from src.Entity.Coin import Coin
+from src.Entity.JumpBoost import JumpBoost
+from src.Entity.SpeedBoost import SpeedBoost
 
 
 class MapParser:
@@ -137,6 +139,23 @@ class MapParser:
                     )
                     self.collectibles.add(coin)
                     self.all_sprites.add(coin)
+                elif collectible_data["type"] == "jump":
+                    sprite_path = collectible_data.get("sprite", "")
+                    jump = JumpBoost(
+                        pos=(collectible_data["x"], collectible_data["y"]),
+                        texturePath=sprite_path,
+                    )
+                    self.collectibles.add(jump)
+                    self.all_sprites.add(jump)
+                elif collectible_data["type"] == "speed":
+                    sprite_path = collectible_data.get("sprite", "")
+                    speed = SpeedBoost(
+                        pos=(collectible_data["x"], collectible_data["y"]),
+                        texturePath=sprite_path,
+                    )
+                    self.collectibles.add(speed)
+                    self.all_sprites.add(speed)
+
         # Create background image
         if "background" in map_data:
             if os.path.isfile(map_data["background"]):

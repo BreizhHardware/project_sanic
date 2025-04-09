@@ -3,6 +3,7 @@ import os
 import re
 
 from src.Database.LevelDB import LevelDB
+from src.Menu.BackgroundManager import BackgroundManager
 from src.Menu.Button import Button
 from src.game import clear_checkpoint_database, clear_level_progress
 
@@ -23,6 +24,8 @@ class LevelSelectMenu:
         self.game_resources = game_resources
         self.buttons = []
         self.levels = []
+
+        self.bg_manager = BackgroundManager(game_resources.WIDTH, game_resources.HEIGHT)
 
         # Button dimensions
         self.button_width = 250
@@ -168,6 +171,7 @@ class LevelSelectMenu:
         Args:
             surface: Pygame surface to draw on
         """
+        self.bg_manager.draw(surface)
         # Draw title
         title = pygame.font.SysFont("Arial", 48).render(
             "Select Level", True, (0, 191, 255)
