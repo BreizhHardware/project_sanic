@@ -55,8 +55,8 @@ class Player(Entity):
         self.active_jump_boost = None
 
         # Life system
-        self.max_lives = 2
-        self.lives = 2
+        self.max_lives = 5
+        self.lives = 3
         self.invulnerable = False
         self.invulnerable_timer = 0
         self.invulnerable_duration = 1.5
@@ -487,7 +487,7 @@ class Player(Entity):
         coin_sound = pygame.mixer.Sound("assets/sound/Coin.mp3")
         coin_sound.play()
         self.coins += 1
-        if self.lives == 1:
+        if self.lives != 5:
             self.lives += 1
             self.draw_lives(surface)
 
