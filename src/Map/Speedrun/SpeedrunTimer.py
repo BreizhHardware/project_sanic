@@ -14,6 +14,8 @@ class SpeedrunTimer:
         self.best_time = self._get_best_time()
         self.color = (0, 255, 0)  # Green by default
         self.font = pygame.font.Font(None, 36)
+        self.collected_items = 0
+        self.total_items = 0
 
     def start(self):
         """Start the timer"""
@@ -38,7 +40,7 @@ class SpeedrunTimer:
                 else:
                     self.color = (255, 0, 0)  # Red if behind
 
-    def save_time(self):
+    def save_time(self, collected_items=0, total_items=0):
         """Save the current time in the database"""
         if not self.is_running and self.current_time > 0:
             conn = sqlite3.connect(self.db_path)
@@ -51,6 +53,8 @@ class SpeedrunTimer:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 level_id TEXT NOT NULL,
                 time REAL NOT NULL,
+                collected_items INTEGER DEFAULT 0,
+                total_items INTEGER DEFAULT 0,
                 date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """
@@ -58,8 +62,8 @@ class SpeedrunTimer:
 
             # Insert the new time
             cursor.execute(
-                "INSERT INTO speedrun (level_id, time) VALUES (?, ?)",
-                (self.level_id, self.current_time),
+                "INSERT INTO speedrun (level_id, time, collected_items, total_items) VALUES (?, ?, ?, ?)",
+                (self.level_id, self.current_time, collected_items, total_items),
             )
 
             conn.commit()

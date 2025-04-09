@@ -482,7 +482,7 @@ class Player(Entity):
 
         surface.blit(coin_text, (text_x, text_y))
 
-    def collect_coin(self, surface):
+    def collect_coin(self, surface, speedrun_timer=None):
         """Increment coin counter when collecting a coin"""
         coin_sound = pygame.mixer.Sound("assets/sound/Coin.mp3")
         coin_sound.play()
@@ -490,6 +490,8 @@ class Player(Entity):
         if self.lives != 5:
             self.lives += 1
             self.draw_lives(surface)
+        if speedrun_timer:
+            speedrun_timer.collected_items += 1
 
     def attack(self):
         """Do an attack action on the player"""

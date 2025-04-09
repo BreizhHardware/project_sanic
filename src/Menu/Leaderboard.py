@@ -1,5 +1,6 @@
 import pygame
 import sqlite3
+import os
 from datetime import datetime
 from src.Menu.Button import Button
 from src.Database.LevelDB import LevelDB
@@ -64,7 +65,7 @@ class Leaderboard:
 
             cursor.execute(
                 """
-                SELECT time, date 
+                SELECT time, date, collected_items, total_items 
                 FROM speedrun 
                 WHERE level_id = ? 
                 ORDER BY time ASC 
@@ -78,10 +79,10 @@ class Leaderboard:
 
             # Format results
             formatted_results = []
-            for time, date in results:
+            for time, date, collected, total in results:
                 date_obj = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
                 formatted_date = date_obj.strftime("%d/%m/%Y")
-                formatted_results.append((formatted_date, time))
+                formatted_results.append((formatted_date, time, collected, total))
 
             return formatted_results
         except (sqlite3.Error, Exception) as e:
@@ -114,8 +115,22 @@ class Leaderboard:
                 pygame.draw.rect(surface, (100, 100, 255), button.rect)
             button.draw(surface, font)
 
-        # Draw scores
+        # Draw column headers
+        headers = ["Rang", "Date", "Temps", "Collectés"]
+        header_positions = [
+            self.WIDTH // 2 - 150,
+            self.WIDTH // 2 - 100,
+            self.WIDTH // 2 + 50,
+            self.WIDTH // 2 + 150,
+        ]
+
         y_pos = 150
+
+        for i, header in enumerate(headers):
+            header_text = font.render(header, True, (200, 200, 200))
+            surface.blit(header_text, (header_positions[i], y_pos - 30))
+
+        # Draw scores
         scores_for_tab = self.scores.get(self.current_tab, [])
 
         if not scores_for_tab:
@@ -127,18 +142,30 @@ class Leaderboard:
                 (self.WIDTH // 2 - no_scores_text.get_width() // 2, y_pos + 40),
             )
         else:
-            for i, (date, time) in enumerate(scores_for_tab):
-
+            for i, (date, time, collected, total) in enumerate(scores_for_tab):
+                # Rank
                 rank_text = self.font.render(f"{i+1}.", True, (255, 255, 255))
-                surface.blit(rank_text, (self.WIDTH // 2 - 150, y_pos))
+                surface.blit(rank_text, (header_positions[0], y_pos))
 
+                # Date
                 date_text = self.font.render(date, True, (255, 255, 255))
-                surface.blit(date_text, (self.WIDTH // 2 - 100, y_pos))
+                surface.blit(date_text, (header_positions[1], y_pos))
 
+                # Time
                 time_text = self.font.render(
                     self.format_time(time), True, (255, 255, 255)
                 )
-                surface.blit(time_text, (self.WIDTH // 2 + 50, y_pos))
+                surface.blit(time_text, (header_positions[2], y_pos))
+
+                # Collected items
+                collected_color = (255, 255, 255)  # Default white
+                if collected == total:
+                    collected_color = (0, 255, 0)  # Green if all items collected
+
+                collected_text = self.font.render(
+                    f"{collected}/{total}", True, collected_color
+                )
+                surface.blit(collected_text, (header_positions[3], y_pos))
 
                 y_pos += 40
 
@@ -155,3 +182,25 @@ class Leaderboard:
             if action and action.startswith("tab_"):
                 self.current_tab = int(action.split("_")[1])
         return None
+
+    def refresh_scores(self, previous_level=""):
+        """Refresh scores from the database."""
+        if previous_level != "LEADERBOARD":
+            self.scores = {}
+
+            # Get the list of levels from the directory
+            level_dir = "map/levels/"
+            try:
+                levels = [
+                    f.replace(".json", "")
+                    for f in os.listdir(level_dir)
+                    if f.endswith(".json")
+                ]
+
+                # Get the scores for each level
+                for level in levels:
+                    scores = self.get_level_scores(level)
+                    if scores:
+                        self.scores[int(level) - 1] = scores
+            except Exception as e:
+                print(f"Error while refreshing the score: {e}")
