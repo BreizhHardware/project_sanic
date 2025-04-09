@@ -38,7 +38,7 @@ class Menu:
         # Create buttons centered horizontally
         self.buttons.append(
             Button(
-                "Jouer",
+                "Play",
                 self.game_resources.WIDTH // 2 - button_width // 2,
                 start_y,
                 button_width,
@@ -50,7 +50,7 @@ class Menu:
         start_y += button_height + button_spacing
         self.buttons.append(
             Button(
-                "Jouer en mode infini",
+                "Play in infinite mode",
                 self.game_resources.WIDTH // 2 - button_width // 2,
                 start_y,
                 button_width,
@@ -62,7 +62,7 @@ class Menu:
         start_y += button_height + button_spacing
         self.buttons.append(
             Button(
-                "Classement",
+                "Leaderboard",
                 self.game_resources.WIDTH // 2 - button_width // 2,
                 start_y,
                 button_width,
@@ -74,7 +74,7 @@ class Menu:
         start_y += button_height + button_spacing
         self.buttons.append(
             Button(
-                "Quitter",
+                "Quit",
                 self.game_resources.WIDTH // 2 - button_width // 2,
                 start_y,
                 button_width,
@@ -100,7 +100,7 @@ class Menu:
 
         # Draw title
         title = pygame.font.SysFont("Arial", 72).render(
-            "Sanic et la princesse Zeldo", True, (0, 191, 255)
+            "Sanic and the princess Zeldo", True, (0, 191, 255)
         )
         title_rect = title.get_rect(
             center=(self.game_resources.WIDTH // 2, self.game_resources.HEIGHT // 4)

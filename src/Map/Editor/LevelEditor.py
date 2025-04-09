@@ -611,7 +611,7 @@ class LevelEditor:
                 self.selected_object, EditorCollectible
             ):
                 if event.key == K_t:
-                    types = ["coin"]
+                    types = ["coin", "jump", "speed"]
                     current_index = (
                         types.index(self.selected_object.collectible_type)
                         if self.selected_object.collectible_type in types
@@ -623,6 +623,10 @@ class LevelEditor:
                     # Update appearance based on type
                     if self.selected_object.collectible_type == "coin":
                         self.selected_object.image.fill((255, 215, 0))
+                    elif self.selected_object.collectible_type == "jump":
+                        self.selected_object.image.fill((0, 255, 0))
+                    elif self.selected_object.collectible_type == "speed":
+                        self.selected_object.image.fill((0, 0, 255))
 
             elif self.selected_object and isinstance(self.selected_object, EditorExit):
                 if event.key == K_n:

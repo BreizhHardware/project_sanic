@@ -166,7 +166,22 @@
       "sprite": "assets/map/exit/Zeldo.png"
     }
   ],
-  "collectibles": [],
+  "collectibles": [
+    {
+      "id": "jump",
+      "type": "jump",
+      "x": 1500,
+      "y": 400,
+      "sprite": "assets/map/collectibles/jump.png"
+    },
+    {
+      "id": "speed",
+      "type": "speed",
+      "x": 1000,
+      "y": 400,
+      "sprite": "assets/map/collectibles/speed.png"
+    }
+  ],
   "spawn_point": {
     "x": 50.0,
     "y": 350.0

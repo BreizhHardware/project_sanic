@@ -2,6 +2,7 @@ from src.Entity.Entity import Entity
 from pygame import *
 import pygame
 import os
+from PIL import Image, ImageSequence
 from pygame.math import Vector2 as vec
 from src.Entity.Projectile import Projectile
 
@@ -45,6 +46,13 @@ class Player(Entity):
         self.dash_start_time = 0
         self.dash_duration = 500  # 1/2 second activation time
         self.dash_cooldown = 3000  # 3 seconds cooldown
+        self.speed_boost_active = False
+        self.active_speed_boost = None
+
+        # Jump mechanics
+        self.jump_power = 30
+        self.jump_boost_active = False
+        self.active_jump_boost = None
 
         # Life system
         self.max_lives = 2
@@ -76,85 +84,124 @@ class Player(Entity):
         self.attack_cooldown = 2000
 
     def load_images(self):
+        """Load images for the player"""
         try:
-            # Load static image
-            if os.path.isfile("assets/player/Sanic Base.png"):
-                self.static_image = pygame.image.load(
-                    "assets/player/Sanic Base.png"
-                ).convert_alpha()
-                self.static_image = pygame.transform.scale(
-                    self.static_image, (100, 100)
-                )
-
-            # Load regular animation sprite sheet
-            if os.path.isfile("assets/player/Sanic Annimate.png"):
-                sprite_sheet = pygame.image.load(
-                    "assets/player/Sanic Annimate.png"
-                ).convert_alpha()
-
-                # Extract the 4 frames
-                frame_height = sprite_sheet.get_height()
-                frame_width = sprite_sheet.get_width() // 4
-
-                for i in range(4):
-                    # Cut out a region of the sprite sheet
-                    frame = sprite_sheet.subsurface(
-                        (i * 2290, 0, frame_width, frame_height)
-                    )
-                    # Resize the frame
-                    frame = pygame.transform.scale(frame, (100, 100))
-                    self.animation_frames.append(frame)
-
-            # Load jump animation sprite sheet
-            if os.path.isfile("assets/player/Sanic Boule.png"):
-                self.jump_frames.append(
-                    pygame.transform.scale(
-                        pygame.image.load(
-                            "assets/player/Sanic Boule.png"
-                        ).convert_alpha(),
-                        (80, 80),
-                    )
-                )
-
-            # Load dash animation sprite sheet
-            if os.path.isfile("assets/player/Sanic Boule Annimate.png"):
-                dash_sheet = pygame.image.load(
-                    "assets/player/Sanic Boule Annimate.png"
-                ).convert_alpha()
-
-                dash_frame_height = dash_sheet.get_height()
-
-                for i in range(4):
-                    frame = dash_sheet.subsurface(
-                        (i * 2000, 0, dash_frame_height, dash_frame_height)
-                    )
-                    frame = pygame.transform.scale(frame, (80, 80))
-                    self.dash_frames.append(frame)
-
-            # Load life icon
-            if os.path.isfile("assets/player/Sanic Head.png"):
-                self.life_icon = pygame.image.load(
-                    "assets/player/Sanic Head.png"
-                ).convert_alpha()
-                self.life_icon = pygame.transform.scale(
-                    self.life_icon,
-                    (
-                        self.game_resources.life_icon_width,
-                        self.game_resources.life_icon_width,
-                    ),
-                )
+            # Load the 7 frames of the GIF
+            if os.path.isfile("assets/player/Sanic.gif"):
+                self.load_gif_frames("assets/player/Sanic.gif")
+                self.animation_speed = 0.05
             else:
-                # Backup: use a red square
-                self.life_icon = pygame.Surface(
-                    (
-                        self.game_resources.life_icon_width,
-                        self.game_resources.life_icon_width,
-                    )
-                )
-                self.life_icon.fill((255, 0, 0))
+                # Fallback to static image if GIF is not found
+                self.load_static_and_sprite_sheets()
+
+            # Load special animations (jump, dash, ...)
+            self.load_special_animations()
 
         except Exception as e:
             print(f"Error loading player images: {e}")
+
+    def load_gif_frames(self, gif_path):
+        """Load frames from a GIF file"""
+        try:
+            gif = Image.open(gif_path)
+
+            self.animation_frames = []
+
+            for frame in ImageSequence.Iterator(gif):
+                # Convert the frame to a format compatible with Pygame
+                frame_rgb = frame.convert("RGBA")
+                raw_str = frame_rgb.tobytes("raw", "RGBA")
+
+                pygame_surface = pygame.image.fromstring(
+                    raw_str, frame_rgb.size, "RGBA"
+                )
+
+                pygame_surface = pygame.transform.scale(pygame_surface, (125, 125))
+
+                self.animation_frames.append(pygame_surface)
+
+            # Use the first frame as the static image
+            if self.animation_frames:
+                self.static_image = self.animation_frames[0]
+
+        except Exception as e:
+            print(f"Error while loading the GIF: {e}")
+
+    def load_static_and_sprite_sheets(self):
+        """Previous method to load static image and sprite sheets"""
+        # Load static image
+        if os.path.isfile("assets/player/Sanic Base.png"):
+            self.static_image = pygame.image.load(
+                "assets/player/Sanic Base.png"
+            ).convert_alpha()
+            self.static_image = pygame.transform.scale(self.static_image, (100, 100))
+
+        # Load regular animation sprite sheet
+        if os.path.isfile("assets/player/Sanic Annimate.png"):
+            sprite_sheet = pygame.image.load(
+                "assets/player/Sanic Annimate.png"
+            ).convert_alpha()
+
+            # Extract the 4 frames
+            frame_height = sprite_sheet.get_height()
+            frame_width = sprite_sheet.get_width() // 4
+
+            for i in range(4):
+                # Cut out a region of the sprite sheet
+                frame = sprite_sheet.subsurface(
+                    (i * 2290, 0, frame_width, frame_height)
+                )
+                # Resize the frame
+                frame = pygame.transform.scale(frame, (100, 100))
+                self.animation_frames.append(frame)
+
+    def load_special_animations(self):
+        """Load special animations for jump and dash"""
+        # Load jump animation sprite sheet
+        if os.path.isfile("assets/player/Sanic Boule.png"):
+            self.jump_frames.append(
+                pygame.transform.scale(
+                    pygame.image.load("assets/player/Sanic Boule.png").convert_alpha(),
+                    (80, 80),
+                )
+            )
+
+        # Load dash animation sprite sheet
+        if os.path.isfile("assets/player/Sanic Boule Annimate.png"):
+            dash_sheet = pygame.image.load(
+                "assets/player/Sanic Boule Annimate.png"
+            ).convert_alpha()
+
+            dash_frame_height = dash_sheet.get_height()
+
+            for i in range(4):
+                frame = dash_sheet.subsurface(
+                    (i * 2000, 0, dash_frame_height, dash_frame_height)
+                )
+                frame = pygame.transform.scale(frame, (80, 80))
+                self.dash_frames.append(frame)
+
+        # Load life icon
+        if os.path.isfile("assets/player/Sanic Head.png"):
+            self.life_icon = pygame.image.load(
+                "assets/player/Sanic Head.png"
+            ).convert_alpha()
+            self.life_icon = pygame.transform.scale(
+                self.life_icon,
+                (
+                    self.game_resources.life_icon_width,
+                    self.game_resources.life_icon_width,
+                ),
+            )
+        else:
+            # Backup: use a red square
+            self.life_icon = pygame.Surface(
+                (
+                    self.game_resources.life_icon_width,
+                    self.game_resources.life_icon_width,
+                )
+            )
+            self.life_icon.fill((255, 0, 0))
 
     def update_animation(self):
         current_time = pygame.time.get_ticks()
@@ -250,7 +297,7 @@ class Player(Entity):
         if jump and not self.jumping:
             jump_sound = pygame.mixer.Sound("assets/sound/Jump.mp3")
             jump_sound.play()
-            self.vel.y = -30
+            self.vel.y = -self.jump_power
             self.jumping = True
 
         # Apply friction

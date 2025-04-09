@@ -449,10 +449,23 @@ def draw_playing_state(
     result = handle_exits(P1, exits, game_resources, level_file, speedrun_timer)
 
     # Handle collectibles
-    coins_hit = pygame.sprite.spritecollide(P1, collectibles, False)
-    for coin in coins_hit:
-        coin.on_collision()
-        P1.collect_coin(displaysurface)
+    collectibles_hit = pygame.sprite.spritecollide(P1, collectibles, False)
+    for collectible in collectibles_hit:
+        # Vérifier le type de collectible et appeler la méthode appropriée
+        if (
+            hasattr(collectible, "__class__")
+            and collectible.__class__.__name__ == "JumpBoost"
+        ):
+            collectible.on_collision(P1)
+        elif (
+            hasattr(collectible, "__class__")
+            and collectible.__class__.__name__ == "SpeedBoost"
+        ):
+            collectible.on_collision(P1, game_resources)
+        else:
+            # Pour les pièces standard et autres collectibles
+            collectible.on_collision()
+            P1.collect_coin(displaysurface)
 
     # Draw UI elements
     draw_ui_elements(displaysurface, P1, FramePerSec, font, speedrun_timer)
@@ -709,6 +722,21 @@ def handler():
                             projectiles,
                         )
                     )
+
+                elif event.type == pygame.USEREVENT + 2:
+                    if hasattr(P1, "active_jump_boost") and P1.active_jump_boost:
+                        P1.jump_power = P1.active_jump_boost["original_power"]
+                        P1.jump_boost_active = False
+                        P1.active_jump_boost = None
+
+                elif event.type == pygame.USEREVENT + 3:  # Speed boost expiration
+                    if hasattr(P1, "active_speed_boost") and P1.active_speed_boost:
+                        # Restore original movement speed
+                        game_resources.ACC = P1.active_speed_boost["original_ACC"]
+                        # Remove visual feedback
+                        P1.speed_boost_active = False
+                        # Clear boost data
+                        P1.active_speed_boost = None
 
             # Clear screen
             displaysurface.fill((0, 0, 0))
