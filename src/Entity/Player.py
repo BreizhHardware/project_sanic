@@ -248,6 +248,8 @@ class Player(Entity):
 
         # Jumping logic
         if jump and not self.jumping:
+            jump_sound = pygame.mixer.Sound("assets/sound/Jump.mp3")
+            jump_sound.play()
             self.vel.y = -30
             self.jumping = True
 
@@ -435,7 +437,12 @@ class Player(Entity):
 
     def collect_coin(self, surface):
         """Increment coin counter when collecting a coin"""
+        coin_sound = pygame.mixer.Sound("assets/sound/Coin.mp3")
+        coin_sound.play()
         self.coins += 1
+        if self.lives == 1:
+            self.lives += 1
+            self.draw_lives(surface)
 
     def attack(self):
         """Do an attack action on the player"""
@@ -491,6 +498,9 @@ class Player(Entity):
 
         if pressed_keys[K_q] and pressed_keys[K_v]:
             if current_time - self.last_attack_time >= self.attack_cooldown:
+                attack_sound = pygame.mixer.Sound("assets/sound/Boule de feu.mp3")
+                attack_sound.set_volume(0.4)
+                attack_sound.play()
                 self.is_attacking = True
                 self.attack_start_time = current_time
                 self.last_attack_time = current_time
@@ -539,6 +549,9 @@ class Player(Entity):
 
         if pressed_keys[K_d] and pressed_keys[K_v]:
             if current_time - self.last_attack_time >= self.attack_cooldown:
+                attack_sound = pygame.mixer.Sound("assets/sound/Boule de feu.mp3")
+                attack_sound.set_volume(0.4)
+                attack_sound.play()
                 self.is_attacking = True
                 self.attack_start_time = current_time
                 self.last_attack_time = current_time
