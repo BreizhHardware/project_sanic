@@ -2,6 +2,8 @@ import pygame
 import sqlite3
 import os
 from datetime import datetime
+
+from src.Menu.BackgroundManager import BackgroundManager
 from src.Menu.Button import Button
 from src.Database.LevelDB import LevelDB
 
@@ -17,6 +19,8 @@ class Leaderboard:
 
         self.levels = self.get_available_levels()
         self.level_tabs = [f"Level {level}" for level in self.levels]
+
+        self.bg_manager = BackgroundManager(WIDTH, HEIGHT)
 
         # Define the tabs (levels + infinite mode)
         self.tabs = self.level_tabs + ["Infinite mode"]
@@ -100,10 +104,23 @@ class Leaderboard:
 
     def draw(self, surface):
         """Draw the leaderboard on the given surface."""
-        title = pygame.font.SysFont("Arial", 48).render(
-            "Classement", True, (0, 191, 255)
+        self.bg_manager.draw(surface)
+
+        # Draw a semi-transparent panel
+        panel_rect = pygame.Rect(self.WIDTH // 2 - 250, 130, 500, self.HEIGHT - 200)
+        panel_surface = pygame.Surface(
+            (panel_rect.width, panel_rect.height), pygame.SRCALPHA
         )
+        panel_surface.fill((10, 10, 40, 180))
+        surface.blit(panel_surface, panel_rect)
+
+        title_font = pygame.font.SysFont("Arial", 48, bold=True)
+        title = title_font.render("Leaderboard", True, (255, 255, 255))
+        title_shadow = title_font.render("Leaderboard", True, (0, 0, 0))
+
         title_rect = title.get_rect(center=(self.WIDTH // 2, 40))
+        shadow_rect = title_shadow.get_rect(center=(self.WIDTH // 2 + 2, 42))
+        surface.blit(title_shadow, shadow_rect)
         surface.blit(title, title_rect)
 
         font = pygame.font.SysFont("Arial", 20)
@@ -116,7 +133,7 @@ class Leaderboard:
             button.draw(surface, font)
 
         # Draw column headers
-        headers = ["Rang", "Date", "Temps", "Collectés"]
+        headers = ["Rank", "Date", "Time", "Collected"]
         header_positions = [
             self.WIDTH // 2 - 150,
             self.WIDTH // 2 - 100,
@@ -124,7 +141,7 @@ class Leaderboard:
             self.WIDTH // 2 + 150,
         ]
 
-        y_pos = 150
+        y_pos = 200
 
         for i, header in enumerate(headers):
             header_text = font.render(header, True, (200, 200, 200))
@@ -143,6 +160,14 @@ class Leaderboard:
             )
         else:
             for i, (date, time, collected, total) in enumerate(scores_for_tab):
+                row_bg = (30, 30, 60, 150) if i % 2 == 0 else (40, 40, 80, 150)
+                row_rect = pygame.Rect(self.WIDTH // 2 - 200, y_pos - 5, 400, 30)
+                row_surface = pygame.Surface(
+                    (row_rect.width, row_rect.height), pygame.SRCALPHA
+                )
+                row_surface.fill(row_bg)
+                surface.blit(row_surface, row_rect)
+
                 # Rank
                 rank_text = self.font.render(f"{i+1}.", True, (255, 255, 255))
                 surface.blit(rank_text, (header_positions[0], y_pos))
@@ -158,9 +183,9 @@ class Leaderboard:
                 surface.blit(time_text, (header_positions[2], y_pos))
 
                 # Collected items
-                collected_color = (255, 255, 255)  # Default white
+                collected_color = (255, 255, 255)
                 if collected == total:
-                    collected_color = (0, 255, 0)  # Green if all items collected
+                    collected_color = (0, 255, 0)
 
                 collected_text = self.font.render(
                     f"{collected}/{total}", True, collected_color
