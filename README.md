@@ -93,3 +93,6 @@ Power-ups Disponibles : Affichés de manière visible pour que le joueur sache q
 
 ## Strcture du Projet
 La structure du projet est disponible dans le fichier [PROJECT_STRUCTURE](PROJECT_STRUCTURE.MD). Ce fichier contient une description détaillée de l'organisation des fichiers et des dossiers du projet.
+
+## Utilisation des LLM
+L'utilisation est détaillé dans le fichier [CHATGPT](CHATGPT.MD).

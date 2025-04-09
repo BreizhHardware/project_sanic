@@ -1,0 +1,2 @@
+# Utilisation de LLM
+Dans ce projet les LLM (GPT 4o et Claude 3.7 Thinking) ont été utilisés pour du debug (impossible de trouver tous les endroits précisément) ainsi que pour écrire les commits messages.
