@@ -83,7 +83,7 @@ class Player(Entity):
         self.attack_start_time = 0
         self.attack_cooldown = 2000
 
-        # Initilize mixer
+        # Initialize mixer
         pygame.mixer.init()
 
     def load_images(self):
