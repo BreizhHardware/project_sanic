@@ -47,7 +47,7 @@ class Leaderboard:
             db = LevelDB()
             levels = db.get_all_unlocked_levels()
             db.close()
-            return sorted(levels)
+            return sorted(set(levels))  # Remove duplicates and sort
         except:
             return [1]
 
@@ -151,17 +151,26 @@ class Leaderboard:
                 pygame.draw.rect(surface, (100, 100, 255), button.rect)
             button.draw(surface, font)
 
-        # Draw column headers
-        headers = ["Rank", "Date", "Time", "Collected"]
-        header_positions = [
-            self.WIDTH // 2 - 150,
-            self.WIDTH // 2 - 100,
-            self.WIDTH // 2 + 50,
-            self.WIDTH // 2 + 150,
-        ]
+        # Determine headers and positions based on the current tab
+        if self.current_tab == len(self.levels):  # Infinite mode
+            headers = ["Rank", "Date", "Score"]
+            header_positions = [
+                self.WIDTH // 2 - 150,
+                self.WIDTH // 2 - 50,
+                self.WIDTH // 2 + 100,
+            ]
+        else:  # Level scores
+            headers = ["Rank", "Date", "Time", "Collected"]
+            header_positions = [
+                self.WIDTH // 2 - 150,
+                self.WIDTH // 2 - 100,
+                self.WIDTH // 2 + 50,
+                self.WIDTH // 2 + 150,
+            ]
 
         y_pos = 200
 
+        # Draw column headers
         for i, header in enumerate(headers):
             header_text = font.render(header, True, (200, 200, 200))
             surface.blit(header_text, (header_positions[i], y_pos - 30))
@@ -197,7 +206,7 @@ class Leaderboard:
                     date_text = self.font.render(date, True, (255, 255, 255))
                     surface.blit(date_text, (header_positions[1], y_pos))
 
-                    # Time (score)
+                    # Score
                     score_text = self.font.render(str(score), True, (255, 255, 255))
                     surface.blit(score_text, (header_positions[2], y_pos))
                 else:  # Level scores
