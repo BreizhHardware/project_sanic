@@ -83,7 +83,9 @@ class Player(Entity):
         self.attack_start_time = 0
         self.attack_cooldown = 2000
 
-        # Initialize mixer
+        self.facing_right = True
+
+        # Initilize mixer
         pygame.mixer.init()
 
     def load_images(self):
@@ -213,19 +215,27 @@ class Player(Entity):
         if self.dashing and self.dash_frames:
             if current_time - self.last_update > self.animation_speed * 1000:
                 self.current_frame = (self.current_frame + 1) % len(self.dash_frames)
-                self.surf = self.dash_frames[self.current_frame]
                 self.last_update = current_time
+            current_image = self.dash_frames[self.current_frame]
         elif self.jumping and self.jump_frames:
-            self.surf = self.jump_frames[0]  # Use jump frame
+            current_image = self.jump_frames[0]
         elif self.moving and self.animation_frames:
             if current_time - self.last_update > self.animation_speed * 1000:
                 self.current_frame = (self.current_frame + 1) % len(
                     self.animation_frames
                 )
-                self.surf = self.animation_frames[self.current_frame]
                 self.last_update = current_time
+            current_image = self.animation_frames[self.current_frame]
         elif self.static_image:
-            self.surf = self.static_image
+            current_image = self.static_image
+        else:
+            return
+
+        # Flip the image if the player is facing left
+        if not self.facing_right:
+            self.surf = pygame.transform.flip(current_image, True, False)
+        else:
+            self.surf = current_image
 
     def dash(self, acc):
         current_time = pygame.time.get_ticks()
@@ -259,7 +269,7 @@ class Player(Entity):
 
         if self.has_joystick and self.joystick:
             try:
-                # Joystick gauche pour mouvement
+                # Left joystick for movement
                 if self.joystick.get_numaxes() > 0:
                     joystick_x = self.joystick.get_axis(0)
                     if abs(joystick_x) > 0.2:
@@ -268,7 +278,7 @@ class Player(Entity):
                         elif joystick_x > 0:
                             move_right = True
 
-                # Boutons pour sauter/dasher
+                # Button for jumping and dashing
                 if self.joystick.get_numbuttons() > self.jump_button:
                     if self.joystick.get_button(self.jump_button):
                         jump = True
@@ -277,7 +287,7 @@ class Player(Entity):
                     if self.joystick.get_button(self.dash_button):
                         dash_key = True
             except pygame.error:
-                pass  # Ignorer les erreurs de manette
+                pass
 
         if move_left:
             # Check if X is > 0 to prevent player from going off screen
@@ -405,6 +415,11 @@ class Player(Entity):
             if fall_distance > 500:
                 self.death()
 
+        if self.vel.x > 0:
+            self.facing_right = True
+        elif self.vel.x < 0:
+            self.facing_right = False
+
     def take_damage(self, amount=1):
         """Reduce life number if not invulnerable"""
         if not self.invulnerable:
@@ -413,7 +428,7 @@ class Player(Entity):
             if self.lives <= 0:
                 self.death()
             else:
-                # Période d'invulnérabilité temporaire
+                # Temporarily make the player invulnerable
                 self.invulnerable = True
                 self.invulnerable_timer = 0
 
@@ -432,7 +447,7 @@ class Player(Entity):
 
         for i in range(self.max_lives):
             if i < self.lives:
-                # Vie active: afficher l'icône normale
+                # Active life: display the icon
                 surface.blit(
                     self.life_icon,
                     (
@@ -441,9 +456,9 @@ class Player(Entity):
                     ),
                 )
             else:
-                # Vie perdue: afficher l'icône grisée
+                # Life lost: display a grayscale version of the icon
                 grayscale_icon = self.life_icon.copy()
-                # Appliquer un filtre gris
+                # Apply grayscale effect
                 for x in range(grayscale_icon.get_width()):
                     for y in range(grayscale_icon.get_height()):
                         color = grayscale_icon.get_at((x, y))
