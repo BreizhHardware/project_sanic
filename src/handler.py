@@ -393,10 +393,16 @@ def draw_background(displaysurface, background, camera, WIDTH, HEIGHT):
     if background.get_width() != bg_width or background.get_height() != bg_height:
         background = pygame.transform.scale(background, (bg_width, bg_height))
 
-    # Parallax effect (smaller factor makes background move slower)
+    # Parallax effect
     parallax_factor = 0.3
-    bg_x = -(camera.camera.x * parallax_factor) % bg_width
-    bg_y = -(camera.camera.y * parallax_factor) % bg_height
+
+    bg_x = (camera.camera.x * parallax_factor) % bg_width
+    bg_y = (camera.camera.y * parallax_factor) % bg_height
+
+    if bg_x > 0:
+        bg_x -= bg_width
+    if bg_y > 0:
+        bg_y -= bg_height
 
     # Draw background in all directions to create seamless effect
     displaysurface.blit(background, (bg_x, bg_y))
