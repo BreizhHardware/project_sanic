@@ -11,6 +11,7 @@ class Entity(pygame.sprite.Sprite):
         self.pos = vec(pos)
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
+        self.alive = True
 
         # Default surface
         self.surf = pygame.Surface(size)

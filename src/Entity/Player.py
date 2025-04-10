@@ -21,6 +21,8 @@ class Player(Entity):
 
         self.jump_button = 0
         self.dash_button = 1
+        self.attack_button = 2
+        self.menu_button = 3
 
         try:
             if pygame.joystick.get_count() > 0:
@@ -540,152 +542,170 @@ class Player(Entity):
         self.is_attacking = False
         current_time = pygame.time.get_ticks()
         pressed_keys = pygame.key.get_pressed()
-        if pressed_keys[K_q] and pressed_keys[K_c]:
-            if current_time - self.last_attack_time >= self.attack_cooldown:
-                self.is_attacking = True
-                self.attack_start_time = current_time
-                self.last_attack_time = current_time
-                # Calculate direction to player
-                direction = vec(self.pos.x, self.pos.y)
-                projectile = Projectile(
-                    pos=vec(self.pos.x, self.pos.y),
-                    direction=direction,
-                    speed=2,
-                    damage=1,
-                    color=(165, 42, 42),
-                    enemy_proj=False,
-                )
-                # Add projectile to the sprite group (to be placed in main.py)
-                pygame.event.post(
-                    pygame.event.Event(
-                        pygame.USEREVENT,
-                        {"action": "create_projectile", "projectile": projectile},
-                    )
-                )
 
-        if pressed_keys[K_d] and pressed_keys[K_c]:
-            if current_time - self.last_attack_time >= self.attack_cooldown:
-                self.is_attacking = True
-                self.attack_start_time = current_time
-                self.last_attack_time = current_time
-                # Calculate direction to player
-                direction = vec(self.pos.x, self.pos.y)
-                projectile = Projectile(
-                    pos=vec(self.pos.x, self.pos.y),
-                    direction=direction,
-                    speed=2,
-                    damage=1,
-                    color=(165, 42, 42),
-                    enemy_proj=False,
-                )
-                # Add projectile to the sprite group (to be placed in main.py)
-                pygame.event.post(
-                    pygame.event.Event(
-                        pygame.USEREVENT,
-                        {"action": "create_projectile", "projectile": projectile},
-                    )
-                )
+        joystick_attack = False
+        if self.has_joystick and self.joystick:
+            try:
+                if self.joystick.get_numbuttons() > self.attack_button:
+                    joystick_attack = self.joystick.get_button(self.attack_button)
+            except pygame.error:
+                pass
 
-        if pressed_keys[K_q] and pressed_keys[K_v]:
-            if current_time - self.last_attack_time >= self.attack_cooldown:
-                attack_sound = pygame.mixer.Sound("assets/sound/Boule de feu.mp3")
-                attack_sound.set_volume(0.4)
-                attack_sound.play()
-                self.is_attacking = True
-                self.attack_start_time = current_time
-                self.last_attack_time = current_time
-                # Calculate direction to player
-                direction = vec(-self.pos.x, 0)
-                projectile = Projectile(
-                    pos=vec(self.pos.x - 50, self.pos.y - 50),
-                    direction=direction,
-                    speed=2,
-                    damage=1,
-                    color=(165, 42, 42),
-                    enemy_proj=False,
-                    texturePath="assets/player/Boule de feu.png",
-                    size=(50, 50),
-                )
-                # Add projectile to the sprite group (to be placed in main.py)
-                pygame.event.post(
-                    pygame.event.Event(
-                        pygame.USEREVENT,
-                        {"action": "create_projectile", "projectile": projectile},
-                    )
-                )
-                if self.projectiles > 0:
-                    self.is_attacking = True
-                    self.attack_start_time = current_time
-                    self.last_attack_time = current_time
-                    # Calculate direction to player
-                    direction = vec(-self.pos.x, 0)
-                    projectile = Projectile(
-                        pos=vec(self.pos.x - 50, self.pos.y - 50),
-                        direction=direction,
-                        speed=2,
-                        damage=1,
-                        color=(165, 42, 42),
-                        enemy_proj=False,
-                        texturePath="assets/player/Boule de feu.png",
-                    )
-                    # Add projectile to the sprite group (to be placed in main.py)
-                    pygame.event.post(
-                        pygame.event.Event(
-                            pygame.USEREVENT,
-                            {"action": "create_projectile", "projectile": projectile},
-                        )
-                    )
-                    self.projectiles -= 1
+        if (
+            joystick_attack
+            and current_time - self.last_attack_time >= self.attack_cooldown
+            and self.projectiles > 0
+        ):
+            attack_sound = pygame.mixer.Sound("assets/sound/Boule de feu.mp3")
+            attack_sound.set_volume(0.4)
+            attack_sound.play()
+            self.is_attacking = True
+            self.attack_start_time = current_time
+            self.last_attack_time = current_time
 
-        if pressed_keys[K_d] and pressed_keys[K_v]:
-            if current_time - self.last_attack_time >= self.attack_cooldown:
-                attack_sound = pygame.mixer.Sound("assets/sound/Boule de feu.mp3")
-                attack_sound.set_volume(0.4)
-                attack_sound.play()
-                self.is_attacking = True
-                self.attack_start_time = current_time
-                self.last_attack_time = current_time
-                # Calculate direction to player
+            # Direction en fonction de où le personnage est tourné
+            if self.facing_right:
                 direction = vec(self.pos.x, 0)
-                projectile = Projectile(
-                    pos=vec(self.pos.x + 50, self.pos.y - 50),
-                    direction=direction,
-                    speed=2,
-                    damage=1,
-                    color=(165, 42, 42),
-                    enemy_proj=False,
-                    texturePath="assets/player/Boule de feu.png",
-                    size=(50, 50),
+                position = vec(self.pos.x + 50, self.pos.y - 50)
+            else:
+                direction = vec(-self.pos.x, 0)
+                position = vec(self.pos.x - 50, self.pos.y - 50)
+
+            projectile = Projectile(
+                pos=position,
+                direction=direction,
+                speed=2,
+                damage=1,
+                color=(165, 42, 42),
+                enemy_proj=False,
+                texturePath="assets/player/Boule de feu.png",
+                size=(50, 50),
+            )
+
+            # Ajouter le projectile au groupe de sprites
+            pygame.event.post(
+                pygame.event.Event(
+                    pygame.USEREVENT,
+                    {"action": "create_projectile", "projectile": projectile},
                 )
-                # Add projectile to the sprite group (to be placed in main.py)
-                pygame.event.post(
-                    pygame.event.Event(
-                        pygame.USEREVENT,
-                        {"action": "create_projectile", "projectile": projectile},
-                    )
+            )
+
+            self.projectiles -= 1
+
+        if (
+            pressed_keys[K_q]
+            and pressed_keys[K_c]
+            and current_time - self.last_attack_time >= self.attack_cooldown
+        ):
+            self.is_attacking = True
+            self.attack_start_time = current_time
+            self.last_attack_time = current_time
+            # Calculate direction to player
+            direction = vec(self.pos.x, self.pos.y)
+            projectile = Projectile(
+                pos=vec(self.pos.x, self.pos.y),
+                direction=direction,
+                speed=2,
+                damage=1,
+                color=(165, 42, 42),
+                enemy_proj=False,
+            )
+            # Add projectile to the sprite group (to be placed in main.py)
+            pygame.event.post(
+                pygame.event.Event(
+                    pygame.USEREVENT,
+                    {"action": "create_projectile", "projectile": projectile},
                 )
-                if self.projectiles > 0:
-                    self.is_attacking = True
-                    self.attack_start_time = current_time
-                    self.last_attack_time = current_time
-                    # Calculate direction to player
-                    direction = vec(self.pos.x, 0)
-                    projectile = Projectile(
-                        pos=vec(self.pos.x + 50, self.pos.y - 50),
-                        direction=direction,
-                        speed=2,
-                        damage=1,
-                        color=(165, 42, 42),
-                        enemy_proj=False,
-                        texturePath="assets/player/Boule de feu.png",
-                    )
-                    pygame.event.post(
-                        pygame.event.Event(
-                            pygame.USEREVENT,
-                            {"action": "create_projectile", "projectile": projectile},
-                        )
-                    )
-                    self.projectiles -= 1
+            )
+
+        if (
+            pressed_keys[K_d]
+            and pressed_keys[K_c]
+            and current_time - self.last_attack_time >= self.attack_cooldown
+        ):
+            self.is_attacking = True
+            self.attack_start_time = current_time
+            self.last_attack_time = current_time
+            # Calculate direction to player
+            direction = vec(self.pos.x, self.pos.y)
+            projectile = Projectile(
+                pos=vec(self.pos.x, self.pos.y),
+                direction=direction,
+                speed=2,
+                damage=1,
+                color=(165, 42, 42),
+                enemy_proj=False,
+            )
+            # Add projectile to the sprite group (to be placed in main.py)
+            pygame.event.post(
+                pygame.event.Event(
+                    pygame.USEREVENT,
+                    {"action": "create_projectile", "projectile": projectile},
+                )
+            )
+
+        if (
+            pressed_keys[K_q]
+            and pressed_keys[K_v]
+            and current_time - self.last_attack_time >= self.attack_cooldown
+            and self.projectiles > 0
+        ):
+            attack_sound = pygame.mixer.Sound("assets/sound/Boule de feu.mp3")
+            attack_sound.set_volume(0.4)
+            attack_sound.play()
+            self.is_attacking = True
+            self.attack_start_time = current_time
+            self.last_attack_time = current_time
+            # Calculate direction to player
+            direction = vec(-self.pos.x, 0)
+            projectile = Projectile(
+                pos=vec(self.pos.x - 50, self.pos.y - 50),
+                direction=direction,
+                speed=2,
+                damage=1,
+                color=(165, 42, 42),
+                enemy_proj=False,
+                texturePath="assets/player/Boule de feu.png",
+            )
+            # Add projectile to the sprite group (to be placed in main.py)
+            pygame.event.post(
+                pygame.event.Event(
+                    pygame.USEREVENT,
+                    {"action": "create_projectile", "projectile": projectile},
+                )
+            )
+            self.projectiles -= 1
+
+        if (
+            pressed_keys[K_d]
+            and pressed_keys[K_v]
+            and current_time - self.last_attack_time >= self.attack_cooldown
+            and self.projectiles > 0
+        ):
+            attack_sound = pygame.mixer.Sound("assets/sound/Boule de feu.mp3")
+            attack_sound.set_volume(0.4)
+            attack_sound.play()
+            self.is_attacking = True
+            self.attack_start_time = current_time
+            self.last_attack_time = current_time
+            # Calculate direction to player
+            direction = vec(self.pos.x, 0)
+            projectile = Projectile(
+                pos=vec(self.pos.x + 50, self.pos.y - 50),
+                direction=direction,
+                speed=2,
+                damage=1,
+                color=(165, 42, 42),
+                enemy_proj=False,
+                texturePath="assets/player/Boule de feu.png",
+            )
+            pygame.event.post(
+                pygame.event.Event(
+                    pygame.USEREVENT,
+                    {"action": "create_projectile", "projectile": projectile},
+                )
+            )
+            self.projectiles -= 1
 
     def add_projectiles(self):
         """Set player projectiles to 3 and show floating text"""

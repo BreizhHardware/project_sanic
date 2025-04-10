@@ -177,7 +177,7 @@
       "attack_interval": 2.0,
       "attack_range": 300,
       "sprite_sheet": "assets/map/enemy/turret.gif",
-      "size": [50,100]
+      "size": [80,80]
     },
     {
       "id": "enemy3_01",
@@ -206,7 +206,7 @@
       "attack_interval": 2.0,
       "attack_range": 300,
       "sprite_sheet": "assets/map/enemy/turret.gif",
-      "size": [50,100]
+      "size": [80,80]
     }
   ],
 
