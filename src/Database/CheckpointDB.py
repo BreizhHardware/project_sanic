@@ -81,3 +81,18 @@ class CheckpointDB:
             self.conn.commit()
         except Exception as e:
             print(f"Error clearing checkpoint database: {e}")
+
+    def reset_level(self, map_name):
+        """
+        Reset the checkpoint for a specific map
+
+        Args:
+            map_name: Map name to reset
+        """
+        try:
+            self.cursor.execute(
+                "DELETE FROM checkpoints WHERE map_name = ?", (map_name,)
+            )
+            self.conn.commit()
+        except Exception as e:
+            print(f"Error resetting checkpoint for {map_name}: {e}")

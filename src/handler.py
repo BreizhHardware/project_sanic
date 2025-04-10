@@ -74,6 +74,13 @@ def initialize_game_resources():
         game_resources.WIDTH, game_resources.HEIGHT, game_resources.font, leaderboard_db
     )
 
+    try:
+        pygame.mixer.music.load("assets/sound/main_music.mp3")
+        pygame.mixer.music.set_volume(0.2)
+        pygame.mixer.music.play(-1)
+    except Exception as e:
+        print(f"Error loading main music: {e}")
+
     return (
         game_resources,
         displaysurface,
@@ -458,9 +465,7 @@ def draw_playing_state(
             checkpoint.activate()
 
     # Handle exit collisions
-    result = handle_exits(
-        P1, exits, game_resources, level_file, speedrun_timer, collectibles
-    )
+    result = handle_exits(P1, exits, game_resources, level_file, speedrun_timer)
 
     # Handle collectibles
     collectibles_hit = pygame.sprite.spritecollide(P1, collectibles, False)
@@ -487,9 +492,7 @@ def draw_playing_state(
     return result
 
 
-def handle_exits(
-    P1, exits, game_resources, level_file, speedrun_timer=None, collectibles=[]
-):
+def handle_exits(P1, exits, game_resources, level_file, speedrun_timer=None):
     """Handle collisions with level exits"""
     exits_hit = pygame.sprite.spritecollide(P1, exits, False) if exits else []
     for exit in exits_hit:
