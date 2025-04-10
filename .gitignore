@@ -16,3 +16,4 @@ temp_audio.mp3
 output.prof
 
 **/*.pyc
+__pycache__/

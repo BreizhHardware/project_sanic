@@ -36,7 +36,6 @@ class MapParser:
             "assets/map/exit/Zeldo.png"
         ).convert_alpha()
         self.cinematic = Cinematic()
-        self.cinematic_played = False
 
     def load_map(self, map_file):
         """Load and parse a map from JSON file"""
@@ -45,9 +44,8 @@ class MapParser:
                 map_data = json.load(file)
 
             # If it's level 1, play the cinematic
-            if map_data.get("name") == "Level 1" and not self.cinematic_played:
+            if map_data.get("name"):
                 self.cinematic.play_cinematic(self.game_resources, map_data.get("name"))
-                self.cinematic_played = True
 
             # Create all game objects from map data
             self.create_map_objects(map_data, map_file)
