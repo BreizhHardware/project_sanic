@@ -190,7 +190,7 @@ class Enemy(Entity):
                 pygame.event.post(
                     pygame.event.Event(pygame.USEREVENT, {"action": "add_projectiles"})
                 )
-            player.add_projectiles()
+                player.add_projectiles()
             return True
         return False
 
