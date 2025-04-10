@@ -486,6 +486,9 @@ def draw_playing_state(
             collectible.on_collision()
             P1.collect_coin(displaysurface, speedrun_timer)
 
+    for text in P1.floating_texts:
+        text.draw(displaysurface)
+
     # Draw UI elements
     draw_ui_elements(displaysurface, P1, FramePerSec, font, speedrun_timer)
 
@@ -611,7 +614,7 @@ def handle_death_screen(
                 game_resources.infinite_mode_db.clear_InfiniteModeDB()
                 game_resources.infinite_mode_db.close()
                 # Calculate total points, add them to leaderboard table
-                if(leaderboard_db):
+                if leaderboard_db:
                     total = 0
                     for i in range(len(all_scores)):
                         total += all_scores[i][1]
@@ -898,7 +901,7 @@ def handler():
                     game_resources,
                     game_resources.WIDTH,
                     game_resources.HEIGHT,
-                    leaderboard_db
+                    leaderboard_db,
                 )
 
                 death_timer = death_result["death_timer"]

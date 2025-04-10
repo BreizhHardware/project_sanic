@@ -1,5 +1,4 @@
 import pygame
-import os
 from PIL import Image, ImageSequence
 import random
 from src.Entity.Entity import Entity
@@ -191,7 +190,7 @@ class Enemy(Entity):
                 pygame.event.post(
                     pygame.event.Event(pygame.USEREVENT, {"action": "add_projectiles"})
                 )
-                player.add_projectiles()
+            player.add_projectiles()
             return True
         return False
 
