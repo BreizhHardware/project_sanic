@@ -1,5 +1,4 @@
 import pygame
-import os
 from PIL import Image, ImageSequence
 import random
 from src.Entity.Entity import Entity

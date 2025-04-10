@@ -4,6 +4,8 @@ import pygame
 import os
 from PIL import Image, ImageSequence
 from pygame.math import Vector2 as vec
+
+from src.Entity.FloatingText import FloatingText
 from src.Entity.Projectile import Projectile
 
 
@@ -63,6 +65,7 @@ class Player(Entity):
         self.life_icon = None
 
         self.rect = self.surf.get_rect()
+        self.floating_texts = []
 
         # Load images
         self.load_images()
@@ -435,6 +438,8 @@ class Player(Entity):
         elif self.vel.x < 0:
             self.facing_right = False
 
+        self.floating_texts = [text for text in self.floating_texts if text.update()]
+
     def take_damage(self, amount=1):
         """Reduce life number if not invulnerable"""
         if not self.invulnerable:
@@ -683,8 +688,11 @@ class Player(Entity):
                     self.projectiles -= 1
 
     def add_projectiles(self):
-        """Set player projectiles to 3"""
+        """Set player projectiles to 3 and show floating text"""
         self.projectiles = 3
+        self.floating_texts.append(
+            FloatingText("+3 fireball", self, self.game_resources)
+        )
 
     def draw_projectiles_amount(self, surface):
         """Draws the projectiles counter with icon in the top left corner"""
