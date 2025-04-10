@@ -16,7 +16,7 @@ class SpeedBoost(Entity):
 
         # Speed boost properties
         self.boost_factor = 2
-        self.boost_duration = 3
+        self.boost_duration = 10
 
         # Create initial surface
         self.surf = pygame.Surface(size, pygame.SRCALPHA)

@@ -124,9 +124,7 @@ class MapParser:
                 self.platforms.add(platform)
                 self.all_sprites.add(platform)
 
-        # Create collectibles (requires Collectible class implementation)
-        # In MapParser.create_map_objects()
-        # In MapParser.create_map_objects()
+        # Create collectibles
         if "collectibles" in map_data:
             for collectible_data in map_data["collectibles"]:
                 if collectible_data["type"] == "coin":
@@ -158,11 +156,12 @@ class MapParser:
 
         # Create background image
         if "background" in map_data:
+            map_width = map_data.get("width", self.game_resources.WIDTH)
+            map_height = map_data.get("height", self.game_resources.HEIGHT)
+
             if os.path.isfile(map_data["background"]):
                 background = pygame.image.load(map_data["background"]).convert_alpha()
-                background = pygame.transform.scale(
-                    background, (self.game_resources.WIDTH, self.game_resources.HEIGHT)
-                )
+                background = pygame.transform.scale(background, (map_width, map_height))
                 self.background = background
             else:
                 print(f"Background image not found: {map_data['background']}")

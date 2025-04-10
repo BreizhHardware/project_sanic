@@ -211,27 +211,42 @@ class Player(Entity):
     def update_animation(self):
         current_time = pygame.time.get_ticks()
 
+        current_image = None
+
         # Priority: Dashing > Jumping > Moving > Static
-        if self.dashing and self.dash_frames:
+        if self.dashing and self.dash_frames and len(self.dash_frames) > 0:
             if current_time - self.last_update > self.animation_speed * 1000:
                 self.current_frame = (self.current_frame + 1) % len(self.dash_frames)
                 self.last_update = current_time
-            current_image = self.dash_frames[self.current_frame]
-        elif self.jumping and self.jump_frames:
-            current_image = self.jump_frames[0]
-        elif self.moving and self.animation_frames:
+
+            if 0 <= self.current_frame < len(self.dash_frames):
+                current_image = self.dash_frames[self.current_frame]
+
+        elif self.jumping and self.jump_frames and len(self.jump_frames) > 0:
+            if 0 < len(self.jump_frames):
+                current_image = self.jump_frames[0]
+
+        elif self.moving and self.animation_frames and len(self.animation_frames) > 0:
             if current_time - self.last_update > self.animation_speed * 1000:
                 self.current_frame = (self.current_frame + 1) % len(
                     self.animation_frames
                 )
                 self.last_update = current_time
-            current_image = self.animation_frames[self.current_frame]
+
+            if 0 <= self.current_frame < len(self.animation_frames):
+                current_image = self.animation_frames[self.current_frame]
+
         elif self.static_image:
             current_image = self.static_image
-        else:
-            return
 
-        # Flip the image if the player is facing left
+        # If no animation is found, use the static imagef available
+        if not current_image:
+            if self.static_image:
+                current_image = self.static_image
+            else:
+                return
+
+        # Appliquer le retournement selon la direction
         if not self.facing_right:
             self.surf = pygame.transform.flip(current_image, True, False)
         else:

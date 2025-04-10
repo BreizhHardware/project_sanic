@@ -224,9 +224,9 @@
     {
       "id": "checkpoint1",
       "x": 2200,
-      "y": 700,
+      "y": 600,
       "width": 50,
-      "height": 50,
+      "height": 125,
       "sprite": "assets/map/checkpoints/checkpoint.png"
     }
   ],

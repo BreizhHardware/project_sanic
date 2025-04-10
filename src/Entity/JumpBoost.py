@@ -15,8 +15,8 @@ class JumpBoost(Entity):
         self.collected = False
 
         # Jump boost properties
-        self.boost_factor = 1.5  # 50% increase in jump power
-        self.boost_duration = 3  # Duration in seconds
+        self.boost_factor = 1.5
+        self.boost_duration = 10
 
         # Create initial surface
         self.surf = pygame.Surface(size, pygame.SRCALPHA)
