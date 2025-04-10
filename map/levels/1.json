@@ -8,22 +8,14 @@
     {
       "id": "main_ground",
       "x": -1000,
-      "y": 780,
+      "y": 800,
       "width": 1800,
       "height": 200,
       "texture": "assets/map/platform/grass_texture.png"
     },
     {
-      "id": "main_ground_2",
-      "x": 1000,
-      "y": 900,
-      "width": 1800,
-      "height": 200,
-      "texture": "assets/map/platform/stone_texture.png"
-    },
-    {
-      "id": "platform1",
-      "x": 300,
+      "id": "platform1_01",
+      "x": 200,
       "y": 600,
       "width": 200,
       "height": 20,
@@ -31,80 +23,140 @@
       "is_moving": false
     },
     {
-      "id": "platform2",
-      "x": 700,
+      "id": "platform1_02",
+      "x": 500,
       "y": 500,
-      "width": 150,
+      "width": 200,
+      "height": 20,
+      "texture": "assets/map/platform/grass_texture.png",
+      "is_moving": false
+    },
+    {
+      "id": "platform1_03",
+      "x": 900,
+      "y": 650,
+      "width": 100,
       "height": 20,
       "texture": "assets/map/platform/wood_texture.png",
       "is_moving": true,
       "movement": {
         "type": "linear",
         "points": [
-          {"x": 700, "y": 300},
-          {"x": 700, "y": 600}
+          {"x": 800, "y": 650},
+          {"x": 1600, "y": 650}
         ],
-        "speed": 2.0,
+        "speed": 3.0,
         "wait_time": 1.0
       }
     },
     {
-      "id": "platform21",
-      "x": 1200,
-      "y": 750,
-      "width": 150,
+      "id": "main_ground_2",
+      "x": 1700,
+      "y": 800,
+      "width": 700,
+      "height": 200,
+      "texture": "assets/map/platform/stone_texture.png"
+    },
+    {
+      "id": "platform2_01",
+      "x": 2500,
+      "y": 700,
+      "width": 200,
       "height": 20,
-      "texture": "assets/map/platform/grass_texture.png",
+      "texture": "assets/map/platform/wood_texture.png",
       "is_moving": true,
       "movement": {
         "type": "linear",
         "points": [
-          {"x": 1200, "y": 550},
-          {"x": 1500, "y": 550}
+          {"x": 2500, "y": 700},
+          {"x": 2500, "y": 1200}
         ],
         "speed": 2.0,
         "wait_time": 1.0
       }
     },
     {
-      "id": "platform3",
-      "x": 1200,
-      "y": 400,
+      "id": "platform2_02",
+      "x": 3300,
+      "y": 1200,
+      "width": 200,
+      "height": 20,
+      "texture": "assets/map/platform/wood_texture.png",
+      "is_moving": true,
+      "movement": {
+        "type": "linear",
+        "points": [
+          {"x": 2800, "y": 1200},
+          {"x": 3300, "y": 1200}
+        ],
+        "speed": 2.0,
+        "wait_time": 1.0
+      }
+    },
+    {
+      "id": "main_ground_3",
+      "x": 3600,
+      "y": 1400,
+      "width": 700,
+      "height": 200,
+      "texture": "assets/map/platform/stone_texture.png"
+    },
+    {
+      "id": "platform3_01",
+      "x": 4600,
+      "y": 1100,
       "width": 100,
       "height": 20,
       "texture": "assets/map/platform/wood_texture.png",
       "is_moving": true,
       "movement": {
         "type": "circular",
-        "center": {"x": 1200, "y": 400},
+        "center": {"x": 4600, "y": 1100},
         "radius": 3,
         "speed": 0.02,
         "clockwise": true
       }
+    },
+    {
+      "id": "platform3_02",
+      "x": 3900,
+      "y": 1200,
+      "width": 200,
+      "height": 20,
+      "texture": "assets/map/platform/wood_texture.png",
+      "is_moving": false
+    },
+    {
+      "id": "main_ground_4",
+      "x": 4900,
+      "y": 1300,
+      "width": 600,
+      "height": 200,
+      "texture": "assets/map/platform/stone_texture.png"
     }
   ],
 
   "enemies": [
     {
-      "id": "enemy1",
+      "id": "enemy1_01",
       "type": "walker",
       "x": 500,
-      "y": 660,
+      "y": 700,
       "health": 1,
       "damage": 1,
       "behavior": "patrol",
       "patrol_points": [
-        {"x": 400, "y": 660},
-        {"x": 600, "y": 660}
+        {"x": 400, "y": 700},
+        {"x": 600, "y": 700}
       ],
       "speed": 1.5,
       "sprite_sheet": "assets/map/enemy/walker_enemy.png",
       "size": [50,50]
     },
     {
-      "id": "enemy2",
+      "id": "enemy1_02",
       "type": "flyer",
-      "x": 1000,
+      "x": 700,
       "y": 400,
       "health": 1,
       "damage": 1,
@@ -115,10 +167,39 @@
       "size": [50,50]
     },
     {
-      "id": "enemy3",
+      "id": "enemy2_01",
       "type": "turret",
-      "x": 1500,
+      "x": 2000,
       "y": 700,
+      "health": 1,
+      "damage": 1,
+      "behavior": "stationary",
+      "attack_interval": 2.0,
+      "attack_range": 300,
+      "sprite_sheet": "assets/map/enemy/turret.gif",
+      "size": [50,100]
+    },
+    {
+      "id": "enemy3_01",
+      "type": "walker",
+      "x": 3600,
+      "y": 1300,
+      "health": 1,
+      "damage": 1,
+      "behavior": "patrol",
+      "patrol_points": [
+        {"x": 3600, "y": 1300},
+        {"x": 3900, "y": 1300}
+      ],
+      "speed": 1.5,
+      "sprite_sheet": "assets/map/enemy/walker_enemy.png",
+      "size": [50,50]
+    },
+    {
+      "id": "enemy3_02",
+      "type": "turret",
+      "x": 4000,
+      "y": 1150,
       "health": 1,
       "damage": 1,
       "behavior": "stationary",
@@ -133,15 +214,8 @@
     {
       "id": "coin1",
       "type": "coin",
-      "x": 1220,
-      "y": 320,
-      "sprite": "assets/map/collectibles/Sanic_Coin.png"
-    },
-    {
-      "id": "coin2",
-      "type": "coin",
-      "x": 400,
-      "y": 540,
+      "x": 600,
+      "y": 300,
       "sprite": "assets/map/collectibles/Sanic_Coin.png"
     }
   ],
@@ -149,8 +223,8 @@
   "checkpoints": [
     {
       "id": "checkpoint1",
-      "x": 1200,
-      "y": 760,
+      "x": 2200,
+      "y": 700,
       "width": 50,
       "height": 50,
       "sprite": "assets/map/checkpoints/checkpoint.png"
@@ -164,8 +238,8 @@
 
   "exits": [
     {
-      "x": 2300,
-      "y": 700,
+      "x": 5100,
+      "y": 1200,
       "width": 50,
       "height": 80,
       "next_level": "Level 2",
