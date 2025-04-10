@@ -14,3 +14,5 @@ map/infinite/*
 
 temp_audio.mp3
 output.prof
+
+**/*.pyc
