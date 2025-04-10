@@ -46,7 +46,7 @@ class MapParser:
 
             # If it's level 1, play the cinematic
             if map_data.get("name") == "Level 1" and not self.cinematic_played:
-                self.cinematic.play_cinematic(self.game_resources)
+                self.cinematic.play_cinematic(self.game_resources, map_data.get("name"))
                 self.cinematic_played = True
 
             # Create all game objects from map data
