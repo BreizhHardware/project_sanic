@@ -154,6 +154,8 @@ class Enemy(Entity):
 
             if self.attack_timer >= self.attack_interval:
                 self.attack_timer = 0
+                # Easter egg sound
+                pygame.mixer.Sound("assets/sound/execuse_me.mp3").play()
                 self.attack(player)
 
     def attack(self, player):
