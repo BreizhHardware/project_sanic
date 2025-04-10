@@ -439,7 +439,6 @@ class Player(Entity):
             self.facing_right = False
 
         self.floating_texts = [text for text in self.floating_texts if text.update()]
-        self.draw_floating_text(self.game_resources.displaysurface)
 
     def take_damage(self, amount=1):
         """Reduce life number if not invulnerable"""
@@ -727,8 +726,3 @@ class Player(Entity):
         text_y = start_y + (projectile_size - projectiles_text.get_height()) // 2
 
         surface.blit(projectiles_text, (text_x, text_y))
-
-    def draw_floating_text(self, surface):
-        """Draw the floating texts above the player"""
-        for text in self.floating_texts:
-            text.draw(surface)
