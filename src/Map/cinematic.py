@@ -119,7 +119,7 @@ class Cinematic:
         elif level_name == "Level 2":
             lore_text = [
                 "When Sanic arrives at Zeldo's position...",
-                "He relizes that it's a trap...",
+                "He realizes that it's a trap...",
                 "Zeldo is actually a fake...",
                 "And the real Zeldo is in another castle...",
             ]
