@@ -70,13 +70,20 @@ class InfiniteMapGenerator:
         # Generate additional platforms
         num_platforms = 10 + difficulty * 2
         last_x = 600
+        last_y = 260
+        max_jump_height = 120
+
         for i in range(num_platforms):
             width = random.randint(
                 max(40, 100 - difficulty * 5), max(120, 300 - difficulty * 10)
             )
             gap = random.randint(80, 200)
             x = last_x + gap
-            y = random.randint(150, 400)
+
+            min_y = max(150, last_y - max_jump_height)
+            max_y = min(400, last_y + 80)
+
+            y = random.randint(min_y, max_y)
 
             is_moving = random.random() < min(0.1 + difficulty * 0.05, 0.5)
 
@@ -111,6 +118,7 @@ class InfiniteMapGenerator:
 
             platforms.append(platform)
             last_x = x + width
+            last_y = y
 
         return platforms
 

@@ -6,6 +6,8 @@ import sys
 from moviepy.decorators import preprocess_args
 from pygame.locals import *
 
+from src.Database.InfiniteModeDB import InfiniteModeDB
+from src.Database.LeaderboardDB import LeaderboardDB
 from src.Database.LevelDB import LevelDB
 from src.Entity.Platform import Platform
 from src.Entity.Player import Player
@@ -25,6 +27,9 @@ def initialize_game(game_resources, map_file="map/levels/1.json"):
     Returns:
         tuple: (player, platform, platforms_group, all_sprites, background, checkpoints, exits)
     """
+    checkpointDB = CheckpointDB()
+    checkpointDB.reset_level(map_file)
+    checkpointDB.close()
     parser = MapParser(game_resources)
     map_objects = parser.load_map(map_file)
 
@@ -134,6 +139,9 @@ def start_infinite_mode(game_resources):
     infinite_manager = InfiniteMapManager(game_resources)
     game_resources.infinite_manager = infinite_manager
     game_resources.infinite_mode = True
+
+    # Open the temporary database
+    game_resources.infinite_mode_db = InfiniteModeDB()
 
     # Generate the first level
     first_level = infinite_manager.start_infinite_mode()

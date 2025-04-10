@@ -8,6 +8,8 @@ from src.Entity.Enemy import Enemy
 from src.Entity.Checkpoint import Checkpoint
 from src.Entity.Exit import Exit
 from src.Entity.Coin import Coin
+from src.Entity.JumpBoost import JumpBoost
+from src.Entity.SpeedBoost import SpeedBoost
 
 
 class MapParser:
@@ -122,9 +124,7 @@ class MapParser:
                 self.platforms.add(platform)
                 self.all_sprites.add(platform)
 
-        # Create collectibles (requires Collectible class implementation)
-        # In MapParser.create_map_objects()
-        # In MapParser.create_map_objects()
+        # Create collectibles
         if "collectibles" in map_data:
             for collectible_data in map_data["collectibles"]:
                 if collectible_data["type"] == "coin":
@@ -137,13 +137,31 @@ class MapParser:
                     )
                     self.collectibles.add(coin)
                     self.all_sprites.add(coin)
+                elif collectible_data["type"] == "jump":
+                    sprite_path = collectible_data.get("sprite", "")
+                    jump = JumpBoost(
+                        pos=(collectible_data["x"], collectible_data["y"]),
+                        texturePath=sprite_path,
+                    )
+                    self.collectibles.add(jump)
+                    self.all_sprites.add(jump)
+                elif collectible_data["type"] == "speed":
+                    sprite_path = collectible_data.get("sprite", "")
+                    speed = SpeedBoost(
+                        pos=(collectible_data["x"], collectible_data["y"]),
+                        texturePath=sprite_path,
+                    )
+                    self.collectibles.add(speed)
+                    self.all_sprites.add(speed)
+
         # Create background image
         if "background" in map_data:
+            map_width = map_data.get("width", self.game_resources.WIDTH)
+            map_height = map_data.get("height", self.game_resources.HEIGHT)
+
             if os.path.isfile(map_data["background"]):
                 background = pygame.image.load(map_data["background"]).convert_alpha()
-                background = pygame.transform.scale(
-                    background, (self.game_resources.WIDTH, self.game_resources.HEIGHT)
-                )
+                background = pygame.transform.scale(background, (map_width, map_height))
                 self.background = background
             else:
                 print(f"Background image not found: {map_data['background']}")

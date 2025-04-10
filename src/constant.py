@@ -16,6 +16,12 @@ class GameResources:
         self.life_icon_width = 50
         self.fullscreen = False
 
+        try:
+            icon = pygame.image.load("assets/player/Sanic Head.png")
+            pygame.display.set_icon(icon)
+        except Exception as e:
+            print(f"Erreur lors du chargement de l'icône: {e}")
+
         # Ressources
         self.platforms = pygame.sprite.Group()
         self.all_sprites = pygame.sprite.Group()

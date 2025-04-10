@@ -2,6 +2,7 @@ from src.Entity.Entity import Entity
 from pygame import *
 import pygame
 import os
+from PIL import Image, ImageSequence
 from pygame.math import Vector2 as vec
 from src.Entity.Projectile import Projectile
 
@@ -45,10 +46,17 @@ class Player(Entity):
         self.dash_start_time = 0
         self.dash_duration = 500  # 1/2 second activation time
         self.dash_cooldown = 3000  # 3 seconds cooldown
+        self.speed_boost_active = False
+        self.active_speed_boost = None
+
+        # Jump mechanics
+        self.jump_power = 30
+        self.jump_boost_active = False
+        self.active_jump_boost = None
 
         # Life system
-        self.max_lives = 2
-        self.lives = 2
+        self.max_lives = 5
+        self.lives = 3
         self.invulnerable = False
         self.invulnerable_timer = 0
         self.invulnerable_duration = 1.5
@@ -75,107 +83,174 @@ class Player(Entity):
         self.attack_start_time = 0
         self.attack_cooldown = 2000
 
+        self.facing_right = True
+
+        # Initilize mixer
+        pygame.mixer.init()
+
     def load_images(self):
+        """Load images for the player"""
         try:
-            # Load static image
-            if os.path.isfile("assets/player/Sanic Base.png"):
-                self.static_image = pygame.image.load(
-                    "assets/player/Sanic Base.png"
-                ).convert_alpha()
-                self.static_image = pygame.transform.scale(
-                    self.static_image, (100, 100)
-                )
-
-            # Load regular animation sprite sheet
-            if os.path.isfile("assets/player/Sanic Annimate.png"):
-                sprite_sheet = pygame.image.load(
-                    "assets/player/Sanic Annimate.png"
-                ).convert_alpha()
-
-                # Extract the 4 frames
-                frame_height = sprite_sheet.get_height()
-                frame_width = sprite_sheet.get_width() // 4
-
-                for i in range(4):
-                    # Cut out a region of the sprite sheet
-                    frame = sprite_sheet.subsurface(
-                        (i * 2290, 0, frame_width, frame_height)
-                    )
-                    # Resize the frame
-                    frame = pygame.transform.scale(frame, (100, 100))
-                    self.animation_frames.append(frame)
-
-            # Load jump animation sprite sheet
-            if os.path.isfile("assets/player/Sanic Boule.png"):
-                self.jump_frames.append(
-                    pygame.transform.scale(
-                        pygame.image.load(
-                            "assets/player/Sanic Boule.png"
-                        ).convert_alpha(),
-                        (80, 80),
-                    )
-                )
-
-            # Load dash animation sprite sheet
-            if os.path.isfile("assets/player/Sanic Boule Annimate.png"):
-                dash_sheet = pygame.image.load(
-                    "assets/player/Sanic Boule Annimate.png"
-                ).convert_alpha()
-
-                dash_frame_height = dash_sheet.get_height()
-
-                for i in range(4):
-                    frame = dash_sheet.subsurface(
-                        (i * 2000, 0, dash_frame_height, dash_frame_height)
-                    )
-                    frame = pygame.transform.scale(frame, (80, 80))
-                    self.dash_frames.append(frame)
-
-            # Load life icon
-            if os.path.isfile("assets/player/Sanic Head.png"):
-                self.life_icon = pygame.image.load(
-                    "assets/player/Sanic Head.png"
-                ).convert_alpha()
-                self.life_icon = pygame.transform.scale(
-                    self.life_icon,
-                    (
-                        self.game_resources.life_icon_width,
-                        self.game_resources.life_icon_width,
-                    ),
-                )
+            # Load the 7 frames of the GIF
+            if os.path.isfile("assets/player/Sanic.gif"):
+                self.load_gif_frames("assets/player/Sanic.gif")
+                self.animation_speed = 0.05
             else:
-                # Backup: use a red square
-                self.life_icon = pygame.Surface(
-                    (
-                        self.game_resources.life_icon_width,
-                        self.game_resources.life_icon_width,
-                    )
-                )
-                self.life_icon.fill((255, 0, 0))
+                # Fallback to static image if GIF is not found
+                self.load_static_and_sprite_sheets()
+
+            # Load special animations (jump, dash, ...)
+            self.load_special_animations()
 
         except Exception as e:
             print(f"Error loading player images: {e}")
 
+    def load_gif_frames(self, gif_path):
+        """Load frames from a GIF file"""
+        try:
+            gif = Image.open(gif_path)
+
+            self.animation_frames = []
+
+            for frame in ImageSequence.Iterator(gif):
+                # Convert the frame to a format compatible with Pygame
+                frame_rgb = frame.convert("RGBA")
+                raw_str = frame_rgb.tobytes("raw", "RGBA")
+
+                pygame_surface = pygame.image.fromstring(
+                    raw_str, frame_rgb.size, "RGBA"
+                )
+
+                pygame_surface = pygame.transform.scale(pygame_surface, (125, 125))
+
+                self.animation_frames.append(pygame_surface)
+
+            # Use the first frame as the static image
+            if self.animation_frames:
+                self.static_image = self.animation_frames[0]
+
+        except Exception as e:
+            print(f"Error while loading the GIF: {e}")
+
+    def load_static_and_sprite_sheets(self):
+        """Previous method to load static image and sprite sheets"""
+        # Load static image
+        if os.path.isfile("assets/player/Sanic Base.png"):
+            self.static_image = pygame.image.load(
+                "assets/player/Sanic Base.png"
+            ).convert_alpha()
+            self.static_image = pygame.transform.scale(self.static_image, (100, 100))
+
+        # Load regular animation sprite sheet
+        if os.path.isfile("assets/player/Sanic Annimate.png"):
+            sprite_sheet = pygame.image.load(
+                "assets/player/Sanic Annimate.png"
+            ).convert_alpha()
+
+            # Extract the 4 frames
+            frame_height = sprite_sheet.get_height()
+            frame_width = sprite_sheet.get_width() // 4
+
+            for i in range(4):
+                # Cut out a region of the sprite sheet
+                frame = sprite_sheet.subsurface(
+                    (i * 2290, 0, frame_width, frame_height)
+                )
+                # Resize the frame
+                frame = pygame.transform.scale(frame, (100, 100))
+                self.animation_frames.append(frame)
+
+    def load_special_animations(self):
+        """Load special animations for jump and dash"""
+        # Load jump animation sprite sheet
+        if os.path.isfile("assets/player/Sanic Boule.png"):
+            self.jump_frames.append(
+                pygame.transform.scale(
+                    pygame.image.load("assets/player/Sanic Boule.png").convert_alpha(),
+                    (80, 80),
+                )
+            )
+
+        # Load dash animation sprite sheet
+        if os.path.isfile("assets/player/Sanic Boule Annimate.png"):
+            dash_sheet = pygame.image.load(
+                "assets/player/Sanic Boule Annimate.png"
+            ).convert_alpha()
+
+            dash_frame_height = dash_sheet.get_height()
+
+            for i in range(4):
+                frame = dash_sheet.subsurface(
+                    (i * 2000, 0, dash_frame_height, dash_frame_height)
+                )
+                frame = pygame.transform.scale(frame, (80, 80))
+                self.dash_frames.append(frame)
+
+        # Load life icon
+        if os.path.isfile("assets/player/Sanic Head.png"):
+            self.life_icon = pygame.image.load(
+                "assets/player/Sanic Head.png"
+            ).convert_alpha()
+            self.life_icon = pygame.transform.scale(
+                self.life_icon,
+                (
+                    self.game_resources.life_icon_width,
+                    self.game_resources.life_icon_width,
+                ),
+            )
+        else:
+            # Backup: use a red square
+            self.life_icon = pygame.Surface(
+                (
+                    self.game_resources.life_icon_width,
+                    self.game_resources.life_icon_width,
+                )
+            )
+            self.life_icon.fill((255, 0, 0))
+
     def update_animation(self):
         current_time = pygame.time.get_ticks()
 
+        current_image = None
+
         # Priority: Dashing > Jumping > Moving > Static
-        if self.dashing and self.dash_frames:
+        if self.dashing and self.dash_frames and len(self.dash_frames) > 0:
             if current_time - self.last_update > self.animation_speed * 1000:
                 self.current_frame = (self.current_frame + 1) % len(self.dash_frames)
-                self.surf = self.dash_frames[self.current_frame]
                 self.last_update = current_time
-        elif self.jumping and self.jump_frames:
-            self.surf = self.jump_frames[0]  # Use jump frame
-        elif self.moving and self.animation_frames:
+
+            if 0 <= self.current_frame < len(self.dash_frames):
+                current_image = self.dash_frames[self.current_frame]
+
+        elif self.jumping and self.jump_frames and len(self.jump_frames) > 0:
+            if 0 < len(self.jump_frames):
+                current_image = self.jump_frames[0]
+
+        elif self.moving and self.animation_frames and len(self.animation_frames) > 0:
             if current_time - self.last_update > self.animation_speed * 1000:
                 self.current_frame = (self.current_frame + 1) % len(
                     self.animation_frames
                 )
-                self.surf = self.animation_frames[self.current_frame]
                 self.last_update = current_time
+
+            if 0 <= self.current_frame < len(self.animation_frames):
+                current_image = self.animation_frames[self.current_frame]
+
         elif self.static_image:
-            self.surf = self.static_image
+            current_image = self.static_image
+
+        # If no animation is found, use the static imagef available
+        if not current_image:
+            if self.static_image:
+                current_image = self.static_image
+            else:
+                return
+
+        # Appliquer le retournement selon la direction
+        if not self.facing_right:
+            self.surf = pygame.transform.flip(current_image, True, False)
+        else:
+            self.surf = current_image
 
     def dash(self, acc):
         current_time = pygame.time.get_ticks()
@@ -209,7 +284,7 @@ class Player(Entity):
 
         if self.has_joystick and self.joystick:
             try:
-                # Joystick gauche pour mouvement
+                # Left joystick for movement
                 if self.joystick.get_numaxes() > 0:
                     joystick_x = self.joystick.get_axis(0)
                     if abs(joystick_x) > 0.2:
@@ -218,7 +293,7 @@ class Player(Entity):
                         elif joystick_x > 0:
                             move_right = True
 
-                # Boutons pour sauter/dasher
+                # Button for jumping and dashing
                 if self.joystick.get_numbuttons() > self.jump_button:
                     if self.joystick.get_button(self.jump_button):
                         jump = True
@@ -227,7 +302,7 @@ class Player(Entity):
                     if self.joystick.get_button(self.dash_button):
                         dash_key = True
             except pygame.error:
-                pass  # Ignorer les erreurs de manette
+                pass
 
         if move_left:
             # Check if X is > 0 to prevent player from going off screen
@@ -248,7 +323,12 @@ class Player(Entity):
 
         # Jumping logic
         if jump and not self.jumping:
-            self.vel.y = -30
+            try:
+                jump_sound = pygame.mixer.Sound("assets/sound/Jump.mp3")
+                jump_sound.play()
+            except Exception as e:
+                print(f"Error playing jump sound: {e}")
+            self.vel.y = -self.jump_power
             self.jumping = True
 
         # Apply friction
@@ -350,6 +430,11 @@ class Player(Entity):
             if fall_distance > 500:
                 self.death()
 
+        if self.vel.x > 0:
+            self.facing_right = True
+        elif self.vel.x < 0:
+            self.facing_right = False
+
     def take_damage(self, amount=1):
         """Reduce life number if not invulnerable"""
         if not self.invulnerable:
@@ -358,7 +443,7 @@ class Player(Entity):
             if self.lives <= 0:
                 self.death()
             else:
-                # Période d'invulnérabilité temporaire
+                # Temporarily make the player invulnerable
                 self.invulnerable = True
                 self.invulnerable_timer = 0
 
@@ -377,7 +462,7 @@ class Player(Entity):
 
         for i in range(self.max_lives):
             if i < self.lives:
-                # Vie active: afficher l'icône normale
+                # Active life: display the icon
                 surface.blit(
                     self.life_icon,
                     (
@@ -386,9 +471,9 @@ class Player(Entity):
                     ),
                 )
             else:
-                # Vie perdue: afficher l'icône grisée
+                # Life lost: display a grayscale version of the icon
                 grayscale_icon = self.life_icon.copy()
-                # Appliquer un filtre gris
+                # Apply grayscale effect
                 for x in range(grayscale_icon.get_width()):
                     for y in range(grayscale_icon.get_height()):
                         color = grayscale_icon.get_at((x, y))
@@ -433,9 +518,16 @@ class Player(Entity):
 
         surface.blit(coin_text, (text_x, text_y))
 
-    def collect_coin(self, surface):
+    def collect_coin(self, surface, speedrun_timer=None):
         """Increment coin counter when collecting a coin"""
+        coin_sound = pygame.mixer.Sound("assets/sound/Coin.mp3")
+        coin_sound.play()
         self.coins += 1
+        if self.lives < self.max_lives:
+            self.lives += 1
+            self.draw_lives(surface)
+        if speedrun_timer:
+            speedrun_timer.collected_items += 1
 
     def attack(self):
         """Do an attack action on the player"""
@@ -491,6 +583,9 @@ class Player(Entity):
 
         if pressed_keys[K_q] and pressed_keys[K_v]:
             if current_time - self.last_attack_time >= self.attack_cooldown:
+                attack_sound = pygame.mixer.Sound("assets/sound/Boule de feu.mp3")
+                attack_sound.set_volume(0.4)
+                attack_sound.play()
                 self.is_attacking = True
                 self.attack_start_time = current_time
                 self.last_attack_time = current_time
@@ -539,6 +634,9 @@ class Player(Entity):
 
         if pressed_keys[K_d] and pressed_keys[K_v]:
             if current_time - self.last_attack_time >= self.attack_cooldown:
+                attack_sound = pygame.mixer.Sound("assets/sound/Boule de feu.mp3")
+                attack_sound.set_volume(0.4)
+                attack_sound.play()
                 self.is_attacking = True
                 self.attack_start_time = current_time
                 self.last_attack_time = current_time
