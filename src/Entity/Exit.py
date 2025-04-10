@@ -55,7 +55,6 @@ class Exit(Entity):
         Args:
             boss: The boss entity to check defeat status with
         """
-        print("Setting boss for exit")
         self.boss = boss
         self.locked = True
 
