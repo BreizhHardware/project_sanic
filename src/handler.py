@@ -23,6 +23,7 @@ from src.Database.CheckpointDB import CheckpointDB
 from src.Map.Editor.LevelEditor import LevelEditor
 from src.Menu.LevelEditorSelectionMenu import LevelEditorSelectionMenu
 from src.Map.Speedrun.SpeedrunTimer import SpeedrunTimer
+from src.Menu.InstructionsScreen import InstructionsScreen
 
 
 def initialize_game_resources():
@@ -63,8 +64,9 @@ def initialize_game_resources():
     projectiles = pygame.sprite.Group()
 
     # Game states initialization
-    current_state = 0  # MENU
+    current_state = 5  # INSTRUCTIONS
     current_menu = "main"
+    instructions_screen = InstructionsScreen(game_resources)
     main_menu = Menu(game_resources)
     level_select_menu = None
     editor_select_menu = None
@@ -99,6 +101,7 @@ def initialize_game_resources():
         joysticks,
         editor_select_menu,
         leaderboard_db,
+        instructions_screen,
     )
 
 
@@ -134,6 +137,16 @@ def handle_system_events(
             )
             # Update window dimensions
             ORIGINAL_WIDTH, ORIGINAL_HEIGHT = event.w, event.h
+    elif event.type == pygame.JOYBUTTONDOWN:
+        try:
+            if event.button == 4:  # Triangle sur la plupart des manettes
+                if current_state in [1, 2]:  # PLAYING, INFINITE
+                    current_state = 0  # MENU
+                else:
+                    pygame.quit()
+                    sys.exit()
+        except Exception as e:
+            print(f"Error while handling joystick button: {e}")
 
     return current_state, fullscreen, displaysurface, ORIGINAL_WIDTH, ORIGINAL_HEIGHT
 
@@ -393,10 +406,16 @@ def draw_background(displaysurface, background, camera, WIDTH, HEIGHT):
     if background.get_width() != bg_width or background.get_height() != bg_height:
         background = pygame.transform.scale(background, (bg_width, bg_height))
 
-    # Parallax effect (smaller factor makes background move slower)
+    # Parallax effect
     parallax_factor = 0.3
-    bg_x = -(camera.camera.x * parallax_factor) % bg_width
-    bg_y = -(camera.camera.y * parallax_factor) % bg_height
+
+    bg_x = (camera.camera.x * parallax_factor) % bg_width
+    bg_y = (camera.camera.y * parallax_factor) % bg_height
+
+    if bg_x > 0:
+        bg_x -= bg_width
+    if bg_y > 0:
+        bg_y -= bg_height
 
     # Draw background in all directions to create seamless effect
     displaysurface.blit(background, (bg_x, bg_y))
@@ -486,6 +505,9 @@ def draw_playing_state(
             collectible.on_collision()
             P1.collect_coin(displaysurface, speedrun_timer)
 
+    for text in P1.floating_texts:
+        text.draw(displaysurface)
+
     # Draw UI elements
     draw_ui_elements(displaysurface, P1, FramePerSec, font, speedrun_timer)
 
@@ -496,39 +518,43 @@ def handle_exits(P1, exits, game_resources, level_file, speedrun_timer=None):
     """Handle collisions with level exits"""
     exits_hit = pygame.sprite.spritecollide(P1, exits, False) if exits else []
     for exit in exits_hit:
-        if speedrun_timer and speedrun_timer.is_running:
-            collected_coins = speedrun_timer.collected_items
-            total_coins = speedrun_timer.total_items
+        if not exit.locked:
+            if speedrun_timer and speedrun_timer.is_running:
+                collected_coins = speedrun_timer.collected_items
+                total_coins = speedrun_timer.total_items
 
-            speedrun_timer.stop()
-            speedrun_timer.save_time(collected_coins, total_coins)
-        if hasattr(game_resources, "infinite_mode") and game_resources.infinite_mode:
-            # Infinite mode: load the next level without going back to menu
-            if hasattr(game_resources, "infinite_mode_db"):
-                # Zeldo : add 100 points
-                game_resources.infinite_mode_db.add_score("player", 100)
-                # Add coins points also
-                game_resources.infinite_mode_db.add_score("player", P1.coins * 10)
-            result = handle_exit_collision(exit, game_resources, level_file)
-            return {"action": "continue_infinite", "result": result}
-        else:
-            # Normal mode: unlock the next level and return to menu
-            current_level_match = re.search(r"(\d+)\.json$", level_file)
-            if current_level_match:
-                current_level = int(current_level_match.group(1))
-                next_level = current_level + 1
+                speedrun_timer.stop()
+                speedrun_timer.save_time(collected_coins, total_coins)
+            if (
+                hasattr(game_resources, "infinite_mode")
+                and game_resources.infinite_mode
+            ):
+                # Infinite mode: load the next level without going back to menu
+                if hasattr(game_resources, "infinite_mode_db"):
+                    # Zeldo : add 100 points
+                    game_resources.infinite_mode_db.add_score("player", 100)
+                    # Add coins points also
+                    game_resources.infinite_mode_db.add_score("player", P1.coins * 10)
+                result = handle_exit_collision(exit, game_resources, level_file)
+                return {"action": "continue_infinite", "result": result}
+            else:
+                # Normal mode: unlock the next level and return to menu
+                current_level_match = re.search(r"(\d+)\.json$", level_file)
+                if current_level_match:
+                    current_level = int(current_level_match.group(1))
+                    next_level = current_level + 1
 
-                # Unlock next level
-                db = LevelDB()
-                db.unlock_level(next_level)
-                db.close()
+                    # Unlock next level
+                    db = LevelDB()
+                    db.unlock_level(next_level)
+                    db.close()
 
-                # Return to level select menu
-                return {
-                    "action": "return_to_level_select",
-                    "current_state": 0,  # MENU
-                    "current_menu": "level_select",
-                }
+                    # Return to level select menu
+                    return {
+                        "action": "return_to_level_select",
+                        "current_state": 0,  # MENU
+                        "current_menu": "level_select",
+                    }
     return None
 
 
@@ -611,7 +637,7 @@ def handle_death_screen(
                 game_resources.infinite_mode_db.clear_InfiniteModeDB()
                 game_resources.infinite_mode_db.close()
                 # Calculate total points, add them to leaderboard table
-                if(leaderboard_db):
+                if leaderboard_db:
                     total = 0
                     for i in range(len(all_scores)):
                         total += all_scores[i][1]
@@ -632,7 +658,7 @@ def handle_death_screen(
 def handler():
     """Main function that handles the game flow"""
     # Game state constants
-    MENU, PLAYING, INFINITE, LEADERBOARD, DEATH_SCREEN = 0, 1, 2, 3, 4
+    MENU, PLAYING, INFINITE, LEADERBOARD, DEATH_SCREEN, INSTRUCTIONS = 0, 1, 2, 3, 4, 5
     previous_state = None
 
     # Initialize game resources and states
@@ -654,6 +680,7 @@ def handler():
         joysticks,
         editor_select_menu,
         leaderboard_db,
+        instructions_screen,
     ) = initialize_game_resources()
 
     # Initialize editor variables
@@ -674,6 +701,7 @@ def handler():
                 print(f"Error while getting events: {e}")
                 pygame.joystick.quit()
                 pygame.joystick.init()
+                events = []
                 continue
 
             # Process events
@@ -752,6 +780,13 @@ def handler():
                                 editor_select_menu = LevelEditorSelectionMenu(
                                     game_resources
                                 )
+
+                elif current_state == INSTRUCTIONS:
+                    for event in events:
+                        result = instructions_screen.handle_event(event)
+                        if result == "menu":
+                            current_state = MENU
+                    instructions_screen.draw(displaysurface)
 
                 # Process general game events (player death, projectiles, etc.)
                 if event.type == USEREVENT:
@@ -898,7 +933,7 @@ def handler():
                     game_resources,
                     game_resources.WIDTH,
                     game_resources.HEIGHT,
-                    leaderboard_db
+                    leaderboard_db,
                 )
 
                 death_timer = death_result["death_timer"]
@@ -915,6 +950,13 @@ def handler():
 
                 elif death_result["action"] == "return_to_menu":
                     current_state = death_result["current_state"]
+
+            elif current_state == INSTRUCTIONS:
+                for event in events:
+                    result = instructions_screen.handle_event(event)
+                    if result == "menu":
+                        current_state = MENU
+                instructions_screen.draw(displaysurface)
 
             # Update display
             pygame.display.update()

@@ -10,6 +10,7 @@ from src.Entity.Exit import Exit
 from src.Entity.Coin import Coin
 from src.Entity.JumpBoost import JumpBoost
 from src.Entity.SpeedBoost import SpeedBoost
+from src.Map.cinematic import Cinematic
 
 
 class MapParser:
@@ -34,8 +35,7 @@ class MapParser:
         self.princess_image = pygame.image.load(
             "assets/map/exit/Zeldo.png"
         ).convert_alpha()
-
-        self.cinematic_played = False
+        self.cinematic = Cinematic()
 
     def load_map(self, map_file):
         """Load and parse a map from JSON file"""
@@ -44,9 +44,8 @@ class MapParser:
                 map_data = json.load(file)
 
             # If it's level 1, play the cinematic
-            if map_data.get("name") == "Level 1" and not self.cinematic_played:
-                self.play_cinematic(self.game_resources)
-                self.cinematic_played = True
+            if map_data.get("name"):
+                self.cinematic.play_cinematic(self.game_resources, map_data.get("name"))
 
             # Create all game objects from map data
             self.create_map_objects(map_data, map_file)
@@ -198,61 +197,3 @@ class MapParser:
         self.player.pos.x = spawn["x"]
         self.player.pos.y = spawn["y"]
         self.all_sprites.add(self.player)
-
-    def play_cinematic(self, game_resources):
-        """Play the cinematic for level 1"""
-        screen = game_resources.displaysurface
-        font = pygame.font.Font(None, 36)
-        lore_text = [
-            "Once upon a time in a land far away...",
-            "A brave hero named Sanic...",
-            "And a beautiful princess named Zeldo...",
-            "Has been captured by the evil boss...",
-            "Wheatly !!!",
-            "Sanic must rescue Zeldo...",
-        ]
-
-        self.player_image = pygame.transform.scale(self.player_image, (200, 200))
-        self.princess_image = pygame.transform.scale(self.princess_image, (200, 200))
-
-        # Initialize the mixer
-        pygame.mixer.init()
-        cinematic_voice = pygame.mixer.Sound("assets/sound/cinematic_voice.mp3")
-
-        screen.fill((0, 0, 0))
-        for i, line in enumerate(lore_text):
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    return  # Skip the cinematic if any key is pressed
-
-            # Play the voice audio
-            cinematic_voice.play()
-
-            if "Sanic" in line:
-                screen.blit(self.player_image, (100, 400))
-            if "Zeldo" in line:
-                screen.blit(self.princess_image, (700, 400))
-            if "Wheatly" in line:
-                for _ in range(46):
-                    for event in pygame.event.get():
-                        if event.type == pygame.KEYDOWN:
-                            return  # Skip the cinematic if any key is pressed
-
-                    boss_frame = self.boss_frames[self.boss_frame_index]
-                    boss_frame = boss_frame.convert("RGBA")
-                    boss_frame = pygame.image.fromstring(
-                        boss_frame.tobytes(), boss_frame.size, boss_frame.mode
-                    )
-                    boss_frame = pygame.transform.scale(boss_frame, (200, 200))
-                    screen.blit(boss_frame, (400, 400))
-                    pygame.display.flip()
-                    pygame.time.wait(100)
-                    self.boss_frame_index = (self.boss_frame_index + 1) % len(
-                        self.boss_frames
-                    )
-
-            text_surface = font.render(line, True, (255, 255, 255))
-            screen.blit(text_surface, (50, 50 + i * 40))
-            pygame.display.flip()
-            pygame.time.wait(2000)
-            cinematic_voice.stop()

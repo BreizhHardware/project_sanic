@@ -61,6 +61,14 @@ def initialize_game(game_resources, map_file="map/levels/1.json"):
         for exit_obj in exits:
             exit_obj.set_player(map_objects["player"])
 
+    enemies = map_objects.get("enemies", None)
+    if exits and enemies:
+        for enemy in enemies:
+            if hasattr(enemy, "enemy_type") and enemy.enemy_type == "boss":
+                for exit_obj in exits:
+                    exit_obj.set_boss(enemy)
+                break
+
     background = map_objects.get("background", None)
 
     # If no background is found, use a default black background

@@ -1,5 +1,4 @@
 import pygame
-import os
 from PIL import Image, ImageSequence
 import random
 from src.Entity.Entity import Entity
@@ -31,13 +30,13 @@ class Enemy(Entity):
         sprite_path = enemy_data.get("sprite_sheet", "assets/enemy/default_enemy.png")
 
         # Load sprite sheet or GIF depending on enemy type and file extension
-        if sprite_path.lower().endswith(".gif") and self.enemy_type == "turret":
-            self.load_gif_frames(sprite_path)
+        if sprite_path.lower().endswith(".gif"):
+            self.load_gif_frames(sprite_path, self.size)
             if self.frames:
                 self.surf = self.frames[0]
             else:
                 # Default sprite
-                self.surf = pygame.Surface((40, 40))
+                self.surf = pygame.Surface(self.size)
                 self.surf.fill((255, 0, 0))
         else:
             try:
@@ -45,7 +44,7 @@ class Enemy(Entity):
                 self.surf = pygame.transform.scale(self.surf, self.size)
             except:
                 # Default sprite
-                self.surf = pygame.Surface((40, 40))
+                self.surf = pygame.Surface(self.size)
                 self.surf.fill((255, 0, 0))
 
         # Initial rectangle
@@ -64,7 +63,7 @@ class Enemy(Entity):
         self.is_attacking = False
         self.detected_player = False
 
-    def load_gif_frames(self, gif_path):
+    def load_gif_frames(self, gif_path, size=(80, 80)):
         """Load frames from a GIF file"""
         try:
             gif = Image.open(gif_path)
@@ -74,7 +73,7 @@ class Enemy(Entity):
                 frame_surface = pygame.image.fromstring(
                     frame.convert("RGBA").tobytes(), frame.size, "RGBA"
                 )
-                frame_surface = pygame.transform.scale(frame_surface, (80, 80))
+                frame_surface = pygame.transform.scale(frame_surface, size)
                 self.frames.append(frame_surface)
                 frame_count += 1
 
@@ -93,9 +92,11 @@ class Enemy(Entity):
             self.chase(player)
         elif self.behavior == "stationary" and player:
             self.stationary_attack(player)
+        elif self.behavior == "boss" and player:
+            self.boss(player)
 
         # Animation management for turret enemies
-        if self.enemy_type == "turret" and self.frames:
+        if (self.enemy_type == "turret" or self.enemy_type == "boss") and self.frames:
             self.animation_timer += dt
             if self.animation_timer >= self.animation_speed:
                 self.animation_timer = 0
@@ -153,6 +154,8 @@ class Enemy(Entity):
 
             if self.attack_timer >= self.attack_interval:
                 self.attack_timer = 0
+                # Easter egg sound
+                pygame.mixer.Sound("assets/sound/execuse_me.mp3").play()
                 self.attack(player)
 
     def attack(self, player):
@@ -160,7 +163,7 @@ class Enemy(Entity):
         self.is_attacking = True
 
         # For turret-type enemies, create a projectile
-        if self.enemy_type == "turret":
+        if self.enemy_type == "turret" or self.enemy_type == "boss":
             # Calculate direction to player
             direction = vec(player.pos.x - self.pos.x, player.pos.y - self.pos.y)
 
@@ -210,3 +213,27 @@ class Enemy(Entity):
                 # KB LOL MINECRAFT
                 knockback_direction = 1 if player.pos.x > self.pos.x else -1
                 player.vel.x = knockback_direction * 8
+
+    def boss(self, player, FPS=60):
+        """
+        Boss behavior: combine horizontal chase with turret-like attacks
+        """
+        # Follow the player horizontally (x axis)
+        if abs(player.pos.x - self.pos.x) > 50:
+            direction = 1 if player.pos.x > self.pos.x else -1
+            self.pos.x += direction * self.speed
+            self.direction = direction
+
+        # Attack the player if within range
+        distance_to_player = vec(
+            player.pos.x - self.pos.x, player.pos.y - self.pos.y
+        ).length()
+
+        if distance_to_player <= self.attack_range:
+            self.attack_timer += 1 / FPS
+
+            if self.attack_timer >= self.attack_interval:
+                self.attack_timer = 0
+                self.attack(player)
+
+        self.detected_player = distance_to_player <= self.detection_radius

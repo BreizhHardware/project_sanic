@@ -45,7 +45,7 @@ class CheckpointDB:
         try:
             self.cursor.execute(
                 "INSERT OR REPLACE INTO checkpoints (map_name, pos_x, pos_y, timestamp) VALUES (?, ?, ?, strftime('%s'))",
-                (map_name, pos_x, pos_y),
+                (map_name, pos_x, pos_y + 100),
             )
             self.conn.commit()
         except Exception as e:

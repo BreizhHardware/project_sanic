@@ -20,7 +20,7 @@ class GameResources:
             icon = pygame.image.load("assets/player/Sanic Head.png")
             pygame.display.set_icon(icon)
         except Exception as e:
-            print(f"Erreur lors du chargement de l'icône: {e}")
+            print(f"Error loading icons: {e}")
 
         # Ressources
         self.platforms = pygame.sprite.Group()
@@ -28,7 +28,7 @@ class GameResources:
         self.exits = pygame.sprite.Group()
         self.vec = pygame.math.Vector2
         self.displaysurface = pygame.display.set_mode(
-            (self.WIDTH, self.HEIGHT), pygame.RESIZABLE
+            (self.WIDTH, self.HEIGHT), pygame.RESIZABLE, vsync=1
         )
         pygame.display.set_caption("Project Sanic")
         self.FramePerSec = pygame.time.Clock()
