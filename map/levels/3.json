@@ -458,7 +458,7 @@
       "height": 200,
       "texture": "assets/map/platform/stone_texture.png"
     },
-        {
+    {
       "id": "platform9_01",
       "x": 10300,
       "y": 1100,
@@ -467,7 +467,7 @@
       "texture": "assets/map/platform/wood_texture.png",
       "is_moving": false
     },
-        {
+    {
       "id": "platform9_02",
       "x": 10400,
       "y": 1000,
@@ -476,7 +476,7 @@
       "texture": "assets/map/platform/wood_texture.png",
       "is_moving": false
     },
-        {
+    {
       "id": "platform9_03",
       "x": 10500,
       "y": 1100,
@@ -791,6 +791,19 @@
       "attack_range": 300,
       "sprite_sheet": "assets/map/enemy/turret.gif",
       "size": [75,100]
+    },
+    {
+      "id": "boss",
+      "type": "boss",
+      "x": 10000,
+      "y": 1200,
+      "health": 3,
+      "damage": 1,
+      "behavior": "boss",
+      "attack_interval": 1.0,
+      "attack_range": 1000,
+      "sprite_sheet": "assets/map/enemy/boss.gif",
+      "size": [200,200]
     }
   ],
 
