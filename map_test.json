@@ -135,6 +135,19 @@
       "attack_interval": 2.0,
       "attack_range": 300,
       "sprite_sheet": "assets/map/enemy/turret_enemy.png"
+    },
+    {
+      "id": "boss",
+      "type": "boss",
+      "x": 2000,
+      "y": 0,
+      "health": 3,
+      "damage": 1,
+      "behavior": "boss",
+      "attack_interval": 1.0,
+      "attack_range": 1000,
+      "sprite_sheet": "assets/map/enemy/boss.gif",
+      "size": [200,200]
     }
   ],
 
