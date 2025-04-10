@@ -1,4 +1,5 @@
 import pygame
+import os
 from src.Entity.Entity import Entity
 from moviepy import VideoFileClip
 import moviepy as mp
@@ -75,9 +76,16 @@ class Exit(Entity):
         # Extract audio from the video
         audio = mp.AudioFileClip(video_path)
         audio.write_audiofile("temp_audio.mp3")
-        pygame.mixer.init()
-        pygame.mixer.music.load("temp_audio.mp3")
-        pygame.mixer.music.play()
+
+        # Pause the main music without stopping it
+        main_music_pos = (
+            pygame.mixer.music.get_pos() / 1000 if pygame.mixer.get_init() else 0
+        )
+        pygame.mixer.music.pause()
+
+        # Load and play the audio on a separate channel
+        temp_sound = pygame.mixer.Sound("temp_audio.mp3")
+        sound_channel = temp_sound.play()
 
         for frame in clip.iter_frames(fps=24, dtype="uint8"):
             frame_surface = pygame.surfarray.make_surface(frame.swapaxes(0, 1))
@@ -85,11 +93,22 @@ class Exit(Entity):
             pygame.display.flip()
             clock.tick(24)
 
-        clip.close()
-        pygame.mixer.music.stop()
-        pygame.mixer.quit()
+            # Check if the sound channel is still playing
+            if sound_channel and not sound_channel.get_busy():
+                break
 
-        # Create and post a return to menu event
+        clip.close()
+
+        # Play the main music again from the last position
+        pygame.mixer.music.unpause()
+
+        # Remove the temporary audio file
+        try:
+            os.remove("temp_audio.mp3")
+        except Exception as e:
+            print(f"Error removing temporary audio file: {e}")
+
+        # Return to the menu
         return_event = pygame.event.Event(
             pygame.USEREVENT, {"action": "return_to_menu"}
         )

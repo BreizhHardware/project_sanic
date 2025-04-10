@@ -76,16 +76,16 @@ class SpeedBoost(Entity):
 
         Args:
             player: The player object to apply the boost to
-            game_ressources: Game resources object containing player speed
+            game_resources: Game resources object containing player speed
         """
         if not self.collected:
             self.collected = True
 
             # Store original movement speed
-            original_ACC = game_ressources.ACC
+            original_ACC = game_resources.ACC
 
             # Apply boost effect
-            game_ressources.ACC *= self.boost_factor
+            game_resources.ACC *= self.boost_factor
 
             # Set visual feedback
             player.speed_boost_active = True
