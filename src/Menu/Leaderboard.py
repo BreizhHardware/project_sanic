@@ -11,11 +11,12 @@ from src.Database.LevelDB import LevelDB
 class Leaderboard:
     """This class represents the leaderboard menu for the game."""
 
-    def __init__(self, WIDTH, HEIGHT, font, db_path="game.db"):
+    def __init__(self, WIDTH, HEIGHT, font, leaderboard_db, db_path="game.db"):
         self.WIDTH = WIDTH
         self.HEIGHT = HEIGHT
         self.font = font
         self.db_path = db_path
+        self.leaderboard_db = leaderboard_db
 
         self.levels = self.get_available_levels()
         self.level_tabs = [f"Level {level}" for level in self.levels]
@@ -58,8 +59,23 @@ class Leaderboard:
         for i, level in enumerate(self.levels):
             self.scores[i] = self.get_level_scores(str(level))
 
-        # TO DO: Load scores for infinite mode
-        self.scores[len(self.levels)] = []
+        # Load scores for infinite mode
+        try:
+            # Get the TOP 10 scores for infinite mode
+            all_scores = self.leaderboard_db.get_top_10_scores()
+
+            # Format the scores for display
+            formatted_scores = []
+            for score, date in all_scores:
+                date_obj = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
+                formatted_date = date_obj.strftime("%d/%m/%Y")
+                formatted_scores.append((formatted_date, score))
+
+            # Assign the formatted scores to the infinite mode tab
+            self.scores[len(self.levels)] = formatted_scores
+        except Exception as e:
+            print(f"Error loading infinite mode scores: {e}")
+            self.scores[len(self.levels)] = []
 
     def get_level_scores(self, level_id):
         """Get the top 10 scores for a specific level from the database."""
@@ -104,6 +120,9 @@ class Leaderboard:
 
     def draw(self, surface):
         """Draw the leaderboard on the given surface."""
+        # Refresh scores to ensure the latest data is displayed
+        self.load_scores()
+
         self.bg_manager.draw(surface)
 
         # Draw a semi-transparent panel
@@ -159,7 +178,7 @@ class Leaderboard:
                 (self.WIDTH // 2 - no_scores_text.get_width() // 2, y_pos + 40),
             )
         else:
-            for i, (date, time, collected, total) in enumerate(scores_for_tab):
+            for i, score_data in enumerate(scores_for_tab):
                 row_bg = (30, 30, 60, 150) if i % 2 == 0 else (40, 40, 80, 150)
                 row_rect = pygame.Rect(self.WIDTH // 2 - 200, y_pos - 5, 400, 30)
                 row_surface = pygame.Surface(
@@ -169,28 +188,40 @@ class Leaderboard:
                 surface.blit(row_surface, row_rect)
 
                 # Rank
-                rank_text = self.font.render(f"{i+1}.", True, (255, 255, 255))
+                rank_text = self.font.render(f"{i + 1}.", True, (255, 255, 255))
                 surface.blit(rank_text, (header_positions[0], y_pos))
 
-                # Date
-                date_text = self.font.render(date, True, (255, 255, 255))
-                surface.blit(date_text, (header_positions[1], y_pos))
+                if self.current_tab == len(self.levels):  # Infinite mode
+                    date, score = score_data
+                    # Date
+                    date_text = self.font.render(date, True, (255, 255, 255))
+                    surface.blit(date_text, (header_positions[1], y_pos))
 
-                # Time
-                time_text = self.font.render(
-                    self.format_time(time), True, (255, 255, 255)
-                )
-                surface.blit(time_text, (header_positions[2], y_pos))
+                    # Time (score)
+                    score_text = self.font.render(str(score), True, (255, 255, 255))
+                    surface.blit(score_text, (header_positions[2], y_pos))
+                else:  # Level scores
+                    date, time, collected, total = score_data
 
-                # Collected items
-                collected_color = (255, 255, 255)
-                if collected == total:
-                    collected_color = (0, 255, 0)
+                    # Date
+                    date_text = self.font.render(date, True, (255, 255, 255))
+                    surface.blit(date_text, (header_positions[1], y_pos))
 
-                collected_text = self.font.render(
-                    f"{collected}/{total}", True, collected_color
-                )
-                surface.blit(collected_text, (header_positions[3], y_pos))
+                    # Time
+                    time_text = self.font.render(
+                        self.format_time(time), True, (255, 255, 255)
+                    )
+                    surface.blit(time_text, (header_positions[2], y_pos))
+
+                    # Collected items
+                    collected_color = (255, 255, 255)
+                    if collected == total:
+                        collected_color = (0, 255, 0)
+
+                    collected_text = self.font.render(
+                        f"{collected}/{total}", True, collected_color
+                    )
+                    surface.blit(collected_text, (header_positions[3], y_pos))
 
                 y_pos += 40
 

@@ -4,6 +4,7 @@ import sys
 from pygame.locals import *
 import numpy as np
 
+from src.Database.LeaderboardDB import LeaderboardDB
 from src.Database.LevelDB import LevelDB
 from src.Entity.Enemy import Enemy
 from src.Menu.LevelSelectMenu import LevelSelectMenu
@@ -68,8 +69,9 @@ def initialize_game_resources():
     level_select_menu = None
     editor_select_menu = None
     level_file = "map/levels/1.json"
+    leaderboard_db = LeaderboardDB()
     leaderboard = Leaderboard(
-        game_resources.WIDTH, game_resources.HEIGHT, game_resources.font
+        game_resources.WIDTH, game_resources.HEIGHT, game_resources.font, leaderboard_db
     )
 
     return (
@@ -88,7 +90,8 @@ def initialize_game_resources():
         leaderboard,
         projectiles,
         joysticks,
-        editor_select_menu,  # Added editor_select_menu to the return tuple
+        editor_select_menu,
+        leaderboard_db,
     )
 
 
@@ -498,6 +501,11 @@ def handle_exits(
             speedrun_timer.save_time(collected_coins, total_coins)
         if hasattr(game_resources, "infinite_mode") and game_resources.infinite_mode:
             # Infinite mode: load the next level without going back to menu
+            if hasattr(game_resources, "infinite_mode_db"):
+                # Zeldo : add 100 points
+                game_resources.infinite_mode_db.add_score("player", 100)
+                # Add coins points also
+                game_resources.infinite_mode_db.add_score("player", P1.coins * 10)
             result = handle_exit_collision(exit, game_resources, level_file)
             return {"action": "continue_infinite", "result": result}
         else:
@@ -545,6 +553,7 @@ def draw_ui_elements(displaysurface, P1, FramePerSec, font, speedrun_timer=None)
 
 
 def handle_death_screen(
+    P1,
     displaysurface,
     death_timer,
     dt,
@@ -555,6 +564,7 @@ def handle_death_screen(
     game_resources,
     WIDTH,
     HEIGHT,
+    leaderboard_db,
 ):
     """Handle player death screen"""
     # Fill background
@@ -590,6 +600,20 @@ def handle_death_screen(
                 "projectiles": projectiles,
             }
         else:
+            if hasattr(game_resources, "infinite_mode_db"):
+                # Save score to database
+                game_resources.infinite_mode_db.add_score("player", P1.coins * 10)
+                # Get all scores from the database
+                all_scores = game_resources.infinite_mode_db.get_all()
+                game_resources.infinite_mode_db.clear_InfiniteModeDB()
+                game_resources.infinite_mode_db.close()
+                # Calculate total points, add them to leaderboard table
+                if(leaderboard_db):
+                    total = 0
+                    for i in range(len(all_scores)):
+                        total += all_scores[i][1]
+                    leaderboard_db.add_score("player", total)
+
             # Return to menu
             if hasattr(game_resources, "infinite_mode"):
                 game_resources.infinite_mode = False
@@ -626,6 +650,7 @@ def handler():
         projectiles,
         joysticks,
         editor_select_menu,
+        leaderboard_db,
     ) = initialize_game_resources()
 
     # Initialize editor variables
@@ -859,6 +884,7 @@ def handler():
             elif current_state == DEATH_SCREEN:
                 # Handle death screen
                 death_result = handle_death_screen(
+                    P1,
                     displaysurface,
                     death_timer,
                     dt,
@@ -869,6 +895,7 @@ def handler():
                     game_resources,
                     game_resources.WIDTH,
                     game_resources.HEIGHT,
+                    leaderboard_db
                 )
 
                 death_timer = death_result["death_timer"]

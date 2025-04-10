@@ -138,12 +138,7 @@ def start_infinite_mode(game_resources):
     game_resources.infinite_mode = True
 
     # Open the temporary database
-    print("Creating leaderboard database")
     game_resources.infinite_mode_db = InfiniteModeDB()
-
-    # Open the leaderboard database
-    print("Creating leaderboard database")
-    game_resources.leaderboard_db = LeaderboardDB()
 
     # Generate the first level
     first_level = infinite_manager.start_infinite_mode()
