@@ -24,9 +24,11 @@ class Exit(Entity):
             sprite_path (str, optional): Path to the sprite image for the exit
         """
         super().__init__(pos=(x, y), size=(width, height), color=(0, 255, 0))
-        self.next_level = next_level  # Store the next level to load
+        self.next_level = next_level
         self.active = True  # Flag to prevent multiple triggers
-        self.player = None  # Will store the player reference
+        self.player = None
+        self.boss = None
+        self.locked = False
 
         # Load sprite if provided
         if sprite_path:
@@ -46,16 +48,34 @@ class Exit(Entity):
         """
         self.player = player
 
+    def set_boss(self, boss):
+        """
+        Set the boss to this exit. The exit will be locked until the boss is defeated.
+
+        Args:
+            boss: The boss entity to check defeat status with
+        """
+        print("Setting boss for exit")
+        self.boss = boss
+        self.locked = True
+
     def update(self):
         """
         Check for collision with the player and trigger level completion.
         """
+        # Check if the boss is defeated
+        if self.boss:
+            if hasattr(self.boss, "alive") and not self.boss.alive:
+                self.locked = False
+            elif not hasattr(self.boss, "alive"):
+                self.locked = False
+
         # Skip collision check if player reference is not set
         if not self.player or not self.active:
             return
 
         # Check if player is colliding with exit
-        if self.rect.colliderect(self.player.rect):
+        if self.rect.colliderect(self.player.rect) and not self.locked:
             # Play the video and return to menu
             self.play_video_and_return_to_menu("assets/map/exit/Zeldo Motus.mp4")
             self.active = False  # Prevent multiple triggers

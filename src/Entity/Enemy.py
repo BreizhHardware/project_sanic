@@ -9,7 +9,6 @@ from src.Entity.Projectile import Projectile
 class Enemy(Entity):
     def __init__(self, enemy_data):
         self.size = enemy_data.get("size", [50, 50])
-        print(self.size)
         super().__init__(self.size)
 
         # Base attributes

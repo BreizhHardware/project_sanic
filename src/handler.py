@@ -505,39 +505,43 @@ def handle_exits(P1, exits, game_resources, level_file, speedrun_timer=None):
     """Handle collisions with level exits"""
     exits_hit = pygame.sprite.spritecollide(P1, exits, False) if exits else []
     for exit in exits_hit:
-        if speedrun_timer and speedrun_timer.is_running:
-            collected_coins = speedrun_timer.collected_items
-            total_coins = speedrun_timer.total_items
+        if not exit.locked:
+            if speedrun_timer and speedrun_timer.is_running:
+                collected_coins = speedrun_timer.collected_items
+                total_coins = speedrun_timer.total_items
 
-            speedrun_timer.stop()
-            speedrun_timer.save_time(collected_coins, total_coins)
-        if hasattr(game_resources, "infinite_mode") and game_resources.infinite_mode:
-            # Infinite mode: load the next level without going back to menu
-            if hasattr(game_resources, "infinite_mode_db"):
-                # Zeldo : add 100 points
-                game_resources.infinite_mode_db.add_score("player", 100)
-                # Add coins points also
-                game_resources.infinite_mode_db.add_score("player", P1.coins * 10)
-            result = handle_exit_collision(exit, game_resources, level_file)
-            return {"action": "continue_infinite", "result": result}
-        else:
-            # Normal mode: unlock the next level and return to menu
-            current_level_match = re.search(r"(\d+)\.json$", level_file)
-            if current_level_match:
-                current_level = int(current_level_match.group(1))
-                next_level = current_level + 1
+                speedrun_timer.stop()
+                speedrun_timer.save_time(collected_coins, total_coins)
+            if (
+                hasattr(game_resources, "infinite_mode")
+                and game_resources.infinite_mode
+            ):
+                # Infinite mode: load the next level without going back to menu
+                if hasattr(game_resources, "infinite_mode_db"):
+                    # Zeldo : add 100 points
+                    game_resources.infinite_mode_db.add_score("player", 100)
+                    # Add coins points also
+                    game_resources.infinite_mode_db.add_score("player", P1.coins * 10)
+                result = handle_exit_collision(exit, game_resources, level_file)
+                return {"action": "continue_infinite", "result": result}
+            else:
+                # Normal mode: unlock the next level and return to menu
+                current_level_match = re.search(r"(\d+)\.json$", level_file)
+                if current_level_match:
+                    current_level = int(current_level_match.group(1))
+                    next_level = current_level + 1
 
-                # Unlock next level
-                db = LevelDB()
-                db.unlock_level(next_level)
-                db.close()
+                    # Unlock next level
+                    db = LevelDB()
+                    db.unlock_level(next_level)
+                    db.close()
 
-                # Return to level select menu
-                return {
-                    "action": "return_to_level_select",
-                    "current_state": 0,  # MENU
-                    "current_menu": "level_select",
-                }
+                    # Return to level select menu
+                    return {
+                        "action": "return_to_level_select",
+                        "current_state": 0,  # MENU
+                        "current_menu": "level_select",
+                    }
     return None
 
 
