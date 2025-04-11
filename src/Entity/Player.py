@@ -93,6 +93,10 @@ class Player(Entity):
         # Initilize mixer
         pygame.mixer.init()
 
+        self.just_respawned = False
+        self.respawn_grace_time = 0.5
+        self.respawn_timer = 0
+
     def load_images(self):
         """Load images for the player"""
         try:
@@ -430,17 +434,27 @@ class Player(Entity):
         if self.vel.y <= 0:
             self.highest_position = self.pos.y
 
-        if self.vel.y > 0:
-            fall_distance = self.pos.y - self.highest_position
-            if fall_distance > 500:
-                self.death()
-
         if self.vel.x > 0:
             self.facing_right = True
         elif self.vel.x < 0:
             self.facing_right = False
 
         self.floating_texts = [text for text in self.floating_texts if text.update()]
+
+        if self.just_respawned:
+            self.respawn_timer += 1 / self.game_resources.FPS
+            if self.respawn_timer >= self.respawn_grace_time:
+                self.just_respawned = False
+                self.respawn_timer = 0
+                self.highest_position = self.pos.y
+        else:
+            if self.vel.y <= 0:
+                self.highest_position = self.pos.y
+
+            if self.vel.y > 0:
+                fall_distance = self.pos.y - self.highest_position
+                if fall_distance > 500:
+                    self.death()
 
     def take_damage(self, amount=1):
         """Reduce life number if not invulnerable"""
@@ -750,3 +764,13 @@ class Player(Entity):
         text_y = start_y + (projectile_size - projectiles_text.get_height()) // 2
 
         surface.blit(projectiles_text, (text_x, text_y))
+
+    def respawn_at_checkpoint(self, x, y):
+        self.pos.x = x
+        self.pos.y = y
+        self.highest_position = y
+        self.vel = self.game_resources.vec(0, 0)
+        self.jumping = False
+        self.invulnerable = True
+        self.invulnerable_timer = 0
+        self.just_respawned = True

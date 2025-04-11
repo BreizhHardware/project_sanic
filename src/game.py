@@ -109,8 +109,7 @@ def reset_game_with_checkpoint(map_name, game_resources):
 
     # If checkpoint exists, respawn player at checkpoint
     if checkpoint_pos:
-        player.pos = game_resources.vec(checkpoint_pos[0], checkpoint_pos[1])
-        player.update_rect()
+        player.respawn_at_checkpoint(checkpoint_pos[0], checkpoint_pos[1])
 
     return player, platforms, all_sprites, background, checkpoints, collectibles
 

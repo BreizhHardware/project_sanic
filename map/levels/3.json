@@ -801,7 +801,7 @@
       "damage": 1,
       "behavior": "boss",
       "attack_interval": 1.0,
-      "attack_range": 1000,
+      "attack_range": 500,
       "sprite_sheet": "assets/map/enemy/boss.gif",
       "size": [200,200]
     }
