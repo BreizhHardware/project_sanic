@@ -795,7 +795,7 @@
     {
       "id": "boss",
       "type": "boss",
-      "x": 10000,
+      "x": 11300,
       "y": 1200,
       "health": 3,
       "damage": 1,
@@ -869,8 +869,8 @@
   "checkpoints": [
     {
       "id": "checkpoint1",
-      "x": 6000,
-      "y": 975,
+      "x": 6300,
+      "y": 875,
       "width": 50,
       "height": 125,
       "sprite": "assets/map/checkpoints/checkpoint.png"

@@ -62,6 +62,7 @@ class Enemy(Entity):
         # State variables
         self.is_attacking = False
         self.detected_player = False
+        self.alive = True
 
     def load_gif_frames(self, gif_path, size=(80, 80)):
         """Load frames from a GIF file"""
@@ -195,6 +196,7 @@ class Enemy(Entity):
                     pygame.event.Event(pygame.USEREVENT, {"action": "add_projectiles"})
                 )
                 player.add_projectiles()
+                self.alive = False
             return True
         return False
 
@@ -219,10 +221,6 @@ class Enemy(Entity):
         Boss behavior: combine horizontal chase with turret-like attacks
         """
         # Follow the player horizontally (x axis)
-        if abs(player.pos.x - self.pos.x) > 50:
-            direction = 1 if player.pos.x > self.pos.x else -1
-            self.pos.x += direction * self.speed
-            self.direction = direction
 
         # Attack the player if within range
         distance_to_player = vec(
@@ -230,6 +228,11 @@ class Enemy(Entity):
         ).length()
 
         if distance_to_player <= self.attack_range:
+            if abs(player.pos.x - self.pos.x) > 50:
+                direction = 1 if player.pos.x > self.pos.x else -1
+            self.pos.x += direction * self.speed
+            self.direction = direction
+
             self.attack_timer += 1 / FPS
 
             if self.attack_timer >= self.attack_interval:
