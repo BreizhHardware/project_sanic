@@ -561,15 +561,15 @@ def handle_exits(P1, exits, game_resources, level_file, speedrun_timer=None):
 def draw_ui_elements(displaysurface, P1, FramePerSec, font, speedrun_timer=None):
     """Draw UI elements like FPS, player position, health, etc."""
     # FPS counter
-    fps = int(FramePerSec.get_fps())
-    fps_text = font.render(f"FPS: {fps}", True, (255, 255, 255))
-    displaysurface.blit(fps_text, (10, 10))
+    # fps = int(FramePerSec.get_fps())
+    # fps_text = font.render(f"FPS: {fps}", True, (255, 255, 255))
+    # displaysurface.blit(fps_text, (10, 10))
 
     # Player position
-    pos_text = font.render(
-        f"X: {int(P1.pos.x)}, Y: {int(P1.pos.y)}", True, (255, 255, 255)
-    )
-    displaysurface.blit(pos_text, (10, 40))
+    # pos_text = font.render(
+    # f"X: {int(P1.pos.x)}, Y: {int(P1.pos.y)}", True, (255, 255, 255)
+    # )
+    # displaysurface.blit(pos_text, (10, 40))
 
     # Player UI elements
     P1.draw_dash_cooldown_bar(displaysurface)
