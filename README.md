@@ -33,6 +33,14 @@ Nom : Sanic
 
 Apparence : Sanic est un personnage bleu avec des chaussures rouges, des gants blancs, et une attitude dynamique. Il est inspiré de personnages classiques de jeux de plateforme.
 
+Nom :  Zeldo
+
+Apparence : Zeldo est une princess rose avec une robe et une couronne. Elle est inspirée de personnages classique du jeu vidéo, une légende dis qu'une princesse du nom de Zelda lui aurait volé la vedette.
+
+Nom : Wheatly
+
+Apparence : Wheatly est un petit robot rond avec un oeil et une personnalité comique. Il provient du jeu Portal.
+
 Gameplay :
 
 Contrôles : Sanic peut être contrôlé à l'aide des touches ZQSD ou avec une manette. Le jeu est conçu pour être accessible mais aussi pour offrir un défi avec une manette pour les joueurs plus expérimentés.
@@ -50,19 +58,23 @@ Mouvements : Certaines plateformes sont mobiles, nécessitant un timing précis 
 ### Ennemis
 #### Types d'Ennemis :
 
-Laser : Un canon qui tire des lasers.
+Tourelle : Un canon qui tire des lasers.
 
-Robot : Lance des pièces mécaniques.
+Marcheur : Se déplace entre 2 points.
 
 Chauve-souris : Vole et peut gêner le joueur sans attaque spécifique.
 
+Boss: Le boss.
+
 #### Attaques Spécifiques :
 
-Robot : Lance des pièces mécaniques.
+Marcheur : Pas d'attaque spécifique.
 
 Chauve-souris : Pas d'attaque spécifique mais peut gêner le joueur.
 
-Laser : Tire des lasers.
+Tourelle : Tire des lasers.
+
+Boss: Le boss.
 
 #### Élimination : 
 Les ennemis peuvent être éliminés en utilisant des power-ups ou en sautant sur leur tête.
@@ -79,12 +91,6 @@ Dash : Une capacité rechargeable permettant à Sanic de se déplacer rapidement
 Boule de Feu : Permet d'attaquer les ennemis à distance.
 
 Dash : Permet d'esquiver rapidement les attaques ou de traverser des obstacles.
-
-Cachettes : Les power-ups peuvent être trouvés en éliminant des ennemis ou en explorant des caves cachées dans le décor.
-
-### Arrière plan
-
-Un seul gros niveau avec une cave au début : Niveau horizontal, puis un niveau vertical de transition qui nous amène vers une forêt qui sera un deuxième niveau horizontal.
 
 ## Interface Utilisateur (UI)
 Points de Vie : Affichés sous forme de barre de vie en haut de l'écran.
