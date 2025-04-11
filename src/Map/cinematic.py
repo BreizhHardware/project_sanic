@@ -133,4 +133,4 @@ class Cinematic:
             ]
             self._display_cinematic_text(screen, lore_text, level_name)
         else:
-            print(f"No cinematic available for {level_name}.")
+            pass
